@@ -6,21 +6,21 @@ import { Listing } from '@/payload-types'
 import { MAP_PAGINATION_LIMIT } from '@/utilities/constants'
 import { Point } from 'lexical'
 
-interface Filterfilters {
-  search: string | null | undefined
-  category: string | null | undefined
-  propertyType: string | null | undefined
-  minPrice: number | string | null | undefined
-  maxPrice: number | string | null | undefined
-  minSize: number | string | null | undefined
-  maxSize: number | string | null | undefined
-  sizeType: string | null | undefined
-  // availability: string | null | undefined
-  transactionType: string | null | undefined
+export interface MapFilters {
+  search?: string | null | undefined
+  category?: string | null | undefined
+  propertyType?: string | null | undefined
+  minPrice?: string | null | undefined
+  maxPrice?: string | null | undefined
+  minSize?: string | null | undefined
+  maxSize?: string | null | undefined
+  sizeType?: string | null | undefined
+  availability?: string | null | undefined
+  transactionType?: 'for-sale' | 'for-lease' | null | undefined
 }
 
 export const getCardListings = async (data: {
-  filters?: Filterfilters
+  filters?: MapFilters
   page?: number | null | undefined
   sort?: string | null | undefined
   bounds?: [number, number][]
@@ -142,7 +142,8 @@ export const getCardListings = async (data: {
 
         // TRANSACTION TYPE
         {
-          ...(filters?.transactionType && filters.transactionType !== 'all'
+          ...(filters?.transactionType &&
+          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
             ? {
                 transactionType: {
                   equals: filters.transactionType,
@@ -223,7 +224,7 @@ export const getCardListings = async (data: {
 }
 
 export const getMapListings = async (data: {
-  filters?: Filterfilters
+  filters?: MapFilters
   bounds?: [number, number][]
 }) => {
   try {
@@ -341,7 +342,8 @@ export const getMapListings = async (data: {
 
         // TRANSACTION TYPE
         {
-          ...(filters?.transactionType && filters.transactionType !== 'all'
+          ...(filters?.transactionType &&
+          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
             ? {
                 transactionType: {
                   equals: filters.transactionType,
@@ -404,17 +406,18 @@ export const getMapListings = async (data: {
       where: whereQuery,
       select: {
         coordinates: true,
-        title: true,
-        featuredImage: true,
-        slug: true,
-        streetAddress: true,
-        price: true,
-        textAfterPrice: true,
-        transactionType: true,
-        category: true,
-        MLS: {
-          ListOfficeName: true,
-        },
+        id: true,
+        // title: true,
+        // featuredImage: true,
+        // slug: true,
+        // streetAddress: true,
+        // price: true,
+        // textAfterPrice: true,
+        // transactionType: true,
+        // category: true,
+        // MLS: {
+        //   ListOfficeName: true,
+        // },
       },
     })
     return listings

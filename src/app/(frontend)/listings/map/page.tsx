@@ -6,7 +6,7 @@ import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card } from '@/components/ui/card'
 
-export default async function Page({ searchParams }) {
+export default async function Page() {
   const payload = await getPayload({
     config: configPromise,
   })

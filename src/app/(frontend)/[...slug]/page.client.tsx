@@ -1,6 +1,5 @@
 'use client'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
-import { usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 
 const PageClient: React.FC = () => {

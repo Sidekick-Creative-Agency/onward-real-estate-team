@@ -1,8 +1,8 @@
 'use client'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Listing, Media as MediaType } from '@/payload-types'
-import { createRef, RefObject, useEffect, useRef, useState } from 'react'
-import mapboxgl, { LngLatBounds, LngLatBoundsLike, LngLatLike, Map, Marker } from 'mapbox-gl'
+import { useEffect, useRef, useState } from 'react'
+import mapboxgl, { LngLatBounds, LngLatBoundsLike, LngLatLike, Map, MapMouseEvent, Marker } from 'mapbox-gl'
 import { Card } from '../../../../components/ui/card'
 import { Media } from '../../../../components/Media'
 import { Button } from '../../../../components/ui/button'
@@ -19,14 +19,12 @@ import {
   faChevronRight,
   faChevronDoubleLeft,
   faChevronDoubleRight,
-  faPlus,
 } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
 import { formatNumber } from '@/utilities/formatNumber'
 import { formatPrice } from '@/utilities/formatPrice'
 import { FilterBar } from '@/components/Map/filterBar'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { getCardListings, getMapListings } from '../../api/getListings'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,11 +39,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import useWindowDimensions from '@/utilities/useWindowDimensions'
 import defaultTheme from 'tailwindcss/defaultTheme'
-import { MAP_PAGINATION_LIMIT } from '@/utilities/constants'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import './styles.scss'
 import { useDebounce } from '@/utilities/useDebounce'
-import { Point } from 'lexical'
+import { PaginatedDocs } from 'payload'
 
 interface MapPageClientProps {
   listingsCount?: number
@@ -54,32 +51,32 @@ interface MapPageClientProps {
 interface MapListing {
   id: number
   coordinates: [number, number]
-  title: string
-  featuredImage: number | MediaType
-  textAfterPrice?: string | null | undefined;
-  transactionType?: ("for-sale" | "for-lease") | null | undefined;
-  streetAddress: string;
+  // title: string
+  // featuredImage: number | MediaType
+  // textAfterPrice?: string | null | undefined;
+  // transactionType?: ("for-sale" | "for-lease") | null | undefined;
+  // streetAddress: string;
   category?: ("commercial" | "residential") | null | undefined;
-  price?: number | null | undefined;
+  // price?: number | null | undefined;
   MLS?: {
     ListOfficeName?: string | null
   }
-  slug?: string | null | undefined
+  // slug?: string | null | undefined
 }
 
 
 
 export interface MapFilters {
-  search: string | null | undefined
-  category: string | null | undefined
-  propertyType: string | null | undefined
-  minPrice: string | null | undefined
-  maxPrice: string | null | undefined
-  minSize: string | null | undefined
-  maxSize: string | null | undefined
-  sizeType: string | null | undefined
-  availability: string | null | undefined
-  transactionType: 'for-sale' | 'for-lease' | null | undefined
+  search?: string | null | undefined
+  category?: string | null | undefined
+  propertyType?: string | null | undefined
+  minPrice?: string | null | undefined
+  maxPrice?: string | null | undefined
+  minSize?: string | null | undefined
+  maxSize?: string | null | undefined
+  sizeType?: string | null | undefined
+  availability?: string | null | undefined
+  transactionType?: 'for-sale' | 'for-lease' | null | undefined
 }
 
 export const FormSchema = z.object({
@@ -139,156 +136,71 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
   const mapRef = useRef<Map>(null)
   const searchParams = useSearchParams()
   const { width } = useWindowDimensions()
-  const [activeCardListings, setActiveCardListings] = useState<Listing[]>([])
-  const [activeMapListings, setActiveMapListings] = useState<MapListing[]>([])
+  const [activeCardListings, setActiveCardListings] = useState<Listing[] | undefined>([])
+
   const [totalListings, setTotalListings] = useState<number | undefined>(listingsCount)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isCardsLoading, setIsCardsLoading] = useState(false)
+  const [isMapLoading, setIsMapLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('map')
   const [filters, setFilters] = useState<MapFilters | undefined>(undefined)
   const [hasNextPage, setHasNextPage] = useState<boolean | null | undefined>(undefined)
   const [hasPrevPage, setHasPrevPage] = useState<boolean | null | undefined>(undefined)
-  const [currentPage, setCurrentPage] = useState<number | null | undefined>(parseInt(searchParams.get('page') || '1'))
+  const [currentPage, setCurrentPage] = useState<number | null | undefined>(searchParams.get('page') ? Number(searchParams.get('page')) : undefined)
   const [totalPages, setTotalPages] = useState<number | null | undefined>(undefined)
   const [nextPage, setNextPage] = useState<number | null | undefined>(undefined)
   const [prevPage, setPrevPage] = useState<number | null | undefined>(undefined)
   const [isSortOpen, setIsSortOpen] = useState(false)
-  const [focusedListing, setFocusedListing] = useState<Listing | null>(null)
   const [bounds, setBounds] = useState<[number, number][] | undefined>(undefined)
-  const [cardRefs, setCardRefs] = useState<RefObject<HTMLDivElement | null>[]>([])
   const { setHeaderTheme } = useHeaderTheme()
   const router = useRouter()
 
   const pathname = usePathname()
   const [isFirstRender, setIsFirstRender] = useState(true)
   const [sortData, setSortData] = useState<{ value: string; label: string } | undefined>(undefined)
-  const [limit, setLimit] = useState(MAP_PAGINATION_LIMIT || 10)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      search: '',
+      category: '',
+      propertyType: '',
+      minPrice: undefined,
+      maxPrice: undefined,
+      minSize: '',
+      maxSize: '',
+      sizeType: '',
+      availability: '',
+      transactionType: ''
+    }
   })
 
-  const debouncedFocusedListing = useDebounce(focusedListing, 500)
   const debouncedBounds = useDebounce(bounds, 750)
 
-  const centerMap = (coordinates: LngLatLike[]) => {
-    if (!coordinates || !mapRef.current) return;
-    const boundsToFit = coordinates.reduce(function (boundsArr, coord) {
-      return boundsArr.extend(coord);
-    }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-    mapRef.current.fitBounds(boundsToFit, {
-      padding: 60
-    });
-  }
-
-  const handleFetchListings = async (
-    filterData?: MapFilters,
-    page?: number | null,
-    sort?: string | null,
-    options?: {
-      excludeMap?: boolean,
-      centerMap?: boolean,
-      ignoreBounds?: boolean
-    }
-  ) => {
-    setIsLoading(true)
-    // const newSearchParams = new URLSearchParams(searchParams)
-    const newSearchParams = new URLSearchParams()
-
-    if (filterData) {
-      setFilters(filterData)
-    }
-    if (sort) {
-      setSortData(sortOptions.find((option) => option.value === sort))
-      newSearchParams.set('sort', sort)
-    } else {
-      setSortData(undefined)
-      // searchParams.get('sort')
-      //   ? setSortData(sortOptions.find((option) => option.value === searchParams.get('sort')))
-      //   : setSortData(undefined)
-      // searchParams.get('sort')
-      //     ? newSearchParams.set('sort', searchParams.get('sort')!)
-      //     : newSearchParams.delete('sort')
-    }
-    if (page) {
-      newSearchParams.set('page', page.toString())
-    } else {
-      // newSearchParams.delete('page')
-    }
-    if (filterData?.search) {
-      newSearchParams.set('search', filterData.search)
-    } else {
-      // newSearchParams.delete('search')
-    }
-    if (filterData?.category) {
-      newSearchParams.set('category', filterData.category)
-    } else {
-      // newSearchParams.delete('category')
-    }
-    if (filterData?.propertyType) {
-      newSearchParams.set('property_type', filterData.propertyType)
-    } else {
-      // newSearchParams.delete('property_type')
-    }
-    if (filterData?.minPrice) {
-      newSearchParams.set('min_price', filterData.minPrice.toString())
-    } else {
-      // newSearchParams.delete('min_price')
-    }
-    if (filterData?.maxPrice) {
-      newSearchParams.set('max_price', filterData.maxPrice.toString())
-    } else {
-      // newSearchParams.delete('max_price')
-    }
-    if (filterData?.minSize) {
-      newSearchParams.set('min_size', filterData.minSize.toString())
-    } else {
-      // newSearchParams.delete('min_size')
-    }
-    if (filterData?.maxSize) {
-      newSearchParams.set('max_size', filterData.maxSize.toString())
-    } else {
-      // newSearchParams.delete('max_size')
-    }
-    if (filterData?.availability) {
-      newSearchParams.set('availability', filterData.availability.toString())
-    } else {
-      // newSearchParams.delete('availability')
-    }
-    if (filterData?.transactionType) {
-      newSearchParams.set('transaction_type', filterData.transactionType.toString())
-    } else {
-      // newSearchParams.delete('transaction_type')
-    }
-    if (filterData?.sizeType) {
-      newSearchParams.set('size_type', filterData.sizeType.toString())
-    } else {
-      // newSearchParams.delete('size_type')
-    }
-
-    let cardListingResponse;
-    let mapListingResponse;
-
-    cardListingResponse = fetchCardListings(filterData, (!options?.excludeMap && !isFirstRender) ? 1 : page, sort, { ignoreBounds: options?.ignoreBounds || false }).then((res) => {
-      setIsLoading(false)
-
-      if (res.page) {
-        newSearchParams.set('page', String(res.page))
-      }
-      if (newSearchParams.size > 0) {
-        router.replace(pathname + '?' + newSearchParams.toString(), { scroll: false })
-      } else {
-        router.replace(pathname)
+  const handleFilter = (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => {
+    setFilters(filters)
+    Promise.all([
+      fetchCardListings(filters, page, sort, options),
+      fetchMapListings(filters, options)
+    ]).then((res) => {
+      if (res) {
+        updateSearchParams(res)
       }
     })
-    if (!options?.excludeMap || options?.centerMap) {
-      mapListingResponse = await fetchMapListings(filterData, { ignoreBounds: options?.ignoreBounds || false })
-      if (options?.centerMap) {
-        const coordinates = mapListingResponse.docs.map((doc) => doc.coordinates) as LngLatLike[]
-        centerMap(coordinates)
+  }
+
+  const updateSearchParams = (paramsArray: (string | undefined)[]) => {
+    const paramsSet = new Set<string>();
+    paramsArray.forEach(str => {
+      if (str) {
+        str.split('&').forEach(pair => {
+          const key = pair.split('=')[0];
+          paramsSet.delete(Array.from(paramsSet).find(p => p.startsWith(key + '=')) || '');
+          paramsSet.add(pair);
+        });
       }
-    }
-
-
+    });
+    const dedupedParams = Array.from(paramsSet).join('&');
+    router.replace(pathname + '?' + dedupedParams, { scroll: false });
   }
 
   const fetchCardListings = async (
@@ -300,21 +212,53 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     }
   ) => {
     setActiveCardListings([])
-    const response = await getCardListings({
-      filters: filterData,
-      page: page,
-      sort: sort,
-      bounds: !options?.ignoreBounds ? debouncedBounds : undefined
-    })
-
-    setHasPrevPage(response.hasPrevPage)
-    setHasNextPage(response.hasNextPage)
-    setActiveCardListings(response.docs)
-    setPrevPage(response.prevPage)
-    setNextPage(response.nextPage)
-    setTotalPages(response.totalPages)
+    setIsCardsLoading(true)
+    const querySearchParams = new URLSearchParams()
+    if (filterData) {
+      querySearchParams.set('filters', JSON.stringify(filterData))
+    }
+    if (!options?.ignoreBounds && debouncedBounds) {
+      querySearchParams.set('bounds', JSON.stringify(debouncedBounds))
+    }
+    if (sort) {
+      querySearchParams.set('sort', sort);
+    }
+    if (page) {
+      querySearchParams.set('page', String(page));
+    }
+    const response = await fetch('/api/listings/cards?' + querySearchParams.toString()).then((res) => res.json()) as {
+      ok: boolean;
+      listings: PaginatedDocs<Listing> | null;
+      error: string | null;
+    }
+    if (!response.ok) {
+      console.log('Error fetching map listings:', response.error)
+      return
+    }
+    const newSearchParams = new URLSearchParams()
+    if (sort) {
+      newSearchParams.set('sort', sort.toString())
+    }
+    if (page) {
+      newSearchParams.set('page', page.toString())
+    }
+    if (filterData) {
+      for (const [key, value] of Object.entries(filterData)) {
+        if (value) {
+          newSearchParams.set(key, value)
+        }
+      }
+    }
+    setSortData(sortOptions.find((option) => option.value === sort) || undefined);
+    setHasPrevPage(response.listings?.hasPrevPage)
+    setHasNextPage(response.listings?.hasNextPage)
+    setActiveCardListings(response.listings?.docs)
+    setPrevPage(response.listings?.prevPage)
+    setNextPage(response.listings?.nextPage)
+    setTotalPages(response.listings?.totalPages)
     setCurrentPage(page)
-    return response
+    setIsCardsLoading(false)
+    return newSearchParams.toString()
   }
   const fetchMapListings = async (
     filterData?: MapFilters,
@@ -322,17 +266,39 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
       ignoreBounds: boolean
     }
   ) => {
-    const response = await getMapListings({
-      filters: filterData,
-      bounds: !options?.ignoreBounds ? debouncedBounds : undefined
-    }).catch((error: any) => {
-      console.log("Error: " + error)
-      return undefined
+    setIsMapLoading(true)
 
-    })
-    setActiveMapListings(response?.docs || [])
-    setTotalListings(response?.totalDocs)
-    return response
+    const querySearchParams = new URLSearchParams()
+    if (filterData) {
+      querySearchParams.set('filters', JSON.stringify(filterData))
+    }
+    if (!options?.ignoreBounds && debouncedBounds) {
+      querySearchParams.set('bounds', JSON.stringify(debouncedBounds))
+    }
+    const response = await fetch('/api/listings/map?' + querySearchParams.toString()).then((res) => res.json()) as {
+      ok: boolean;
+      listings: PaginatedDocs<Listing> | null;
+      error: string | null;
+    }
+    if (!response.ok) {
+      console.log('Error fetching map listings:', response.error)
+      return
+    }
+    const newSearchParams = new URLSearchParams()
+    if (filterData) {
+      for (const [key, value] of Object.entries(filterData)) {
+        if (value) {
+          newSearchParams.set(key, value)
+        }
+      }
+    }
+
+    if (response.listings) {
+      updateMapListings(response.listings?.docs as MapListing[] || [])
+      setTotalListings(response.listings?.totalDocs)
+    }
+    setIsMapLoading(false)
+    return newSearchParams.toString()
   }
 
   const clearPopups = () => {
@@ -341,30 +307,94 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     }
   }
 
-  useEffect(() => {
-    if (activeMapListings && activeMapListings.length > 0) {
+  const updateBounds = () => {
+    setBounds(calculateBounds(mapRef.current?.getBounds()))
+  }
+
+  const handleClusterClick = (e: MapMouseEvent) => {
+    const features = mapRef.current?.queryRenderedFeatures(e.point, {
+      layers: ['clusters']
+    });
+    if (features && typeof features === 'object') {
+      const clusterId = features[0].properties?.cluster_id;
+      // @ts-expect-error
+      mapRef.current?.getSource('listings')?.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) return;
+        mapRef.current?.easeTo({
+          // @ts-expect-error
+          center: features[0].geometry.coordinates,
+          zoom: zoom
+        });
+      })
+    }
+  }
+
+  const loadMarkerImages = () => {
+    mapRef.current?.loadImage(
+      '/map/map-marker.png',
+      (error, image) => {
+        if (error) throw error;
+        if (image) mapRef.current?.addImage('default-marker', image);
+      })
+    mapRef.current?.loadImage(
+      '/map/onward-map-marker.png',
+      (error, image) => {
+        if (error) throw error;
+        if (image) mapRef.current?.addImage('onward-marker', image);
+      })
+  }
+
+  const handleClearMap = () => {
+    if (mapRef?.current?.getLayer('clusters')) {
+      mapRef.current.removeLayer('clusters');
+    }
+    if (mapRef?.current?.getLayer('clusters-inner')) {
+      mapRef.current.removeLayer('clusters-inner');
+    }
+
+    if (mapRef?.current?.getLayer('clusters-outer')) {
+      mapRef.current.removeLayer('clusters-outer');
+    }
+
+    if (mapRef?.current?.getLayer('cluster-count')) {
+      mapRef.current.removeLayer('cluster-count');
+    }
+
+    if (mapRef?.current?.getLayer('unclustered-point')) {
+      mapRef.current.removeLayer('unclustered-point');
+    }
+
+    if (mapRef?.current?.getSource('listings')) {
+      mapRef.current.removeSource('listings');
+    }
+  }
+
+  const updateMapListings = (mapListings: MapListing[]) => {
+    if (mapListings && mapListings.length > 0) {
+      console.log(mapListings)
       const geoJson = {
         type: 'FeatureCollection',
-        features: activeMapListings.map((listing) => {
+        features: mapListings.map((listing) => {
           return {
             type: 'Feature',
             properties: {
-              title: listing.title,
-              slug: listing.slug,
-              address: listing.streetAddress,
-              price:
-                typeof listing.price === 'number' && listing.price !== 0
-                  ? formatPrice(listing.price)
-                  : '',
-              textAfterPrice: listing.textAfterPrice || '',
-              transactionType: listing.transactionType,
-              imageSrc: (listing.featuredImage as MediaType).thumbnailURL,
-              imageAlt: (listing.featuredImage as MediaType).alt,
+              // title: listing.title,
+              // slug: listing.slug,
+              // address: listing.streetAddress,
+              // price:
+              //   typeof listing.price === 'number' && listing.price !== 0
+              //     ? formatPrice(listing.price)
+              //     : '',
+              // textAfterPrice: listing.textAfterPrice || '',
+              // transactionType: listing.transactionType,
+              // imageSrc: (listing.featuredImage as MediaType).thumbnailURL,
+              // imageAlt: (listing.featuredImage as MediaType).alt,
               lat: listing.coordinates[1],
               lon: listing.coordinates[0],
-              iconSize: 32,
+              id: listing.id,
+              // iconSize: 32,
               category: listing.category,
-              listOfficeName: listing.MLS?.ListOfficeName,
+              listOfficeName: listing.MLS?.ListOfficeName || '',
             },
             geometry: {
               type: 'Point',
@@ -374,7 +404,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
         }),
       }
       if (mapRef.current) {
-
+        handleClearMap()
         mapRef.current.addSource('listings', {
           type: 'geojson',
           data: geoJson as GeoJSON.GeoJSON,
@@ -481,64 +511,89 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
           source: 'listings',
           filter: ["all", ['!', ['has', 'point_count']],],
           layout: {
-            'icon-image': ["case", ["all", ["==", ["get", "category"], 'residential'], ["!=", ["get", "listOfficeName"], process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME]], 'default-marker', 'onward-marker'],
-            'icon-size': ["case", ["all", ["==", ["get", "category"], 'residential'], ["!=", ["get", "listOfficeName"], process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME]], .07, .225],
+            'icon-image': ["case", ["all", ["!=", ["get", "listOfficeName"], ''], ["!=", ["get", "listOfficeName"], process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME]], 'default-marker', 'onward-marker'],
+            'icon-size': ["case", ["all", ["!=", ["get", "listOfficeName"], ''], ["!=", ["get", "listOfficeName"], process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME]], .07, .225],
           }
         });
 
-        mapRef.current.on('click', 'clusters', function (e) {
-          const features = mapRef.current?.queryRenderedFeatures(e.point, {
-            layers: ['clusters']
-          });
-          if (features && typeof features === 'object') {
-            const clusterId = features[0].properties?.cluster_id;
-            // @ts-expect-error
-            mapRef.current?.getSource('listings')?.getClusterExpansionZoom(clusterId, (err, zoom) => {
-              if (err) return;
-              mapRef.current?.easeTo({
-                // @ts-expect-error
-                center: features[0].geometry.coordinates,
-                zoom: zoom
-              });
-            })
-          }
-        });
+        mapRef.current.on('click', 'clusters', handleClusterClick);
 
-        mapRef.current.on('click', 'unclustered-point', (e) => {
+        mapRef.current.on('click', 'unclustered-point', async (e) => {
           const feature = e.features?.at(0)
           clearPopups()
           if (!feature) return
           // @ts-expect-error
           const coordinates = feature.geometry.coordinates;
+          const listingId = feature.properties?.id
           while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
           }
-
-          new mapboxgl.Popup({ offset: 25, focusAfterOpen: false })
+          const popup = new mapboxgl.Popup({ offset: 25, focusAfterOpen: false })
             .setLngLat(coordinates)
             .setHTML(
               `
               <div class="marker-popup rounded-lg overflow-hidden">
-                <div class="marker-popup_image-container relative aspect-video bg-white">
+                <div class="marker-popup_image-container relative aspect-[3/2] bg-white">
                 <div class="animate-pulse absolute inset-0 bg-brand-gray-01"></div>
-                  <img src="${feature.properties?.imageSrc || null}" alt="${feature?.properties?.imageAlt || ''}" class="marker-popup_image w-full absolute top-0 left-0 h-full object-cover" />
                 </div>
-                <div class="p-6 bg-white flex flex-col">
-                <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06">${feature.properties?.price
-                ? `${formatPrice(feature.properties?.price)}${feature.properties?.textAfterPrice
-                  ? `<span class="text-sm ml-2 font-normal">${feature.properties?.textAfterPrice}</span>`
-                  : ''
-                }`
-                : 'Contact for price'
-              }</span>
-                  <h3 class="marker-title font-basic-sans text-brand-gray-04 text-base font-light">${feature.properties?.address}</h3>
-                  <a href="/listings/${feature.properties?.slug}" class="p-2 w-fit text-sm rounded-sm transition-colors hover:bg-brand-gray-00 focus-visible:bg-brand-gray-00 focus-visible:outline-none font-light flex items-center gap-1 text-brand-gray-04"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-2 h-auto fill-brand-gray-04"><!--!Font Awesome Pro 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path d="M240 64l0-16-32 0 0 16 0 176L32 240l-16 0 0 32 16 0 176 0 0 176 0 16 32 0 0-16 0-176 176 0 16 0 0-32-16 0-176 0 0-176z"/></svg>Learn More</a>
+                <div class="p-6 bg-white flex flex-col gap-2">
+                  <div class="animate-pulse rounded-sm w-full h-3 bg-brand-gray-01"></div>
+                  <div class="animate-pulse rounded-sm w-1/2 h-2 bg-brand-gray-01"></div>
+                  <div class="animate-pulse rounded-sm w-1/3 h-4 bg-brand-gray-01"></div>
                 </div>
               </div>
               `,
             )
             // @ts-expect-error
             .addTo(mapRef.current);
+          const listingResponse = await fetch(`/api/listings/map/${listingId}`).then((res) => res.json()) as {
+            ok: boolean;
+            listing: {
+              id: number;
+              title: string;
+              featuredImage: number | MediaType;
+              category?: ("commercial" | "residential") | null | undefined;
+              price?: number | null | undefined;
+              textAfterPrice?: string | null | undefined;
+              transactionType?: ("for-sale" | "for-lease") | null | undefined;
+              streetAddress: string;
+              slug?: string | null | undefined;
+              MLS?: {
+                ListOfficeName?: string | null;
+                FeaturedImageUrl?: string | null;
+              } | undefined;
+            } | null;
+            error: string | null;
+          }
+
+          if (listingResponse.ok) {
+            const listing = listingResponse.listing
+            popup
+              .setHTML(
+                `
+              <div class="marker-popup rounded-lg overflow-hidden">
+                <div class="marker-popup_image-container relative aspect-[3/2] bg-white">
+                <div class="animate-pulse absolute inset-0 bg-brand-gray-01"></div>
+                  <img src="${listing?.featuredImage ? (listing?.featuredImage as MediaType).url : listing?.MLS?.FeaturedImageUrl || null}" alt="${listing?.featuredImage ? (listing?.featuredImage as MediaType).alt : ''}" class="marker-popup_image w-full absolute top-0 left-0 h-full object-cover" />
+                </div>
+                <div class="p-6 bg-white flex flex-col">
+                <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06">${listing?.price
+                  ? `${formatPrice(listing.price)}${listing?.textAfterPrice
+                    ? `<span class="text-sm ml-2 font-normal">${listing?.textAfterPrice}</span>`
+                    : ''
+                  }`
+                  : 'Contact for price'
+                }</span>
+                  <h3 class="marker-title font-basic-sans text-brand-gray-04 text-base font-light">${listing?.streetAddress}</h3>
+                  <a href="/listings/${listing?.slug}" class="p-2 w-fit text-sm rounded-sm transition-colors hover:bg-brand-gray-00 focus-visible:bg-brand-gray-00 focus-visible:outline-none font-light flex items-center gap-1 text-brand-gray-04"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-2 h-auto fill-brand-gray-04"><!--!Font Awesome Pro 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path d="M240 64l0-16-32 0 0 16 0 176L32 240l-16 0 0 32 16 0 176 0 0 176 0 16 32 0 0-16 0-176 176 0 16 0 0-32-16 0-176 0 0-176z"/></svg>Learn More</a>
+                </div>
+              </div>
+              `,
+              )
+          }
+
+
+
           mapRef.current?.jumpTo({
             center: coordinates,
             // speed: 0.5,
@@ -554,56 +609,45 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
           // @ts-expect-error
           mapRef.current.getCanvas().style.cursor = '';
         });
+        const source = mapRef.current.getSource('listings');
+        if (source && mapListings.length > 0) {
+          const coordinates = mapListings.map(listing => listing.coordinates);
+          if (coordinates.length > 0) {
+            const bounds = coordinates.reduce((b, coord) => b.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+            mapRef.current.fitBounds(bounds, { padding: 60 });
+          }
+        }
       }
     }
+  }
 
-    return () => {
-      mapRef.current?.off('click', 'clusters', function (e) {
-        const features = mapRef.current?.queryRenderedFeatures(e.point, {
-          layers: ['clusters']
-        });
-        if (features && typeof features === 'object') {
-          const clusterId = features[0].properties?.cluster_id;
-          // @ts-expect-error
-          mapRef.current?.getSource('listings')?.getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err) return;
-            mapRef.current?.easeTo({
-              // @ts-expect-error
-              center: features[0].geometry.coordinates,
-              zoom: zoom
-            });
-          })
-        }
-      });
-      if (mapRef.current?.getSource('listings')) {
-        if (mapRef.current?.getLayer('clusters')) {
-          mapRef.current?.removeLayer('clusters')
-        }
-        if (mapRef.current?.getLayer('clusters-inner')) {
-          mapRef.current?.removeLayer('clusters-inner')
-        }
-        if (mapRef.current?.getLayer('clusters-mid')) {
-          mapRef.current?.removeLayer('clusters-mid')
-        }
-        if (mapRef.current?.getLayer('clusters-outer')) {
-          mapRef.current?.removeLayer('clusters-outer')
-        }
-        if (mapRef.current?.getLayer('cluster-count')) {
-          mapRef.current?.removeLayer('cluster-count')
-        }
-        if (mapRef.current?.getLayer('unclustered-point')) {
-          mapRef.current?.removeLayer('unclustered-point')
-        }
-        mapRef.current?.removeSource('listings')
-      }
-    }
-  }, [activeMapListings, isFirstRender])
+
+  //     mapRef.current?.off('click', 'clusters', handleClusterClick);
+  //     if (mapRef.current?.getSource('listings')) {
+  //       mapRef.current?.removeSource('listings');
+  //     }
+  //   }
+  // }, [activeMapListings, isFirstRender])
 
   // FIRST RENDER
+
+
+  const handleReset = async () => {
+    try {
+      form.reset()
+      setFilters(undefined)
+      await Promise.all([
+        fetchCardListings(undefined, undefined, sortData?.value, { ignoreBounds: true }),
+        fetchMapListings(undefined, { ignoreBounds: true })
+      ]).then((res) => updateSearchParams(res))
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  }
+
   useEffect(() => {
     setHeaderTheme('filled')
     setIsFirstRender(false)
-
     mapRef.current = new mapboxgl.Map({
       accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '',
       container: mapContainerRef.current,
@@ -613,26 +657,9 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
       maxZoom: 20
     })
     mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left')
-    mapRef.current.on('load', function () {
-      mapRef.current?.loadImage(
-        '/map/map-marker.png',
-        (error, image) => {
-          if (error) throw error;
-          if (image) mapRef.current?.addImage('default-marker', image);
-        })
-      mapRef.current?.loadImage(
-        '/map/onward-map-marker.png',
-        (error, image) => {
-          if (error) throw error;
-          if (image) mapRef.current?.addImage('onward-marker', image);
-        })
-    })
-    mapRef.current?.on('dragend', function () {
-      setBounds(calculateBounds(mapRef.current?.getBounds()))
-    })
-    mapRef.current?.on('zoomend', function () {
-      setBounds(calculateBounds(mapRef.current?.getBounds()))
-    })
+    mapRef.current.on('load', loadMarkerImages)
+    mapRef.current?.on('dragend', updateBounds)
+    // mapRef.current?.on('zoomend', updateBounds)
 
     // FETCH PROPERTIES ON FIRST RENDER
     const filterData = {
@@ -653,80 +680,39 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     }
     const page = searchParams.get('page') ? Number(searchParams.get('page')) : undefined
     const sort = searchParams.get('sort') || undefined
-    form.setValue('search', filterData.search || '')
-    form.setValue('category', filterData.category || '')
-    form.setValue('propertyType', filterData.propertyType || '')
-    form.setValue('minPrice', filterData.minPrice || '')
-    form.setValue('maxPrice', filterData.maxPrice || '')
-    form.setValue('sizeType', filterData.sizeType || '')
-    form.setValue('minSize', filterData.minSize || '')
-    form.setValue('maxSize', filterData.maxSize || '')
-    form.setValue('availability', filterData.availability || '')
-    form.setValue('transactionType', filterData.transactionType || '')
-    handleFetchListings(filterData, page, sort, { centerMap: true })
-    return () => {
-      mapRef.current?.off('load', function () {
-        mapRef.current?.loadImage(
-          '/map/map-marker.png',
-          (error, image) => {
-            if (error) throw error;
-            if (image) mapRef.current?.addImage('default-marker', image);
-          })
-        mapRef.current?.loadImage(
-          '/map/onward-map-marker.png',
-          (error, image) => {
-            if (error) throw error;
-            if (image) mapRef.current?.addImage('onward-marker', image);
-          })
-      })
-      mapRef.current?.off('dragend', function () {
-        setBounds(calculateBounds(mapRef.current?.getBounds()))
-      })
-      // mapRef.current?.off('zoomend', function () {
-      //   setBounds(calculateBounds(mapRef.current?.getBounds()))
-      // })
-      mapRef.current?.remove()
+    for (const [key, value] of Object.entries(filterData)) {
+      if (!value) continue
+      form.setValue(key as keyof z.infer<typeof FormSchema>, value)
+      setFilters((current) => ({ ...current, [key]: value }))
+    }
+    if (page) setCurrentPage(page)
+    if (sort) setSortData(sortOptions.find(({ value }) => value === sort))
 
+    return () => {
+      mapRef.current?.off('load', loadMarkerImages)
+      mapRef.current?.off('dragend', updateBounds)
+      mapRef.current?.remove()
     }
   }, [])
 
-  const handleReset = async () => {
-    try {
-      setIsLoading(true)
-      form.setValue('search', '')
-      form.setValue('category', '')
-      form.setValue('propertyType', '')
-      form.setValue('minPrice', '')
-      form.setValue('maxPrice', '')
-      form.setValue('sizeType', '')
-      form.setValue('minSize', '')
-      form.setValue('maxSize', '')
-      form.setValue('availability', '')
-      form.setValue('transactionType', '')
-      setFilters(undefined)
-
-      handleFetchListings(undefined, undefined, undefined, { excludeMap: false, centerMap: true, ignoreBounds: true })
-    } catch (error: any) {
-      console.log(error.message)
-    } finally {
-      router.replace(pathname, { scroll: false })
-    }
-  }
-
   useEffect(() => {
     if (!isFirstRender) {
-      handleFetchListings(filters, currentPage, sortData ? sortData.value : undefined)
+      Promise.all([
+        fetchCardListings(filters, currentPage, sortData?.value, { ignoreBounds: true }),
+        fetchMapListings(filters, { ignoreBounds: false })
+      ])
     }
-  }, [debouncedBounds])
+  }, [debouncedBounds, isFirstRender])
+
 
   return (
     <div>
       <FilterBar
-        handleFilter={handleFetchListings}
+        handleFilter={handleFilter}
         handleReset={handleReset}
         sort={sortData?.value}
         form={form}
-        isLoading={isLoading}
+        isLoading={isMapLoading}
       />
       <div className="w-full border-t border-brand-gray-01 md:grid md:grid-cols-5">
         {width && width <= parseInt(defaultTheme.screens.md) && (
@@ -761,14 +747,12 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
         >
           <div className="p-6 border-b border-brand-gray-01 flex gap-6 justify-between items-center">
             <span className="text-lg font-medium text-brand-gray-03">
-              {(isFirstRender || isLoading) && (
+              {(isFirstRender || isMapLoading) && (
                 <FontAwesomeIcon icon={faCircleNotch} className="animate-spin w-4 h-auto inline" />
               )}
-              {/* `${currentPage * limit - limit + 1 !== totalListings ? `${currentPage * limit - limit + 1}-${hasNextPage ? currentPage * limit : totalListings}` : totalListings}`}{' '}
-              // of {totalListings} Listings */}
               {!isFirstRender &&
-                !isLoading &&
-                currentPage &&
+                !isMapLoading &&
+                totalListings &&
 
                 `${totalListings} Listings`}
             </span>
@@ -781,7 +765,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 <DropdownMenuRadioGroup
                   value={sortData?.value}
                   onValueChange={(value) => {
-                    handleFetchListings(filters, currentPage || 1, value)
+                    fetchCardListings(filters, currentPage || 1, value).then((res) => updateSearchParams([res]))
                   }}
                 >
                   {sortOptions.map((option, index) => {
@@ -801,7 +785,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                     variant={'ghost'}
                     className="flex items-center gap-2 w-full"
                     onClick={() => {
-                      handleFetchListings(filters, currentPage || 1)
+                      fetchCardListings(filters, currentPage).then((res) => updateSearchParams([res]))
                       setIsSortOpen(false)
                     }}
                   >
@@ -813,7 +797,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
             </DropdownMenu>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] xl:grid-cols-2 gap-x-4 gap-y-6 p-6 content-start ">
-            {(isFirstRender || isLoading) &&
+            {(isFirstRender || isCardsLoading) &&
               Array.from(Array(4).keys()).map((_, index) => {
                 return (
                   <Card key={index} className="rounded-none bg-white border-none shadow-md">
@@ -843,19 +827,18 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                   <Card
                     key={listing.id}
                     className="rounded-none bg-white border-none shadow-md transition-shadow hover:shadow-xl focus-visible:shadow-xl"
-                    onMouseEnter={() => {
-                      setFocusedListing(listing)
-                    }}
-                    onMouseLeave={() => {
-                      setFocusedListing(null)
-                    }}
-                    onFocus={() => {
-                      setFocusedListing(listing)
-                    }}
-                    onBlur={() => {
-                      setFocusedListing(null)
-                    }}
-                  // ref={cardRefs[index]}
+                  // onMouseEnter={() => {
+                  //   setFocusedListing(listing)
+                  // }}
+                  // onMouseLeave={() => {
+                  //   setFocusedListing(null)
+                  // }}
+                  // onFocus={() => {
+                  //   setFocusedListing(listing)
+                  // }}
+                  // onBlur={() => {
+                  //   setFocusedListing(null)
+                  // }}
                   >
                     <Link href={`/listings/${listing.slug}`} className="h-full block">
                       <div className="relative pb-[66.66%] overflow-hidden w-full">
@@ -948,7 +931,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 variant="ghost"
                 onClick={() => {
                   if (hasPrevPage && prevPage) {
-                    handleFetchListings(filters, 1, sortData?.value, { excludeMap: true })
+                    fetchCardListings(filters, 1, sortData?.value).then((res) => updateSearchParams([res]))
                     window.scrollTo({ top: 0 })
                   }
                 }}
@@ -960,7 +943,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 variant="ghost"
                 onClick={() => {
                   if (hasPrevPage && prevPage) {
-                    handleFetchListings(filters, prevPage, sortData?.value, { excludeMap: true })
+                    fetchCardListings(filters, prevPage, sortData?.value).then((res) => updateSearchParams([res]))
                     window.scrollTo({ top: 0 })
                   }
                 }}
@@ -977,7 +960,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 variant="ghost"
                 onClick={() => {
                   if (hasNextPage && nextPage) {
-                    handleFetchListings(filters, nextPage, sortData?.value, { excludeMap: true })
+                    fetchCardListings(filters, nextPage, sortData?.value).then((res) => updateSearchParams([res]))
                     window.scrollTo({ top: 0 })
                   }
                 }}
@@ -989,7 +972,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 variant="ghost"
                 onClick={() => {
                   if (hasNextPage && totalPages) {
-                    handleFetchListings(filters, totalPages, sortData?.value, { excludeMap: true })
+                    fetchCardListings(filters, totalPages, sortData?.value).then((res) => updateSearchParams([res]))
                     window.scrollTo({ top: 0 })
                   }
                 }}
@@ -1001,7 +984,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
             </div>
 
             {!isFirstRender &&
-              !isLoading &&
+              !isCardsLoading &&
               (!activeCardListings ||
                 (activeCardListings.length === 0 && (
                   <div className="p-5 text-center flex flex-col gap-4">
@@ -1025,24 +1008,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
 const mapMarkerIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="37" height="48" viewBox="0 0 37 48" fill="none" style="width: 100%">
         <path d="M18.1622 48C18.1622 48 36.3243 28.5 36.3243 18C36.3243 8.0625 28.1892 0 18.1622 0C8.13514 0 0 8.0625 0 18C0 28.5 18.1622 48 18.1622 48ZM18.1622 12C19.7678 12 21.3077 12.6321 22.443 13.7574C23.5784 14.8826 24.2162 16.4087 24.2162 18C24.2162 19.5913 23.5784 21.1174 22.443 22.2426C21.3077 23.3679 19.7678 24 18.1622 24C16.5565 24 15.0167 23.3679 13.8813 22.2426C12.7459 21.1174 12.1081 19.5913 12.1081 18C12.1081 16.4087 12.7459 14.8826 13.8813 13.7574C15.0167 12.6321 16.5565 12 18.1622 12Z" fill="#0B2A35" />
       </svg>`
-
-function getSWCoordinates(coordinatesCollection: number[][]) {
-  const lowestLng = Math.min(...coordinatesCollection.map((coordinates) => coordinates[0]))
-  const lowestLat = Math.min(...coordinatesCollection.map((coordinates) => coordinates[1]))
-
-  return [lowestLng, lowestLat]
-}
-
-function getNECoordinates(coordinatesCollection: number[][]) {
-  const highestLng = Math.max(...coordinatesCollection.map((coordinates) => coordinates[0]))
-  const highestLat = Math.max(...coordinatesCollection.map((coordinates) => coordinates[1]))
-
-  return [highestLng, highestLat]
-}
-
-function calcBoundsFromCoordinates(coordinatesCollection: number[][]) {
-  return [getSWCoordinates(coordinatesCollection), getNECoordinates(coordinatesCollection)]
-}
 
 export const FloorPlanIcon = (props) => {
   return (

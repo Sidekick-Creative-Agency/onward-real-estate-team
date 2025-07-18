@@ -19,7 +19,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { formatNumber } from '@/utilities/formatNumber'
 import { usePayloadAPI } from '@payloadcms/ui'
 import { formatPrice } from '@/utilities/formatPrice'
-import { useSearchParams } from 'next/navigation'
+// import { useSearchParams } from 'next/navigation'
 import { FormSchema, MapFilters } from '@/app/(frontend)/listings/map/page.client'
 import useWindowDimensions from '@/utilities/useWindowDimensions'
 import defaultTheme from 'tailwindcss/defaultTheme'
@@ -29,14 +29,7 @@ import { Label } from '../ui/label'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
 
 interface FilterBarProps {
-  handleFilter: (filterData?: MapFilters,
-    page?: number | null,
-    sort?: string | null,
-    options?: {
-      excludeMap?: boolean,
-      centerMap?: boolean,
-      ignoreBounds?: boolean
-    }) => Promise<void>
+  handleFilter: (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => void
   handleReset: () => Promise<void>
   sort: string | undefined
   form: UseFormReturn<z.infer<typeof FormSchema>>
@@ -50,7 +43,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   form,
   isLoading,
 }) => {
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const [sizeText, setSizeText] = useState('Size')
   const [priceText, setPriceText] = useState('Price')
   const [needsRefresh, setNeedsRefresh] = useState(true)
@@ -76,7 +69,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       availability: data.availability,
       transactionType: data.transactionType as 'for-sale' | 'for-lease' | null | undefined,
     }
-    handleFilter(filterData, 1, sort, { centerMap: true, ignoreBounds: true })
+    handleFilter(filterData, 1, sort, { ignoreBounds: true })
 
     setIsOpen(false)
   }
@@ -125,43 +118,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     }
   }, [propertyTypesResponse])
 
-  useEffect(() => {
-    if (
-      needsRefresh &&
-      ((searchParams.get('category') &&
-        form.getValues().category !== searchParams.get('category')) ||
-        (searchParams.get('property_type') &&
-          form.getValues().propertyType !== searchParams.get('property_type')))
-    ) {
-      form.setValue('category', searchParams.get('category') || '')
-      form.setValue('propertyType', searchParams.get('property_type') || '')
-      const filterData = {
-        search: form.getValues().search,
-        category: form.getValues().category,
-        propertyType: form.getValues().propertyType,
-        minPrice: form.getValues().minPrice,
-        maxPrice: form.getValues().maxPrice,
-        minSize: form.getValues().minSize,
-        maxSize: form.getValues().maxSize,
-        sizeType: form.getValues().sizeType,
-        availability: form.getValues().availability,
-        transactionType: form.getValues().transactionType as
-          | 'for-sale'
-          | 'for-lease'
-          | null
-          | undefined,
-      }
-      handleFilter(filterData)
-    } else {
-      setNeedsRefresh(true)
-    }
-    handlePriceChange(searchParams.get('min_price') || '', searchParams.get('max_price') || '')
-    handleSizeChange(
-      searchParams.get('min_size') || '',
-      searchParams.get('max_size') || '',
-      searchParams.get('size_type') || '',
-    )
-  }, [searchParams])
 
   return (
     <Form {...form}>
@@ -175,7 +131,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="search"
-              defaultValue={searchParams.get('search') || ''}
+              defaultValue={''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -217,7 +173,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       <FormField
                         control={form.control}
                         name="category"
-                        defaultValue={searchParams.get('category') || ''}
+                        // defaultValue={searchParams.get('category') || ''}
                         render={({ field }) => {
                           return (
                             <FormItem className="w-full">
@@ -254,7 +210,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       <FormField
                         control={form.control}
                         name="transactionType"
-                        defaultValue={searchParams.get('transaction_type') || ''}
+                        // defaultValue={searchParams.get('transaction_type') || ''}
                         render={({ field }) => {
                           return (
                             <FormItem className="w-full">
@@ -292,7 +248,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         <FormField
                           control={form.control}
                           name="minPrice"
-                          defaultValue={searchParams.get('min_price') || ''}
+                          // defaultValue={searchParams.get('min_price') || ''}
                           render={({ field }) => {
                             return (
                               <FormItem className="w-full">
@@ -318,7 +274,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         <FormField
                           control={form.control}
                           name="maxPrice"
-                          defaultValue={searchParams.get('max_price') || ''}
+                          // defaultValue={searchParams.get('max_price') || ''}
                           render={({ field }) => {
                             return (
                               <FormItem className="w-full">
@@ -358,7 +314,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         <FormField
                           control={form.control}
                           name="sizeType"
-                          defaultValue={searchParams.get('size_type') || ''}
+                          // defaultValue={searchParams.get('size_type') || ''}
                           render={({ field }) => {
                             return (
                               <FormItem className="space-y-2">
@@ -397,7 +353,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         <FormField
                           control={form.control}
                           name="minSize"
-                          defaultValue={searchParams.get('min_size') || ''}
+                          // defaultValue={searchParams.get('min_size') || ''}
                           render={({ field }) => {
                             return (
                               <FormItem className="w-full">
@@ -423,7 +379,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         <FormField
                           control={form.control}
                           name="maxSize"
-                          defaultValue={searchParams.get('max_size') || ''}
+                          // defaultValue={searchParams.get('max_size') || ''}
                           render={({ field }) => {
                             return (
                               <FormItem className="w-full">
@@ -462,13 +418,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       <FormField
                         control={form.control}
                         name="propertyType"
-                        defaultValue={
-                          propertyTypes
-                            ? propertyTypes.find(
-                              (type) => type.value === searchParams.get('property_type') || '',
-                            )?.value
-                            : ''
-                        }
+                        // defaultValue={
+                        //   propertyTypes
+                        //     ? propertyTypes.find(
+                        //       (type) => type.value === searchParams.get('property_type') || '',
+                        //     )?.value
+                        //     : ''
+                        // }
                         render={({ field }) => {
                           return (
                             <FormItem className="w-full">
@@ -529,7 +485,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="search"
-              defaultValue={searchParams.get('search') || ''}
+              // defaultValue={searchParams.get('search') || ''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -547,7 +503,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="category"
-              defaultValue={searchParams.get('category') || ''}
+              // defaultValue={searchParams.get('category') || ''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -585,7 +541,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="transactionType"
-              defaultValue={searchParams.get('transaction_type') || ''}
+              // defaultValue={searchParams.get('transaction_type') || ''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -634,7 +590,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="minPrice"
-                    defaultValue={searchParams.get('min_price') || ''}
+                    // defaultValue={searchParams.get('min_price') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -660,7 +616,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="maxPrice"
-                    defaultValue={searchParams.get('max_price') || ''}
+                    // defaultValue={searchParams.get('max_price') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -716,7 +672,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="sizeType"
-                    defaultValue={searchParams.get('size_type') || ''}
+                    // defaultValue={searchParams.get('size_type') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="space-y-2">
@@ -755,7 +711,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="minSize"
-                    defaultValue={searchParams.get('min_size') || ''}
+                    // defaultValue={searchParams.get('min_size') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -781,7 +737,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="maxSize"
-                    defaultValue={searchParams.get('max_size') || ''}
+                    // defaultValue={searchParams.get('max_size') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -825,7 +781,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="propertyType"
-              defaultValue={searchParams.get('property_type') || ''}
+              // defaultValue={searchParams.get('property_type') || ''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -897,7 +853,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <Button
               variant={'link'}
               className="absolute bottom-2 right-10  flex gap-1 items-center text-sm normal-case tracking-normal leading-none p-1 hover:no-underline focus-visible:no-underline"
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
                 handleReset()
               }}
             >
