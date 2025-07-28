@@ -56,7 +56,7 @@ import { generateContactFormSubmitterEmail } from './emails/Contact/Submitter'
 import { generateContactFormRecipientEmail } from './emails/Contact/Recipient'
 import { CookieBanner } from './CookieBanner/config'
 import { authenticated } from './access/authenticated'
-import { MessageField } from './blocks/Form/Message/Field/input'
+import { MessageField } from './blocks/Form/Message/Field'
 import { anyone } from './access/anyone'
 
 const filename = fileURLToPath(import.meta.url)

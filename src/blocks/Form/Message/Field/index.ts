@@ -1,3 +1,4 @@
+import { TextColorFeature } from '@/components/RichText/Color/features/textColor/feature.server'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -13,7 +14,12 @@ export const MessageField: Block = {
       type: 'richText',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
-          return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
+          return [
+            ...rootFeatures,
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            TextColorFeature(),
+          ]
         },
       }),
     },
