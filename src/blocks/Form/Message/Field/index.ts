@@ -1,4 +1,5 @@
 import { TextColorFeature } from '@/components/RichText/Color/features/textColor/feature.server'
+import { BRAND_COLORS } from '@/utilities/constants'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -18,7 +19,15 @@ export const MessageField: Block = {
             ...rootFeatures,
             FixedToolbarFeature(),
             InlineToolbarFeature(),
-            TextColorFeature(),
+            TextColorFeature({
+              colors: BRAND_COLORS.map((color) => {
+                return {
+                  type: 'button',
+                  label: color.label,
+                  color: color.value,
+                }
+              }),
+            }),
           ]
         },
       }),
