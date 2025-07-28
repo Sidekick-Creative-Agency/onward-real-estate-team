@@ -56,6 +56,8 @@ import { generateContactFormSubmitterEmail } from './emails/Contact/Submitter'
 import { generateContactFormRecipientEmail } from './emails/Contact/Recipient'
 import { CookieBanner } from './CookieBanner/config'
 import { authenticated } from './access/authenticated'
+import { MessageField } from './blocks/Form/Message/Field/input'
+import { anyone } from './access/anyone'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -264,6 +266,7 @@ export default buildConfig({
         textarea: TextAreaField,
         pageTitle: PageTitle,
         teamMemberEmail: TeamMemberEmail,
+        message: MessageField,
       },
       formOverrides: {
         fields: ({ defaultFields }) => {
