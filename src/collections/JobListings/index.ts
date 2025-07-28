@@ -13,6 +13,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { TextColorFeature } from '@/components/RichText/Color/features/textColor/feature.server'
 import { revalidateCareersPage } from './hooks/revalidateCareersPage'
+import { BRAND_COLORS } from '@/utilities/constants'
 
 export const JobListings: CollectionConfig = {
   slug: 'job-listings',
@@ -45,7 +46,15 @@ export const JobListings: CollectionConfig = {
             OrderedListFeature(),
             UnorderedListFeature(),
             LinkFeature(),
-            TextColorFeature(),
+            TextColorFeature({
+              colors: BRAND_COLORS.map((color) => {
+                return {
+                  type: 'button',
+                  label: color.label,
+                  color: color.value,
+                }
+              }),
+            }),
           ]
         },
       }),
