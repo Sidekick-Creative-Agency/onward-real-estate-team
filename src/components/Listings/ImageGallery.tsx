@@ -7,7 +7,6 @@ import AutoHeight from "embla-carousel-auto-height"
 import Image from "next/image"
 
 export const ImageGallery: React.FC<{ imageGallery: (MediaType | number | string)[] }> = ({ imageGallery }) => {
-    console.log(imageGallery)
     return <Carousel className="[&>div]:rounded-md sm:[&>div]:rounded-lg [&>div]:w-full" plugins={[AutoHeight()]}>
         <CarouselContent className="ml-0 max-h-[calc(100vh-2.5rem)] transition-[height] items-start">
             {imageGallery && imageGallery.length > 0 && imageGallery.map((image, index) => {
