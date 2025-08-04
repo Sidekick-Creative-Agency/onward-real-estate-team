@@ -253,41 +253,6 @@ export default async function Listing({ params: paramsPromise }: Args) {
                 ) : (
                   <ImageGallery imageGallery={[listing.featuredImage, ...listing.MLS?.ImageGalleryUrls?.map((item) => item.url) as string[]]} />
                 )}
-
-
-                {/* <Carousel className="[&>div]:rounded-md sm:[&>div]:rounded-lg [&>div]:w-full" >
-                  <CarouselContent className="ml-0 max-h-[calc(100vh-2.5rem)] transition-[height] items-start">
-                    <CarouselItem className="pl-0 basis-full">
-                      <Media
-                        resource={listing.featuredImage}
-                        className="w-full overflow-hidden relative"
-                        imgClassName="w-full object-cover h-auto"
-                      />
-                    </CarouselItem>
-                    {listing.imageGallery && listing.imageGallery.length > 0 && listing.imageGallery.map((image, index) => {
-                      return (
-                        <CarouselItem key={image.id} className=" pl-0 basis-full rounded-lg">
-                          <Media
-                            resource={image.image as MediaType | number | undefined}
-                            className="w-full overflow-hidden relative"
-                            imgClassName="w-full object-cover h-auto"
-                          />
-                        </CarouselItem>
-                      )
-                    })}
-                    {(!listing.imageGallery || listing.imageGallery.length === 0) && listing.MLS?.ImageGalleryUrls && listing.MLS?.ImageGalleryUrls.length > 0 && listing.MLS?.ImageGalleryUrls.map((item) => {
-                      return (
-                        <CarouselItem key={item.id} className=" pl-0 basis-full rounded-lg">
-                          <div className="w-full overflow-hidden aspect-video relative">
-                            <Image src={item.url || ''} alt="" fill className='object-cover' />
-                          </div>
-                        </CarouselItem>
-                      )
-                    })}
-                  </CarouselContent>
-                  <CarouselPrevious className="top-[calc(100%+.5rem)] left-auto right-10 translate-y-0 sm:-translate-y-1/2 sm:top-1/2 sm:left-2 p-2 bg-brand-gray-06 text-white border-none hover:text-white hover:bg-brand-gray-06/75 focus-visible:bg-brand-gray-06/75 rounded-sm [&_svg]:w-3" />
-                  <CarouselNext className="top-[calc(100%+.5rem)] left-auto right-0 translate-y-0 sm:-translate-y-1/2 sm:top-1/2 sm:right-2 p-2 bg-brand-gray-06 text-white border-none hover:text-white hover:bg-brand-gray-06/75 focus-visible:bg-brand-gray-06/75 rounded-sm [&_svg]:w-3" />
-                </Carousel> */}
               </DialogContent>
             </Dialog>
           </div>
@@ -295,8 +260,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
       </div>
       <div className="bg-brand-offWhite py-20">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="col-span-1 md:col-span-2 p-4 py-10 sm:p-10 bg-white border-t-[10px] border-brand-navy flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="col-span-1 lg:col-span-2 p-4 py-10 sm:p-10 bg-white border-t-[10px] border-brand-navy flex flex-col">
               <div className="pb-10 flex flex-col sm:flex-row gap-6 sm:gap-10 justify-between items-start sm:items-end border-b border-brand-gray-01">
                 <div className="flex flex-col gap-2">
                   <div>
@@ -389,22 +354,39 @@ export default async function Listing({ params: paramsPromise }: Args) {
                     </AccordionContent>
                   </AccordionItem>
                 )}
-                <AccordionItem value="Overview">
-                  <AccordionTrigger
-                    className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
-                    iconClassName="border border-brand-gray-01 w-4 h-4 text-brand-navy fill-brand-navy p-1"
-                    closedIcon={faChevronDown}
-                    openIcon={faChevronUp}
-                  >
-                    Property Overview
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-10">
-                    <RichText
-                      content={listing.description || {}}
-                      className="p-0 text-brand-gray-04 max-w-none *:text-brand-gray-04 font-light [&>p>strong]:text-brand-gray-04"
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+                {listing.description && (
+                  <AccordionItem value="Overview">
+                    <AccordionTrigger
+                      className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
+                      iconClassName="border border-brand-gray-01 w-4 h-4 text-brand-navy fill-brand-navy p-1"
+                      closedIcon={faChevronDown}
+                      openIcon={faChevronUp}
+                    >
+                      Property Overview
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-10">
+                      <RichText
+                        content={listing.description || {}}
+                        className="p-0 text-brand-gray-04 max-w-none *:text-brand-gray-04 font-light [&>p>strong]:text-brand-gray-04"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {listing.virtualTourUrl && (
+                  <AccordionItem value="Virtual Tour">
+                    <AccordionTrigger
+                      className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
+                      iconClassName="border border-brand-gray-01 w-4 h-4 text-brand-navy fill-brand-navy p-1"
+                      closedIcon={faChevronDown}
+                      openIcon={faChevronUp}
+                    >
+                      Virtual Tour
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-10">
+                      <iframe width="100%" height="100%" src={listing.virtualTourUrl} frameBorder="0" allowFullScreen allow="autoplay; fullscreen; web-share; xr-spatial-tracking;" className='w-full h-auto aspect-[3/2] md:aspect-video border-none'></iframe>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
 
               </Accordion>
             </div>

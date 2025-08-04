@@ -371,7 +371,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
 
   const updateMapListings = (mapListings: MapListing[]) => {
     if (mapListings && mapListings.length > 0) {
-      console.log(mapListings)
       const geoJson = {
         type: 'FeatureCollection',
         features: mapListings.map((listing) => {

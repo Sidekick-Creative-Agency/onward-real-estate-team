@@ -416,6 +416,7 @@ export interface Listing {
         id?: string | null;
       }[]
     | null;
+  virtualTourUrl?: string | null;
   isFeatured?: boolean | null;
   agents?: (number | TeamMember)[] | null;
   meta?: {
@@ -2400,6 +2401,7 @@ export interface ListingsSelect<T extends boolean = true> {
         title?: T;
         id?: T;
       };
+  virtualTourUrl?: T;
   isFeatured?: T;
   agents?: T;
   meta?:

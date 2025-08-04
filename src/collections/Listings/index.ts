@@ -372,6 +372,10 @@ export const Listings: CollectionConfig = {
               ],
             },
             {
+              name: 'virtualTourUrl',
+              type: 'text',
+            },
+            {
               name: 'isFeatured',
               type: 'checkbox',
               defaultValue: false,
