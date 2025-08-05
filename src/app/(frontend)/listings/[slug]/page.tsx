@@ -313,7 +313,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
                   )}
                 </div>
               </div>
-              <Accordion type="multiple" defaultValue={['Overview', 'Resources']}>
+              <Accordion type="multiple" defaultValue={['Overview', 'Resources', 'Virtual Tour']}>
                 {listing.attachments && listing.attachments.length > 0 && (
                   <AccordionItem value="Resources">
                     <AccordionTrigger
