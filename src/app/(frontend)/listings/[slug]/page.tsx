@@ -313,7 +313,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
                   )}
                 </div>
               </div>
-              <Accordion type="multiple" defaultValue={['Overview', 'Resources', 'Virtual Tour']}>
+              <Accordion type="multiple" defaultValue={['Overview', 'Resources', 'Virtual Tour', 'Videos']}>
                 {listing.attachments && listing.attachments.length > 0 && (
                   <AccordionItem value="Resources">
                     <AccordionTrigger
@@ -324,7 +324,6 @@ export default async function Listing({ params: paramsPromise }: Args) {
                     >
                       Resources
                     </AccordionTrigger>
-
                     <AccordionContent className="pb-10">
                       <div className="flex gap-10 flex-wrap">
                         {listing.attachments &&
@@ -369,6 +368,60 @@ export default async function Listing({ params: paramsPromise }: Args) {
                         content={listing.description || {}}
                         className="p-0 text-brand-gray-04 max-w-none *:text-brand-gray-04 font-light [&>p>strong]:text-brand-gray-04"
                       />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {listing.videos && (
+                  <AccordionItem value="Videos">
+                    <AccordionTrigger
+                      className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
+                      iconClassName="border border-brand-gray-01 w-4 h-4 text-brand-navy fill-brand-navy p-1"
+                      closedIcon={faChevronDown}
+                      openIcon={faChevronUp}
+                    >
+                      Videos
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-10">
+                      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                        {listing.videos.map((video) => {
+                          // Helper to format video URLs for embedding
+                          const getEmbedUrl = (url: string) => {
+                            if (!url) return ''
+                            // YouTube
+                            const ytMatch = url.match(
+                              /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+                            )
+                            if (ytMatch) {
+                              return `https://www.youtube.com/embed/${ytMatch[1]}`
+                            }
+                            // Vimeo
+                            const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([a-zA-Z0-9]+)(?:\/([a-zA-Z0-9]+))?/)
+                            if (vimeoMatch) {
+                              console.log(vimeoMatch);
+                              // If hash exists, append it
+                              return vimeoMatch[2]
+                                ? `https://player.vimeo.com/video/${vimeoMatch[1]}?h=${vimeoMatch[2]}`
+                                : `https://player.vimeo.com/video/${vimeoMatch[1]}`
+                            }
+                            // Default: use the URL as-is
+                            return url
+                          }
+                          return (
+                            <iframe
+                              width="100%"
+                              height="100%"
+                              src={getEmbedUrl(video.url)}
+                              frameBorder="0"
+                              allowFullScreen
+                              allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
+                              className="w-full h-auto aspect-video border-none"
+                              title={video.title || ''}
+                              key={video.id}
+                            ></iframe>
+                          )
+                        }
+                        )}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 )}
