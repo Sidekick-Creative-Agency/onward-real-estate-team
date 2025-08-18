@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Listing } from '../../../payload-types'
 
@@ -15,6 +15,7 @@ export const revalidateListing: CollectionAfterChangeHook<Listing> = ({
     payload.logger.info(`Revalidating listing at path: ${path}`)
 
     revalidatePath(path)
+    revalidateTag('listings-sitemap')
   }
 
   // If the post was previously published, we need to revalidate the old path
@@ -24,6 +25,7 @@ export const revalidateListing: CollectionAfterChangeHook<Listing> = ({
     payload.logger.info(`Revalidating old listing at path: ${oldPath}`)
 
     revalidatePath(oldPath)
+    revalidateTag('listings-sitemap')
   }
 
   return doc

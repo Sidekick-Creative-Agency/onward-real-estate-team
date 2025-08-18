@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { TeamMember } from '../../../payload-types'
 
@@ -12,6 +12,7 @@ export const revalidateTeamMember: CollectionAfterChangeHook<TeamMember> = ({
     const path = `/team-members/${doc.slug}`
     payload.logger.info(`Revalidating team member at path: ${path}`)
     revalidatePath(path)
+    revalidateTag('team-sitemap')
   }
 
   return doc
