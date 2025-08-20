@@ -371,7 +371,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
                     </AccordionContent>
                   </AccordionItem>
                 )}
-                {listing.videos && (
+                {listing.videos && listing.videos.length > 0 && (
                   <AccordionItem value="Videos">
                     <AccordionTrigger
                       className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
