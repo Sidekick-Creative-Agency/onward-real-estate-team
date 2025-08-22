@@ -5,6 +5,8 @@ import { PageClient } from './page.client'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card } from '@/components/ui/card'
+import { Metadata } from 'next'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 export default async function Page() {
   const payload = await getPayload({
@@ -70,4 +72,19 @@ const LoadingState = () => {
       </div>
     </div>
   )
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+
+  const title = 'Listings Map | Onward Real Estate Team';
+  const description = 'Browse commercial and residential listings from Onward Real Estate Team.'
+  return {
+    description: description,
+    openGraph: mergeOpenGraph({
+      description: description,
+      title,
+      url: '/listings/map',
+    }),
+    title,
+  }
 }
