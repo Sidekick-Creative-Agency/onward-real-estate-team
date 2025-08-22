@@ -9,6 +9,7 @@ import React from 'react'
 import PageClient from './page.client'
 import { ListingArchiveGrid } from '@/components/Archive/ListingArchive'
 import { ListingCard } from '@/components/Listings/ListingCard'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 export const dynamic = 'force-static'
 export const revalidate = 3600
@@ -62,7 +63,15 @@ export default async function Page() {
 }
 
 export function generateMetadata(): Metadata {
+  const title = 'Listings | Onward Real Estate Team';
+  const description = 'Browse commercial and residential listings from Onward Real Estate Team.'
   return {
-    title: `Onward Real Estate Team | Listings`,
+    description: description,
+    openGraph: mergeOpenGraph({
+      description: description,
+      title,
+      url: '/listings',
+    }),
+    title,
   }
 }
