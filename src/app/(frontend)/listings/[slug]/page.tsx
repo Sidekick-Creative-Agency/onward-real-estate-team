@@ -126,6 +126,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 			<PayloadRedirects disableNotFound url={url} />
 			<div className="bg-white pt-10 pb-20">
 				<div className="container flex flex-col gap-10">
+					<h1 className="sr-only">{listing.title}</h1>
 					<Button
 						variant={"link"}
 						className="w-auto p-0 text-brand-gray-03 flex gap-2 items-center leading-none hover:no-underline focus-visible:no-underline hover:text-brand-gray-06 focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2 focus-visible:text-brand-gray-06"
@@ -156,9 +157,9 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								</span>
 							</div>
 							<div className="max-w-3xl md:flex md:gap-4 md:items-center">
-								<h1 className="text-[2.5rem] font-bold text-brand-navy leading-tight whitespace-pre-wrap  hidden md:block">
-									{listing.title}
-								</h1>
+								<span className="text-[2.5rem] font-bold text-brand-navy leading-tight whitespace-pre-wrap  hidden md:block">
+									{listing.title !== `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}` ? listing.title : listing.streetAddress}
+								</span>
 								<span className="text-[2.5rem] font-bold text-brand-navy leading-tight md:hidden">
 									{typeof listing.price === "number" && listing.price !== 0
 										? formatPrice(listing.price)
@@ -178,13 +179,22 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									</div>
 								)}
 							</div>
-							<h1 className="text-xl font-light text-brand-gray-03 block md:hidden">
-								{listing.title}
-							</h1>
-							<span className="text-lg font-light text-brand-gray-03 inline-block">
-								{listing.streetAddress}, {listing.city}, {listing.state}{" "}
-								{listing.zipCode}
-							</span>
+							{
+								listing.title !== `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}` ? (
+									<>
+										<span className="text-xl font-light text-brand-gray-03 block md:hidden">
+											{listing.title}
+										</span>
+										<span className="text-lg font-light text-brand-gray-03 inline-block">
+											{listing.title !== `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}` ? `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}` : `${listing.city}, ${listing.state} ${listing.zipCode}`}
+										</span>
+									</>
+								) : (
+									<span className="text-lg font-light text-brand-gray-03 inline-block">
+										<span className="md:hidden">{listing.streetAddress},</span> {listing.city}, {listing.state} {listing.zipCode}
+									</span>
+								)
+							}
 						</div>
 						<div className="flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end gap-4">
 							<div className="hidden md:block">
