@@ -15,6 +15,7 @@ import {
 
 import type {
 	Attachment,
+	Form,
 	Post,
 	PropertyType,
 	TeamMember,
@@ -64,6 +65,10 @@ import Image from "next/image";
 import Link from "next/link";
 import AutoHeight from "embla-carousel-auto-height";
 import { ImageGallery } from "@/components/Listings/ImageGallery";
+import { FormFieldBlock } from "@payloadcms/plugin-form-builder/types";
+import { PhoneNumberField } from "@/blocks/Form/PhoneNumber/Field";
+import { PageTitleField } from "@/blocks/Form/PageTitle/Field/input";
+import { TeamMemberEmailField } from "@/blocks/Form/TeamMemberEmail/Field/input";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -109,7 +114,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 	const sidebarForm = await payload.findByID({
 		collection: "forms",
 		id: 5,
-	});
+	})
 
 	if (!listing) return <PayloadRedirects url={url} />;
 
@@ -138,15 +143,15 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								<span>
 									{listing.category === "commercial"
 										? listing.propertyType &&
-											typeof listing.propertyType === "object" &&
-											listing.propertyType.map((propertyType, index) => {
-												if (listing.propertyType) {
-													return index !== listing.propertyType.length - 1
-														? `${(propertyType as PropertyType).title}, `
-														: (propertyType as PropertyType).title;
-												}
-												return "";
-											})
+										typeof listing.propertyType === "object" &&
+										listing.propertyType.map((propertyType, index) => {
+											if (listing.propertyType) {
+												return index !== listing.propertyType.length - 1
+													? `${(propertyType as PropertyType).title}, `
+													: (propertyType as PropertyType).title;
+											}
+											return "";
+										})
 										: "Residential"}
 								</span>
 							</div>
@@ -220,9 +225,9 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								<Media
 									resource={
 										listing?.imageGallery[0]?.image as
-											| MediaType
-											| number
-											| undefined
+										| MediaType
+										| number
+										| undefined
 									}
 									className={`col-span-1 aspect-[3/2] sm:aspect-auto ${listing.imageGallery.length > 1 ? "row-span-1" : "row-span-2"} relative`}
 									imgClassName="absolute top-0 left-0 w-full h-full object-cover"
@@ -232,9 +237,9 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									<Media
 										resource={
 											listing.imageGallery[1].image as
-												| MediaType
-												| number
-												| undefined
+											| MediaType
+											| number
+											| undefined
 										}
 										className="col-span-1 row-span-1 relative aspect-[3/2] sm:aspect-auto"
 										imgClassName="absolute top-0 left-0 w-full h-full object-cover"
@@ -534,8 +539,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									</h2>
 								</div>
 							</div>
-							{/* @ts-ignore */}
 							<FormBlock
+								// @ts-ignore
 								form={sidebarForm}
 								styles={{ global: { theme: "thin" }, resp: {} }}
 							/>
@@ -573,8 +578,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								property!
 							</p>
 						</div>
-						{/* @ts-ignore */}
 						<FormBlock
+							//  @ts-ignore
 							form={footerContactForm}
 							styles={{ global: {}, resp: {} }}
 						/>
