@@ -40,6 +40,7 @@ export const Listings: CollectionConfig = {
   },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
+    listSearchableFields: ['title', 'slug', 'streetAddress', 'city', 'state', 'zipCode'],
     livePreview: {
       url: ({ data }) => {
         const path = generatePreviewPath({
