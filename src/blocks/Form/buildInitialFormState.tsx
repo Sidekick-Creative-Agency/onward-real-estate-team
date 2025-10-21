@@ -2,9 +2,10 @@ import type { FormFieldBlock } from '@payloadcms/plugin-form-builder/types'
 import { PhoneNumberField } from './PhoneNumber/Field'
 import { PageTitleField } from './PageTitle/Field/input'
 import { TeamMemberEmailField } from './TeamMemberEmail/Field/input'
+import { PageSlugField } from './PageSlug/Field/input'
 
 export const buildInitialFormState = (
-  fields: (FormFieldBlock | PhoneNumberField | PageTitleField | TeamMemberEmailField)[],
+  fields: (FormFieldBlock | PhoneNumberField | PageTitleField | PageSlugField | TeamMemberEmailField)[],
 ) => {
   return fields?.reduce((initialSchema, field) => {
     if (field.blockType === 'checkbox') {
@@ -50,6 +51,12 @@ export const buildInitialFormState = (
       }
     }
     if (field.blockType === 'pageTitle') {
+      return {
+        ...initialSchema,
+        [field.name]: '',
+      }
+    }
+    if (field.blockType === 'pageSlug') {
       return {
         ...initialSchema,
         [field.name]: '',

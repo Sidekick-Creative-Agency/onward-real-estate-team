@@ -920,6 +920,13 @@ export interface Form {
             title?: string | null;
             id?: string | null;
             blockName?: string | null;
+            blockType: 'pageSlug';
+          }
+        | {
+            name?: string | null;
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
             blockType: 'teamMemberEmail';
           }
       )[]
@@ -2689,6 +2696,14 @@ export interface FormsSelect<T extends boolean = true> {
               blockName?: T;
             };
         pageTitle?:
+          | T
+          | {
+              name?: T;
+              title?: T;
+              id?: T;
+              blockName?: T;
+            };
+        pageSlug?:
           | T
           | {
               name?: T;

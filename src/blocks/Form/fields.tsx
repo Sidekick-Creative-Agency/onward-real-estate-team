@@ -3,6 +3,7 @@ import { Country } from './Country'
 import { Email } from './Email'
 import { Message } from './Message'
 import { Number } from './Number'
+import { PageSlug } from './PageSlug'
 import { PageTitle } from './PageTitle'
 
 import { PhoneNumber } from './PhoneNumber'
@@ -24,5 +25,6 @@ export const fields = {
   textarea: Textarea,
   phoneNumber: PhoneNumber,
   pageTitle: PageTitle,
+  pageSlug: PageSlug,
   teamMemberEmail: TeamMemberEmail,
 }

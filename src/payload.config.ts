@@ -58,6 +58,7 @@ import { CookieBanner } from './CookieBanner/config'
 import { authenticated } from './access/authenticated'
 import { MessageField } from './blocks/Form/Message/Field'
 import { anyone } from './access/anyone'
+import { PageSlug } from './blocks/Form/PageSlug/Field/input'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -265,6 +266,7 @@ export default buildConfig({
         state: StateField,
         textarea: TextAreaField,
         pageTitle: PageTitle,
+        pageSlug: PageSlug,
         teamMemberEmail: TeamMemberEmail,
         message: MessageField,
       },
