@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useId, useRef } from "react";
+import { UseFormRegister } from "react-hook-form";
 
 declare global {
     const grecaptcha: {
@@ -16,12 +17,12 @@ declare global {
 }
 interface Props {
     action: string;
-    setToken: React.Dispatch<React.SetStateAction<string>>
+    setToken: (token: string) => void;
+    register: UseFormRegister<Record<string, any>>;
 }
 
-export function Recaptcha({ action, setToken }: Props) {
+export function Recaptcha({ action, setToken, register }: Props) {
     const id = useId()
-    const inputRef = useRef<HTMLInputElement | null>(null)
     const pathname = usePathname()
     const executeRecaptcha = () => {
         if (typeof grecaptcha !== "undefined") {
@@ -31,10 +32,7 @@ export function Recaptcha({ action, setToken }: Props) {
                         process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
                         { action }
                     );
-                    if (inputRef.current) {
-                        inputRef.current.value = token
-                        setToken(token)
-                    }
+                    setToken(token)
                 } catch (e) {
                     console.error("Recaptcha error", e);
                 }
@@ -52,7 +50,7 @@ export function Recaptcha({ action, setToken }: Props) {
                 src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
                 strategy="afterInteractive"
             />
-            <input type="hidden" name="recaptchaToken" id={`recaptcha-token_${id}`} ref={inputRef} />
+            <input type="hidden" id={`recaptcha-token_${id}`} {...register('recaptchaToken')} />
         </>
     );
 }

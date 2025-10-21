@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { PageTitleField } from './PageTitle/Field/input'
 import { TeamMemberEmailField } from './TeamMemberEmail/Field/input'
+import { Recaptcha } from './Recaptcha'
+import { PageSlugField } from './PageSlug/Field/input'
 export type Value = unknown
 
 export interface Property {
@@ -30,7 +32,7 @@ export type FormBlockType = {
   blockType?: 'formBlock'
   enableIntro: boolean
   form: FormType & {
-    fields: (FormFieldBlock | PhoneNumberField | PageTitleField | TeamMemberEmailField)[]
+    fields: (FormFieldBlock | PhoneNumberField | PageTitleField | PageSlugField | TeamMemberEmailField)[]
   }
   introContent?: {
     [k: string]: unknown
@@ -115,7 +117,7 @@ export const FormBlock: React.FC<
   }
 
   const formMethods = useForm({
-    defaultValues: buildInitialFormState(formFromProps.fields),
+    defaultValues: { ...buildInitialFormState(formFromProps.fields), recaptchaToken: '' },
   })
   const {
     control,
@@ -135,8 +137,34 @@ export const FormBlock: React.FC<
       const submitForm = async () => {
         setIsLoading(true)
         setError(undefined)
+        console.log(data)
+        if (!data.recaptchaToken) {
+          setIsLoading(false)
+          setError({ message: 'Unable to verify reCaptcha' })
+          return
+        }
+        try {
+          const recaptchaVerification = await fetch('/api/recaptcha', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: data.recaptchaToken }),
+          }).then(res => res.json())
+          if (!recaptchaVerification.success) {
+            setIsLoading(false)
+            setError({ message: 'reCaptcha verification failed', status: '400' })
+            return
+          }
+        } catch (err) {
+          console.error('Error verifying reCaptcha', err)
+          setIsLoading(false)
+          setError({ message: 'Error verifying reCaptcha' })
+          return
+        }
 
-        const dataToSend = Object.entries(data).map(([name, value]) => ({
+
+        const dataToSend = Object.entries(data).filter(([name]) => name !== 'recaptchaToken').map(([name, value]) => ({
           field: name,
           value,
         }))
@@ -194,7 +222,6 @@ export const FormBlock: React.FC<
     [router, formID, redirect, confirmationType],
   )
 
-
   return (
     <>
       <style>
@@ -221,6 +248,7 @@ export const FormBlock: React.FC<
           )}
 
           {!hasSubmitted && (
+            // @ts-expect-error type error with dynamic nature of useForm default values
             <form id={formID} onSubmit={handleSubmit(onSubmit)}>
               <div className={`mb-4 flex flex-wrap ${theme === 'default' ? 'gap-4' : 'gap-10'}`}>
                 {formFromProps &&
@@ -250,6 +278,10 @@ export const FormBlock: React.FC<
                     }
                     return null
                   })}
+
+                <Recaptcha action='form_submit' setToken={(value) => setValue('recaptchaToken', value)}
+                  // @ts-expect-error type error with dynamic nature of useForm default values
+                  register={register} />
               </div>
 
               <Button

@@ -91,6 +91,7 @@ export const generateContactFormSubmitterEmail = (fields: Record<any, any>) => {
                                               .map((field, index) => {
                                                 if (
                                                   field.field !== 'page-title' &&
+                                                  field.field !== 'page-slug' &&
                                                   field.field !== 'team-member-email' &&
                                                   field.value
                                                 ) {
