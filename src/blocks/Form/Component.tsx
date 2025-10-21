@@ -137,7 +137,6 @@ export const FormBlock: React.FC<
       const submitForm = async () => {
         setIsLoading(true)
         setError(undefined)
-        console.log(data)
         if (!data.recaptchaToken) {
           setIsLoading(false)
           setError({ message: 'Unable to verify reCaptcha' })

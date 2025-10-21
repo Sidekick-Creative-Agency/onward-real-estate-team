@@ -5,7 +5,8 @@ import { NextResponse } from 'next/server'
  * Expects JSON body: { token: string }
  *
  * Environment:
- * - RECAPTCHA_SECRET_KEY - your server secret key
+ * - GOOGLE_API_KEY - your Google API key
+ * - NEXT_PUBLIC_RECAPTCHA_SITE_KEY - your reCAPTCHA site key
  */
 
 export async function POST(request: Request) {
@@ -20,10 +21,10 @@ export async function POST(request: Request) {
       )
     }
 
-    const secret = process.env.RECAPTCHA_SECRET_KEY
+    const secret = process.env.GOOGLE_API_KEY
     if (!secret) {
       return NextResponse.json(
-        { success: false, message: 'reCAPTCHA secret not configured' },
+        { success: false, message: 'Google API key not configured' },
         { status: 500 },
       )
     }
