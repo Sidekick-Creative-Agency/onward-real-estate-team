@@ -46,7 +46,11 @@ export async function POST(request: Request) {
     )
     const recaptchaData = await recaptchaResponse.json()
 
-    if (!recaptchaData?.riskAnalysis?.score || recaptchaData?.tokenProperties?.valid !== true) {
+    if (
+      !recaptchaData?.riskAnalysis?.score ||
+      recaptchaData?.riskAnalysis?.score < 0.75 ||
+      recaptchaData?.tokenProperties?.valid !== true
+    ) {
       console.log('Recaptcha failed', JSON.stringify(recaptchaData, null, 2))
       return NextResponse.json({ success: false, message: 'Recaptcha failed' }, { status: 400 })
     }

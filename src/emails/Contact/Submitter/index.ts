@@ -92,6 +92,7 @@ export const generateContactFormSubmitterEmail = (fields: Record<any, any>) => {
                                                 if (
                                                   field.field !== 'page-title' &&
                                                   field.field !== 'page-slug' &&
+                                                  field.field !== 'honeypot' &&
                                                   field.field !== 'team-member-email' &&
                                                   field.value
                                                 ) {
