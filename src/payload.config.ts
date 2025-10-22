@@ -293,6 +293,23 @@ export default buildConfig({
           ]
         },
       },
+      formSubmissionOverrides: {
+        hooks: {
+          beforeValidate: [
+            async ({ data }) => {
+              console.log('Form submission data:', data)
+              const honeypot = data?.submissionData?.filter(
+                (field) => field.field === 'honeypot',
+              )[0]
+              if (honeypot && honeypot.value) {
+                console.log('Honeypot field value:', honeypot?.value)
+                throw new Error('Spam detected')
+              }
+              return data
+            },
+          ],
+        },
+      },
     }),
     searchPlugin({
       collections: ['posts'],

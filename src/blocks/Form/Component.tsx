@@ -117,7 +117,7 @@ export const FormBlock: React.FC<
   }
 
   const formMethods = useForm({
-    defaultValues: { ...buildInitialFormState(formFromProps.fields), recaptchaToken: '' },
+    defaultValues: { ...buildInitialFormState(formFromProps.fields), recaptchaToken: '', honeypot: '' },
   })
   const {
     control,
@@ -281,6 +281,8 @@ export const FormBlock: React.FC<
                 <Recaptcha action='form_submit' setToken={(value) => setValue('recaptchaToken', value)}
                   // @ts-expect-error type error with dynamic nature of useForm default values
                   register={register} />
+
+                <input type="text" className='hidden' {...register('honeypot')} aria-hidden="true" tabIndex={-1} autoComplete='off' />
               </div>
 
               <Button
