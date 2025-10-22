@@ -341,7 +341,7 @@ export const TeamMemberSignature: React.FC<{ teamMember: TeamMember }> = ({ team
                                             }}
                                         >
                                             <img
-                                                src={(teamMember.details.emailSignatureHeadshot as Media)?.thumbnailURL || undefined}
+                                                src={process.env.NEXT_PUBLIC_SERVER_URL + (teamMember.details.emailSignatureHeadshot as Media)?.thumbnailURL || undefined}
                                                 width="128px"
                                                 height="128px"
                                                 alt={`${teamMember.title} Headshot`}
