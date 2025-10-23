@@ -1,4 +1,5 @@
 'use client'
+import { Recaptcha } from '@/blocks/Form/Recaptcha'
 import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,26 +15,51 @@ interface NewsletterFormProps {
 }
 
 export const NewsletterForm: React.FC<NewsletterFormProps> = ({ form }) => {
-  const inputRef = useRef<HTMLInputElement | null>(null)
   const submitRef = useRef<HTMLButtonElement | null>(null)
 
-  const formMethods = useForm<{ email: string }>()
+  const formMethods = useForm<{ email: string, recaptchaToken: string, honeypot: string }>({ defaultValues: { email: '', recaptchaToken: '', honeypot: '' } })
   const {
     formState: { errors },
     handleSubmit,
     register,
     setFocus,
+    setValue
   } = formMethods
 
   const [isLoading, setIsLoading] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState<boolean>()
   const [error, setError] = useState<{ message: string; status?: string } | undefined>()
   const router = useRouter()
-  const onSubmit = (data: { email: string }) => {
+  const onSubmit = (data: { email: string, recaptchaToken: string, honeypot: string }) => {
     if (!form) return
     const submitForm = async () => {
       setIsLoading(true)
       setError(undefined)
+
+      if (!data.recaptchaToken) {
+        setIsLoading(false)
+        setError({ message: 'Unable to verify reCaptcha' })
+        return
+      }
+      try {
+        const recaptchaVerification = await fetch('/api/recaptcha', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: data.recaptchaToken }),
+        }).then(res => res.json())
+        if (!recaptchaVerification.success) {
+          setIsLoading(false)
+          setError({ message: 'reCaptcha verification failed', status: '400' })
+          return
+        }
+      } catch (err) {
+        console.error('Error verifying reCaptcha', err)
+        setIsLoading(false)
+        setError({ message: 'Error verifying reCaptcha' })
+        return
+      }
 
       const dataToSend = Object.entries(data).map(([name, value]) => ({
         field: name,
@@ -110,6 +136,10 @@ export const NewsletterForm: React.FC<NewsletterFormProps> = ({ form }) => {
               type="email"
               {...register('email')}
             />
+            <Recaptcha action='form_submit' setToken={(value) => setValue('recaptchaToken', value)}
+              // @ts-expect-error type error with dynamic nature of useForm default values
+              register={register} />
+            <input type="text" className='hidden' {...register('honeypot')} aria-hidden="true" tabIndex={-1} autoComplete='off' />
             <Button ref={submitRef}>
               {!isLoading ? (
                 form.submitButtonLabel
