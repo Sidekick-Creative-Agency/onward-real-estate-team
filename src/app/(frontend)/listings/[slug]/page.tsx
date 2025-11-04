@@ -105,6 +105,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 	const { slug = "" } = await paramsPromise;
 	const url = "/listings/" + slug;
 	const listing = await queryListingBySlug({ slug });
+
 	const payload = await getPayload({ config: configPromise });
 
 	const footerContactForm = await payload.findByID({
@@ -116,7 +117,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 		id: 5,
 	})
 
-	if (!listing) return <PayloadRedirects url={url} />;
+	if (!listing || listing?._status !== "published") return <PayloadRedirects url={url} />;
 
 	return (
 		<article>

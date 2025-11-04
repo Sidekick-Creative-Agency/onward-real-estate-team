@@ -11,6 +11,13 @@ const dirname = path.dirname(filename)
 
 export const Attachments: CollectionConfig = {
   slug: 'attachments',
+  // admin: {
+  //   components: {
+  //     edit: {
+  //       Upload: '@/components/Upload/AttachmentsUpload#AttachmentsUpload',
+  //     },
+  //   },
+  // },
 
   access: {
     create: authenticated,
