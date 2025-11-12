@@ -9,4 +9,5 @@ export interface MapFilters {
   sizeType?: string | null | undefined
   availability?: string | null | undefined
   transactionType?: 'for-sale' | 'for-lease' | null | undefined
+  status?: string[] | null | undefined
 }

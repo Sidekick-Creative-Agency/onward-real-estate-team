@@ -297,7 +297,6 @@ export default buildConfig({
         hooks: {
           beforeValidate: [
             async ({ data }) => {
-              console.log('Form submission data:', data)
               const honeypot = data?.submissionData?.filter(
                 (field) => field.field === 'honeypot',
               )[0]

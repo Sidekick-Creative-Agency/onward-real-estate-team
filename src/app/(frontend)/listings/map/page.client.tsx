@@ -292,7 +292,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
         }
       }
     }
-
     if (response.listings) {
       updateMapListings(response.listings?.docs as MapListing[] || [])
       setTotalListings(response.listings?.totalDocs)
@@ -377,21 +376,9 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
           return {
             type: 'Feature',
             properties: {
-              // title: listing.title,
-              // slug: listing.slug,
-              // address: listing.streetAddress,
-              // price:
-              //   typeof listing.price === 'number' && listing.price !== 0
-              //     ? formatPrice(listing.price)
-              //     : '',
-              // textAfterPrice: listing.textAfterPrice || '',
-              // transactionType: listing.transactionType,
-              // imageSrc: (listing.featuredImage as MediaType).thumbnailURL,
-              // imageAlt: (listing.featuredImage as MediaType).alt,
               lat: listing.coordinates[1],
               lon: listing.coordinates[0],
               id: listing.id,
-              // iconSize: 32,
               category: listing.category,
               listOfficeName: listing.MLS?.ListOfficeName || '',
             },
@@ -617,19 +604,10 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
           }
         }
       }
+    } else {
+      handleClearMap()
     }
   }
-
-
-  //     mapRef.current?.off('click', 'clusters', handleClusterClick);
-  //     if (mapRef.current?.getSource('listings')) {
-  //       mapRef.current?.removeSource('listings');
-  //     }
-  //   }
-  // }, [activeMapListings, isFirstRender])
-
-  // FIRST RENDER
-
 
   const handleReset = async () => {
     try {
@@ -658,20 +636,19 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left')
     mapRef.current.on('load', loadMarkerImages)
     mapRef.current?.on('dragend', updateBounds)
-    // mapRef.current?.on('zoomend', updateBounds)
 
     // FETCH PROPERTIES ON FIRST RENDER
     const filterData = {
       search: searchParams.get('search') || '',
       category: searchParams.get('category') || '',
-      propertyType: searchParams.get('property_type') || '',
-      minPrice: searchParams.get('min_price') || '',
-      maxPrice: searchParams.get('max_price') || '',
-      sizeType: searchParams.get('size_type') || '',
-      minSize: searchParams.get('min_size') || '',
-      maxSize: searchParams.get('max_size') || '',
+      propertyType: searchParams.get('propertyType') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+      sizeType: searchParams.get('sizeType') || '',
+      minSize: searchParams.get('minSize') || '',
+      maxSize: searchParams.get('maxSize') || '',
       availability: searchParams.get('availability') || '',
-      transactionType: (searchParams.get('transaction_type') || '') as
+      transactionType: (searchParams.get('transactionType') || '') as
         | 'for-sale'
         | 'for-lease'
         | null
@@ -924,63 +901,64 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                   </Card>
                 )
               })}
-            <div className="col-span-full flex justify-center gap-2 items-center">
-              <Button
-                className="p-2 text-brand-gray-04"
-                variant="ghost"
-                onClick={() => {
-                  if (hasPrevPage && prevPage) {
-                    fetchCardListings(filters, 1, sortData?.value).then((res) => updateSearchParams([res]))
-                    window.scrollTo({ top: 0 })
-                  }
-                }}
-              >
-                <FontAwesomeIcon icon={faChevronDoubleLeft} className="w-4 h-4" />
-              </Button>
-              <Button
-                className="p-2 text-brand-gray-04"
-                variant="ghost"
-                onClick={() => {
-                  if (hasPrevPage && prevPage) {
-                    fetchCardListings(filters, prevPage, sortData?.value).then((res) => updateSearchParams([res]))
-                    window.scrollTo({ top: 0 })
-                  }
-                }}
-              >
-                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-              </Button>
+            {(totalListings && totalListings > 0) ? (
+              <div className="col-span-full flex justify-center gap-2 items-center">
+                <Button
+                  className="p-2 text-brand-gray-04"
+                  variant="ghost"
+                  onClick={() => {
+                    if (hasPrevPage && prevPage) {
+                      fetchCardListings(filters, 1, sortData?.value).then((res) => updateSearchParams([res]))
+                      window.scrollTo({ top: 0 })
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faChevronDoubleLeft} className="w-4 h-4" />
+                </Button>
+                <Button
+                  className="p-2 text-brand-gray-04"
+                  variant="ghost"
+                  onClick={() => {
+                    if (hasPrevPage && prevPage) {
+                      fetchCardListings(filters, prevPage, sortData?.value).then((res) => updateSearchParams([res]))
+                      window.scrollTo({ top: 0 })
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                </Button>
 
-              <span className="font-light leading-none text-brand-gray-04">
-                {currentPage} {totalPages && `of ${totalPages}`}
-              </span>
+                <span className="font-light leading-none text-brand-gray-04">
+                  {currentPage} {totalPages && `of ${totalPages}`}
+                </span>
 
-              <Button
-                className="p-2 text-brand-gray-04"
-                variant="ghost"
-                onClick={() => {
-                  if (hasNextPage && nextPage) {
-                    fetchCardListings(filters, nextPage, sortData?.value).then((res) => updateSearchParams([res]))
-                    window.scrollTo({ top: 0 })
-                  }
-                }}
-              >
-                <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
-              </Button>
-              <Button
-                className="p-2 text-brand-gray-04"
-                variant="ghost"
-                onClick={() => {
-                  if (hasNextPage && totalPages) {
-                    fetchCardListings(filters, totalPages, sortData?.value).then((res) => updateSearchParams([res]))
-                    window.scrollTo({ top: 0 })
-                  }
-                }}
-              >
-                <FontAwesomeIcon icon={faChevronDoubleRight} className="w-4 h-4" />
-              </Button>
+                <Button
+                  className="p-2 text-brand-gray-04"
+                  variant="ghost"
+                  onClick={() => {
+                    if (hasNextPage && nextPage) {
+                      fetchCardListings(filters, nextPage, sortData?.value).then((res) => updateSearchParams([res]))
+                      window.scrollTo({ top: 0 })
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
+                </Button>
+                <Button
+                  className="p-2 text-brand-gray-04"
+                  variant="ghost"
+                  onClick={() => {
+                    if (hasNextPage && totalPages) {
+                      fetchCardListings(filters, totalPages, sortData?.value).then((res) => updateSearchParams([res]))
+                      window.scrollTo({ top: 0 })
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faChevronDoubleRight} className="w-4 h-4" />
+                </Button>
 
 
-            </div>
+              </div>) : null}
 
             {!isFirstRender &&
               !isCardsLoading &&

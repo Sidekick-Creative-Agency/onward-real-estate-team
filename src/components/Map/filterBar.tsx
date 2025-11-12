@@ -27,6 +27,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../u
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { Label } from '../ui/label'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
+import { useSearchParams } from 'next/navigation'
 
 interface FilterBarProps {
   handleFilter: (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => void
@@ -51,10 +52,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const { width } = useWindowDimensions()
   const formRef = useRef<HTMLFormElement | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const minPrice = form.watch('minPrice')
+  const maxPrice = form.watch('maxPrice')
+  const minSize = form.watch('minSize')
+  const maxSize = form.watch('maxSize')
+  const sizeType = form.watch('sizeType')
   const propertyTypesResponse = usePayloadAPI(
     `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/api/property-types`,
   )
-
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setNeedsRefresh(false)
     const filterData = {
@@ -117,6 +122,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       )
     }
   }, [propertyTypesResponse])
+
+  useEffect(() => {
+
+    handleSizeChange(minSize, maxSize, sizeType)
+
+
+    handlePriceChange(minPrice, maxPrice)
+
+  }, [minSize, maxSize, sizeType, minPrice, maxPrice])
 
 
   return (

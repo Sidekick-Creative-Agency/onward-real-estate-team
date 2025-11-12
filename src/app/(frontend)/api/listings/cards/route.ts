@@ -15,12 +15,18 @@ export async function GET(req: NextRequest) {
     const bounds = searchParams.get('bounds') ? JSON.parse(searchParams.get('bounds')!) : undefined
 
     const payload = await getPayload({ config: configPromise })
-
     const whereQuery: Where = {
       and: [
-        { _status: { equals: 'published' } },
-        { availability: { in: ['available', 'active'] } },
         {
+          ...(filters?.status
+            ? {
+                _status: { in: filters.status }
+              }
+            : {
+              _status: { equals: 'published' }
+            }),
+        },
+       {
           ...(filters?.search
             ? {
                 or: [
@@ -90,6 +96,13 @@ export async function GET(req: NextRequest) {
           ...(filters?.category && filters.category !== 'all'
             ? { category: { equals: filters.category } }
             : {}),
+        },
+        {
+          ...(filters?.availability
+            ? { availability: { equals: filters.availability } }
+            : {
+              availability: { in: ['available', 'active'] },
+            }),
         },
         {
           ...(bounds
