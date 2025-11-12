@@ -117,7 +117,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 		id: 5,
 	})
 
-	if (!listing || listing?._status !== "published") return <PayloadRedirects url={url} />;
+	if (!listing) return <PayloadRedirects url={url} />;
 
 	return (
 		<article>
@@ -490,7 +490,6 @@ export default async function Listing({ params: paramsPromise }: Args) {
 															/vimeo\.com\/(?:video\/)?([a-zA-Z0-9]+)(?:\/([a-zA-Z0-9]+))?/,
 														);
 														if (vimeoMatch) {
-															console.log(vimeoMatch);
 															// If hash exists, append it
 															return vimeoMatch[2]
 																? `https://player.vimeo.com/video/${vimeoMatch[1]}?h=${vimeoMatch[2]}`
