@@ -540,6 +540,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
               featuredImage: number | MediaType;
               category?: ("commercial" | "residential") | null | undefined;
               price?: number | null | undefined;
+              priceLabel?: string | null | undefined;
               textAfterPrice?: string | null | undefined;
               transactionType?: ("for-sale" | "for-lease") | null | undefined;
               streetAddress: string;
@@ -563,13 +564,18 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                   <img src="${listing?.featuredImage ? (listing?.featuredImage as MediaType).url : listing?.MLS?.FeaturedImageUrl || null}" alt="${listing?.featuredImage ? (listing?.featuredImage as MediaType).alt : ''}" class="marker-popup_image w-full absolute top-0 left-0 h-full object-cover" />
                 </div>
                 <div class="p-6 bg-white flex flex-col">
-                <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06">${listing?.price
-                  ? `${formatPrice(listing.price)}${listing?.textAfterPrice
-                    ? `<span class="text-sm ml-2 font-normal">${listing?.textAfterPrice}</span>`
-                    : ''
-                  }`
-                  : 'Contact for price'
-                }</span>
+                <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06">
+
+                ${typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+
+                  `${formatPrice(listing?.price)}${listing?.textAfterPrice ? `<span class="text-sm ml-2 text-normal" > ${listing.textAfterPrice}</span>` : ''}`
+
+                ) : (
+
+                  `${listing?.priceLabel || 'Contact for price'}`
+
+                )}
+                </span>
                   <h3 class="marker-title font-basic-sans text-brand-gray-04 text-base font-light">${listing?.streetAddress}</h3>
                   <a href="/listings/${listing?.slug}" class="p-2 w-fit text-sm rounded-sm transition-colors hover:bg-brand-gray-00 focus-visible:bg-brand-gray-00 focus-visible:outline-none font-light flex items-center gap-1 text-brand-gray-04"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-2 h-auto fill-brand-gray-04"><!--!Font Awesome Pro 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path d="M240 64l0-16-32 0 0 16 0 176L32 240l-16 0 0 32 16 0 176 0 0 176 0 16 32 0 0-16 0-176 176 0 16 0 0-32-16 0-176 0 0-176z"/></svg>Learn More</a>
                 </div>
@@ -577,8 +583,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
               `,
               )
           }
-
-
 
           mapRef.current?.jumpTo({
             center: coordinates,
@@ -830,15 +834,15 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                             <h3 className="sr-only">{listing.title}</h3>
                             <div>
                               <span className="text-2xl text-brand-gray-06 font-bold font-basic-sans leading-none">
-                                {typeof listing.price === 'number' && listing.price !== 0
-                                  ? `${formatPrice(listing.price)}`
-                                  : 'Contact for price'}
-                              </span>
-                              {typeof listing.price === 'number' &&
-                                listing.price !== 0 &&
-                                listing.textAfterPrice && (
-                                  <span className="text-sm ml-2">{listing.textAfterPrice}</span>
+                                {typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+                                  <>
+                                    {formatPrice(listing?.price)}
+                                    {listing?.textAfterPrice && <span className="text-sm ml-2 text-normal">{listing.textAfterPrice}</span>}
+                                  </>
+                                ) : (
+                                  listing?.priceLabel || 'Contact for price'
                                 )}
+                              </span>
                             </div>
 
                             <span className="text-xl font-light text-brand-gray-06">
