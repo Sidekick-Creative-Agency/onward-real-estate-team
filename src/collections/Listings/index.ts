@@ -239,6 +239,13 @@ export const Listings: CollectionConfig = {
                   type: 'text',
                 },
                 {
+                  name: 'priceLabel',
+                  type: 'text',
+                  admin: {
+                    description: 'Label to display instead of the price or "Contact for Price"',
+                  },
+                },
+                {
                   name: 'propertyType',
                   type: 'relationship',
                   relationTo: 'property-types',

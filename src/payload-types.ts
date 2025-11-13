@@ -386,6 +386,10 @@ export interface Listing {
   } | null;
   price?: number | null;
   textAfterPrice?: string | null;
+  /**
+   * Label to display instead of the price or "Contact for Price"
+   */
+  priceLabel?: string | null;
   propertyType?: (number | PropertyType)[] | null;
   transactionType?: ('for-sale' | 'for-lease') | null;
   availability?: ('available' | 'unavailable' | 'sold' | 'active' | 'pending') | null;
@@ -2385,6 +2389,7 @@ export interface ListingsSelect<T extends boolean = true> {
   description?: T;
   price?: T;
   textAfterPrice?: T;
+  priceLabel?: T;
   propertyType?: T;
   transactionType?: T;
   availability?: T;

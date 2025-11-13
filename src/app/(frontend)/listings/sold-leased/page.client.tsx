@@ -371,7 +371,16 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
                             <h3 className="sr-only">{listing.title}</h3>
                             <div>
                               <span className="text-2xl text-brand-gray-06 font-bold font-basic-sans leading-none">
-                                {typeof listing.price === 'number' && listing.price !== 0
+                                {typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+                                  <>
+                                    {formatPrice(listing?.price)}
+                                    {listing?.textAfterPrice && <span className="text-sm ml-2 text-normal">{listing.textAfterPrice}</span>}
+                                  </>
+                                ) : (
+                                  listing?.priceLabel || 'Contact for price'
+                                )}
+                              </span>
+                              {/* {typeof listing.price === 'number' && listing.price !== 0
                                   ? `${formatPrice(listing.price)}`
                                   : 'Contact for price'}
                               </span>
@@ -379,7 +388,7 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
                                 listing.price !== 0 &&
                                 listing.textAfterPrice && (
                                   <span className="text-sm ml-2">{listing.textAfterPrice}</span>
-                                )}
+                                )} */}
                             </div>
 
                             <span className="text-xl font-light text-brand-gray-06">

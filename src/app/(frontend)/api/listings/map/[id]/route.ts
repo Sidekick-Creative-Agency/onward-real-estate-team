@@ -20,6 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         slug: true,
         streetAddress: true,
         price: true,
+        priceLabel: true,
         textAfterPrice: true,
         transactionType: true,
         category: true,

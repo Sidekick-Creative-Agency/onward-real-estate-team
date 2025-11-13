@@ -65,7 +65,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         >
           {listing.streetAddress}
         </span>
-        {typeof listing.price === 'number' && listing.price !== 0 ? (
+        {typeof listing.price === 'number' && listing.price !== 0 && !listing.priceLabel ? (
           <span
             className="text-xl font-light text-white leading-tight translate-y-[20px] opacity-0"
 
@@ -78,7 +78,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             className="text-xl font-light text-white translate-y-[20px] opacity-0"
 
           >
-            Contact for price
+            {listing.priceLabel || 'Contact for price'}
           </span>
         )}
       </div>
