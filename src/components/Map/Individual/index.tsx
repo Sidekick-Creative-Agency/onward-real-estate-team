@@ -51,7 +51,15 @@ export const ListingMap: React.FC<ListingMapProps> = ({ listing }) => {
                   </div>
                   <div class="p-6 bg-white flex flex-col-reverse">
                     <h3 class="marker-title font-basic-sans text-brand-gray-04 text-base font-light">${listing.streetAddress}</h3>
-                    <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06">${listing.price ? `${formatPrice(listing.price)}` : 'Contact for price'}</span>
+                    <span class="marker-description text-2xl font-basic-sans font-bold text-brand-gray-06"> ${typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+
+            `${formatPrice(listing?.price)}${listing?.textAfterPrice ? `<span class="text-sm ml-2 text-normal" > ${listing.textAfterPrice}</span>` : ''}`
+
+          ) : (
+
+            `${listing?.priceLabel || 'Contact for price'}`
+
+          )}</span>
                   </div>
                 </div>
 

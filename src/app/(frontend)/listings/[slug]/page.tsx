@@ -162,16 +162,16 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									{listing.title !== `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}` ? listing.title : listing.streetAddress}
 								</span>
 								<span className="text-[2.5rem] font-bold text-brand-navy leading-tight md:hidden">
-									{typeof listing.price === "number" && listing.price !== 0
-										? formatPrice(listing.price)
-										: "Contact for price"}
-								</span>
-								{typeof listing.price === "number" &&
-									listing.textAfterPrice && (
-										<span className=" inline md:hidden ml-2">
-											{listing.textAfterPrice}
-										</span>
+
+									{typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+										<>
+											{formatPrice(listing?.price)}
+											{listing?.textAfterPrice && <span className="inline ml-2 text-lg">{listing.textAfterPrice}</span>}
+										</>
+									) : (
+										listing?.priceLabel || 'Contact for price'
 									)}
+								</span>
 								{listing.availability && (
 									<div className="py-[.6rem] px-3 rounded-lg bg-brand-blue bg-opacity-50 leading-none hidden md:block">
 										<span className="text-xs font-bold text-brand-navy tracking-wider leading-none uppercase">
@@ -200,16 +200,15 @@ export default async function Listing({ params: paramsPromise }: Args) {
 						<div className="flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end gap-4">
 							<div className="hidden md:block">
 								<span className="text-3xl md:text-[2.5rem] font-bold text-brand-navy hidden md:inline-block text-right">
-									{typeof listing.price === "number" && listing.price !== 0
-										? formatPrice(listing.price)
-										: "Contact for price"}
-								</span>
-								{typeof listing.price === "number" &&
-									listing.textAfterPrice && (
-										<span className="hidden md:inline ml-2">
-											{listing.textAfterPrice}
-										</span>
+									{typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+										<>
+											{formatPrice(listing?.price)}
+											{listing?.textAfterPrice && <span className="inline ml-2 text-xl">{listing.textAfterPrice}</span>}
+										</>
+									) : (
+										listing?.priceLabel || 'Contact for price'
 									)}
+								</span>
 							</div>
 
 							{listing.availability && (
@@ -333,16 +332,15 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								<div className="flex flex-col gap-2">
 									<div>
 										<h2 className="text-[2.5rem] font-bold text-brand-navy inline">
-											{typeof listing.price === "number" && listing.price !== 0
-												? formatPrice(listing.price)
-												: "Contact for price"}
-										</h2>
-										{typeof listing.price === "number" &&
-											listing.textAfterPrice && (
-												<span className="inline text-sm ml-2">
-													{listing.textAfterPrice}
-												</span>
+											{typeof listing?.price === 'number' && listing?.price !== 0 && !listing?.priceLabel ? (
+												<>
+													{formatPrice(listing?.price)}
+													{listing?.textAfterPrice && <span className="inline ml-2 text-xl">{listing.textAfterPrice}</span>}
+												</>
+											) : (
+												listing?.priceLabel || 'Contact for price'
 											)}
+										</h2>
 									</div>
 									<span className="text-base font-light text-brand-gray-03">
 										{listing.streetAddress}, {listing.city}, {listing.state}{" "}
