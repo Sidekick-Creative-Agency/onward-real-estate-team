@@ -162,14 +162,14 @@ const LoadingState = () => {
 
 export async function generateMetadata(): Promise<Metadata> {
 
-  const title = 'Listings Map | Onward Real Estate Team';
-  const description = 'Browse commercial and residential listings from Onward Real Estate Team.'
+  const title = 'Sold and Leased Listings | Onward Real Estate Team';
+  const description = 'Browse past sold and leased commercial real estate listings from Onward Real Estate Team.'
   return {
     description: description,
     openGraph: mergeOpenGraph({
       description: description,
       title,
-      url: '/listings/map',
+      url: '/listings/sold-leased',
     }),
     title,
   }
