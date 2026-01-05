@@ -18,7 +18,6 @@ export const validateListingSlug: CollectionBeforeChangeHook<Listing> = async ({
   // Find all listings that match this slug pattern
   const existingListings = await payload.find({
     collection: 'listings',
-    draft: true,
     where: {
       slug: {
         equals: baseSlug,
