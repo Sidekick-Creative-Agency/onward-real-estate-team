@@ -29,6 +29,7 @@ import {
 import { slugField } from '@/fields/Slug'
 import { anyone } from '@/access/anyone'
 import { deleteRelatedMedia } from './hooks/deleteRelatedMedia'
+import { validateListingSlug } from './hooks/validateListingSlug'
 
 export const Listings: CollectionConfig = {
   slug: 'listings',
@@ -501,7 +502,7 @@ export const Listings: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateListing],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, validateListingSlug],
   },
   versions: {
     drafts: {

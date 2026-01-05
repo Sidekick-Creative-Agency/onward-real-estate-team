@@ -44,7 +44,6 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
     if (checkboxValue) {
       if (targetFieldValue) {
         const formattedSlug = formatSlug(targetFieldValue)
-
         if (value !== formattedSlug) setValue(formattedSlug)
       } else {
         if (value !== '') setValue('')
