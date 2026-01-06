@@ -5,7 +5,7 @@ import { Header } from '@/Header/Component'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Providers } from '@/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { draftMode } from 'next/headers'
+// import { draftMode } from 'next/headers'
 
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
@@ -14,7 +14,7 @@ import { CookieBanner } from '@/CookieBanner/Component'
 import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
+  // const { isEnabled } = await draftMode()
 
   return (
     <html lang="en" suppressHydrationWarning data-theme="light">

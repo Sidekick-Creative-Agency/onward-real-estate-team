@@ -28,10 +28,10 @@ import {
 import { ListingCard } from '@/components/Listings/ListingCard'
 import { FormBlock } from '@/blocks/Form/Component'
 import { Metadata } from 'next'
-import { cache } from 'react'
+// import { cache } from 'react'
 import { generateMeta } from '@/utilities/generateMeta'
-import { draftMode } from 'next/headers'
 import { Media } from '@/components/Media'
+// import { draftMode } from 'next/headers'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -316,21 +316,13 @@ export default async function Page({ params: paramsPromise }: Args) {
 }
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
-  const teamMember = await queryTeamMemberBySlug({ slug })
-
-  return generateMeta({ doc: teamMember })
-}
-
-const queryTeamMemberBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
     collection: 'team-members',
-    draft,
+    draft: false,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     where: {
       slug: {
         equals: slug,
@@ -338,5 +330,27 @@ const queryTeamMemberBySlug = cache(async ({ slug }: { slug: string }) => {
     },
   })
 
-  return result.docs?.[0] || null
-})
+  const teamMember = result.docs?.[0] || null
+
+  return generateMeta({ doc: teamMember })
+}
+
+// const queryTeamMemberBySlug = cache(async ({ slug }: { slug: string }) => {
+//   const { isEnabled: draft } = await draftMode()
+
+//   const payload = await getPayload({ config: configPromise })
+
+//   const result = await payload.find({
+//     collection: 'team-members',
+//     draft,
+//     limit: 1,
+//     overrideAccess: draft,
+//     where: {
+//       slug: {
+//         equals: slug,
+//       },
+//     },
+//   })
+
+//   return result.docs?.[0] || null
+// })
