@@ -163,8 +163,7 @@ export const TeamMemberSignature: React.FC<{ teamMember: TeamMember }> = ({ team
                                                                                     textDecoration: "none",
                                                                                     fontWeight: 600,
                                                                                 }}
-                                                                                href="https://onwardrealestateteam.com/wp-content/uploads/2025/04/IABS-1-1-03052025-1.pdf"
-                                                                                target="_blank"
+                                                                                href={process.env.NEXT_PUBLIC_SERVER_URL + (teamMember.details.iabsForm ? (teamMember.details.iabsForm as Media)?.url : '/api/attachments/file/onward-IABS-2026-ujviUU1HEd.pdf')}
                                                                                 rel="noopener noreferrer"
                                                                             >Information About Brokerage Services</a>
                                                                         </td>

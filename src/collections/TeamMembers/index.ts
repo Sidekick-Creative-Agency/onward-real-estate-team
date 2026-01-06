@@ -1,7 +1,5 @@
-import type { CollectionConfig, FieldHook } from 'payload'
-
+import type { CollectionConfig } from 'payload'
 import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -203,6 +201,12 @@ export const TeamMembers: CollectionConfig = {
               name: 'emailSignatureHeadshot',
               type: 'upload',
               relationTo: 'media',
+            },
+            {
+              name: 'iabsForm',
+              label: 'IABS Form',
+              type: 'upload',
+              relationTo: 'attachments',
             },
           ],
         },
