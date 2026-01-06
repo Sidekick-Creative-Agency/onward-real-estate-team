@@ -579,6 +579,7 @@ export interface TeamMember {
     isRealtor?: boolean | null;
     company?: ('onward' | 'alliance') | null;
     emailSignatureHeadshot?: (number | null) | Media;
+    iabsForm?: (number | null) | Attachment;
   };
   meta?: {
     title?: string | null;
@@ -2531,6 +2532,7 @@ export interface TeamMembersSelect<T extends boolean = true> {
         isRealtor?: T;
         company?: T;
         emailSignatureHeadshot?: T;
+        iabsForm?: T;
       };
   meta?:
     | T
