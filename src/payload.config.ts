@@ -211,7 +211,7 @@ export default buildConfig({
   globals: [Header, Footer, CookieBanner],
   plugins: [
     redirectsPlugin({
-      collections: ['pages', 'posts', 'listings', 'attachments'],
+      collections: ['pages', 'posts', 'listings'],
       overrides: {
         // @ts-expect-error
         fields: ({ defaultFields }) => {

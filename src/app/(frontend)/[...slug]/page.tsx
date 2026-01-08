@@ -61,7 +61,6 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   const { hero, layout, title } = page
-
   return (
     <div>
       <PageClient />
