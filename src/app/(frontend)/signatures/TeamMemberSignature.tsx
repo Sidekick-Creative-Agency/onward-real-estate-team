@@ -163,7 +163,7 @@ export const TeamMemberSignature: React.FC<{ teamMember: TeamMember }> = ({ team
                                                                                     textDecoration: "none",
                                                                                     fontWeight: 600,
                                                                                 }}
-                                                                                href={process.env.NEXT_PUBLIC_SERVER_URL + (teamMember.details.iabsForm ? (teamMember.details.iabsForm as Media)?.url : '/api/attachments/file/onward-IABS-2026-prk6Sh3wCl.pdf')}
+                                                                                href={process.env.NEXT_PUBLIC_SERVER_URL + (teamMember.details.iabsForm ? (teamMember.details.iabsForm as Media)?.url : '/api/attachments/file/onward-IABS-2026-wErVTkQbUA.pdf')}
                                                                                 rel="noopener noreferrer"
                                                                             >Information About Brokerage Services</a>
                                                                         </td>
