@@ -9,7 +9,6 @@ import { Metadata } from 'next'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { PageClient } from './page.client'
 import { MAP_PAGINATION_LIMIT } from '@/utilities/constants'
-import { MapFilters } from '../map/page.client'
 
 export default async function Page({ searchParams: searchParamsPromise }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const searchParams = await searchParamsPromise

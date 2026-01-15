@@ -1,6 +1,6 @@
 'use client'
-import { Listing, Media as MediaType } from '@/payload-types'
-import { useEffect, useRef, useState } from 'react'
+import { Listing } from '@/payload-types'
+import { useEffect, useState } from 'react'
 import { Card } from '../../../../components/ui/card'
 import { Media } from '../../../../components/Media'
 import { Button } from '../../../../components/ui/button'

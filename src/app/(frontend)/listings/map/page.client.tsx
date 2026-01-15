@@ -43,6 +43,8 @@ import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import './styles.scss'
 import { useDebounce } from '@/utilities/useDebounce'
 import { PaginatedDocs } from 'payload'
+import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
+import { MapFilters } from '../../api/listings/types'
 
 interface MapPageClientProps {
   listingsCount?: number
@@ -66,18 +68,18 @@ interface MapListing {
 
 
 
-export interface MapFilters {
-  search?: string | null | undefined
-  category?: string | null | undefined
-  propertyType?: string | null | undefined
-  minPrice?: string | null | undefined
-  maxPrice?: string | null | undefined
-  minSize?: string | null | undefined
-  maxSize?: string | null | undefined
-  sizeType?: string | null | undefined
-  availability?: string | null | undefined
-  transactionType?: 'for-sale' | 'for-lease' | null | undefined
-}
+// export interface MapFilters {
+//   search?: string | null | undefined
+//   category?: string | null | undefined
+//   propertyType?: string | null | undefined
+//   minPrice?: string | null | undefined
+//   maxPrice?: string | null | undefined
+//   minSize?: string | null | undefined
+//   maxSize?: string | null | undefined
+//   sizeType?: string | null | undefined
+//   availability?: string | null | undefined
+//   transactionType?: 'for-sale' | 'for-lease' | null | undefined
+// }
 
 export const FormSchema = z.object({
   search: z.string().optional(),
@@ -177,10 +179,11 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
   const debouncedBounds = useDebounce(bounds, 750)
 
   const handleFilter = (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => {
-    setFilters(filters)
+    const sanitized = sanitizeFilterData(filters);
+    setFilters(sanitized)
     Promise.all([
-      fetchCardListings(filters, page, sort, options),
-      fetchMapListings(filters, options)
+      fetchCardListings(sanitized, page, sort, options),
+      fetchMapListings(sanitized, options)
     ]).then((res) => {
       if (res) {
         updateSearchParams(res)
@@ -188,7 +191,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     })
   }
 
-  const updateSearchParams = (paramsArray: (string | undefined)[]) => {
+  const updateSearchParams = (paramsArray: (string | void | undefined)[]) => {
     const paramsSet = new Set<string>();
     paramsArray.forEach(str => {
       if (str) {
@@ -214,8 +217,9 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     setActiveCardListings([])
     setIsCardsLoading(true)
     const querySearchParams = new URLSearchParams()
-    if (filterData) {
-      querySearchParams.set('filters', JSON.stringify(filterData))
+    const sanitized = sanitizeFilterData(filterData);
+    if (sanitized) {
+      querySearchParams.set('filters', JSON.stringify(sanitized))
     }
     if (!options?.ignoreBounds && debouncedBounds) {
       querySearchParams.set('bounds', JSON.stringify(debouncedBounds))
@@ -223,6 +227,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     if (sort) {
       querySearchParams.set('sort', sort);
     }
+
     if (page) {
       querySearchParams.set('page', String(page));
     }
@@ -232,7 +237,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
       error: string | null;
     }
     if (!response.ok) {
-      console.log('Error fetching map listings:', response.error)
+      console.log('Error fetching card listings:', response.error)
       return
     }
     const newSearchParams = new URLSearchParams()
@@ -242,8 +247,8 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     if (page) {
       newSearchParams.set('page', page.toString())
     }
-    if (filterData) {
-      for (const [key, value] of Object.entries(filterData)) {
+    if (sanitized) {
+      for (const [key, value] of Object.entries(sanitized)) {
         if (value) {
           newSearchParams.set(key, value)
         }
@@ -269,8 +274,9 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     setIsMapLoading(true)
 
     const querySearchParams = new URLSearchParams()
-    if (filterData) {
-      querySearchParams.set('filters', JSON.stringify(filterData))
+    const sanitized = sanitizeFilterData(filterData);
+    if (sanitized) {
+      querySearchParams.set('filters', JSON.stringify(sanitized))
     }
     if (!options?.ignoreBounds && debouncedBounds) {
       querySearchParams.set('bounds', JSON.stringify(debouncedBounds))
@@ -285,8 +291,8 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
       return
     }
     const newSearchParams = new URLSearchParams()
-    if (filterData) {
-      for (const [key, value] of Object.entries(filterData)) {
+    if (sanitized) {
+      for (const [key, value] of Object.entries(sanitized)) {
         if (value) {
           newSearchParams.set(key, value)
         }
@@ -658,9 +664,10 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
         | null
         | undefined,
     }
+    const sanitized = sanitizeFilterData(filterData);
     const page = searchParams.get('page') ? Number(searchParams.get('page')) : undefined
     const sort = searchParams.get('sort') || undefined
-    for (const [key, value] of Object.entries(filterData)) {
+    for (const [key, value] of Object.entries(sanitized)) {
       if (!value) continue
       form.setValue(key as keyof z.infer<typeof FormSchema>, value)
       setFilters((current) => ({ ...current, [key]: value }))
@@ -734,7 +741,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                 !isMapLoading &&
                 totalListings &&
 
-                `${totalListings} Listings`}
+                `${totalListings.toLocaleString()} Listings`}
             </span>
             <DropdownMenu open={isSortOpen} onOpenChange={setIsSortOpen}>
               <DropdownMenuTrigger className="text-lg text-brand-gray-03 font-medium tracking-normal flex items-center gap-2 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">

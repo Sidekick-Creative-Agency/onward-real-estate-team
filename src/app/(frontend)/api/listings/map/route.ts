@@ -2,18 +2,38 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayload, Where } from 'payload'
 import configPromise from '@payload-config'
 import { MapFilters } from '../types'
+import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
 
 export async function GET(req: NextRequest) {
   try {
+    const payload = await getPayload({ config: configPromise })
     const { searchParams } = new URL(req.url)
     const filters: MapFilters = searchParams.get('filters')
       ? JSON.parse(searchParams.get('filters') as string)
       : undefined
+
+    const propertyTypes = await payload
+      .find({
+        collection: 'property-types',
+        limit: 50,
+        select: {
+          title: true,
+        },
+      })
+      .then((res) => res.docs)
+
+    const sanitized = sanitizeFilterData(filters)
+    if (
+      sanitized.propertyType &&
+      !propertyTypes.map((pt) => pt.id).includes(Number(sanitized.propertyType))
+    ) {
+      sanitized.propertyType = undefined
+    }
+
     const bounds = searchParams.get('bounds')
       ? JSON.parse(searchParams.get('bounds') as string)
       : undefined
 
-    const payload = await getPayload({ config: configPromise })
     const whereQuery: Where = {
       and: [
         {
@@ -23,14 +43,14 @@ export async function GET(req: NextRequest) {
           availability: { in: ['available', 'active'] },
         },
         {
-          ...(filters?.search
+          ...(sanitized?.search
             ? {
                 or: [
-                  { title: { like: filters.search } },
-                  { streetAddress: { like: filters.search } },
-                  { city: { like: filters.search } },
-                  { state: { like: filters.search } },
-                  { zipCode: { like: filters.search } },
+                  { title: { like: sanitized.search } },
+                  { streetAddress: { like: sanitized.search } },
+                  { city: { like: sanitized.search } },
+                  { state: { like: sanitized.search } },
+                  { zipCode: { like: sanitized.search } },
                 ],
               }
             : {}),
@@ -42,12 +62,12 @@ export async function GET(req: NextRequest) {
               and: [
                 {
                   price: {
-                    greater_than_equal: filters?.minPrice ? Number(filters.minPrice) : 0,
+                    greater_than_equal: sanitized?.minPrice ? Number(sanitized.minPrice) : 0,
                   },
                 },
                 {
                   price: {
-                    less_than_equal: filters?.maxPrice ? Number(filters.maxPrice) : Infinity,
+                    less_than_equal: sanitized?.maxPrice ? Number(sanitized.maxPrice) : Infinity,
                   },
                 },
               ],
@@ -55,32 +75,32 @@ export async function GET(req: NextRequest) {
           ],
         },
         {
-          ...(filters?.sizeType && filters.sizeType === 'sqft'
+          ...(sanitized?.sizeType && sanitized.sizeType === 'sqft'
             ? {
                 and: [
                   {
                     area: {
-                      greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
+                      greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
                     },
                   },
                   {
                     area: {
-                      less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
+                      less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
                     },
                   },
                 ],
               }
-            : filters?.sizeType && filters.sizeType === 'acres'
+            : sanitized?.sizeType && sanitized.sizeType === 'acres'
               ? {
                   and: [
                     {
                       acreage: {
-                        greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
+                        greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
                       },
                     },
                     {
                       acreage: {
-                        less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
+                        less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
                       },
                     },
                   ],
@@ -88,29 +108,29 @@ export async function GET(req: NextRequest) {
               : {}),
         },
         {
-          ...(filters?.transactionType &&
-          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
+          ...(sanitized?.transactionType &&
+          (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
             ? {
                 transactionType: {
-                  equals: filters.transactionType,
+                  equals: sanitized.transactionType,
                 },
               }
             : {}),
         },
         {
-          ...(filters?.propertyType && filters.propertyType !== 'all'
+          ...(sanitized?.propertyType && sanitized.propertyType !== 'all'
             ? {
                 'propertyType.id': {
-                  equals: filters.propertyType,
+                  equals: sanitized.propertyType,
                 },
               }
             : {}),
         },
         {
-          ...(filters?.category && filters.category !== 'all'
+          ...(sanitized?.category && sanitized.category !== 'all'
             ? {
                 category: {
-                  equals: filters.category,
+                  equals: sanitized.category,
                 },
               }
             : {}),

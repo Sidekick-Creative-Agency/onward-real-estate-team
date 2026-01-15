@@ -3,38 +3,58 @@ import { getPayload, Where } from 'payload'
 import configPromise from '@payload-config'
 import { MapFilters } from '../types'
 import { MAP_PAGINATION_LIMIT } from '@/utilities/constants'
+import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
 
 export async function GET(req: NextRequest) {
   try {
+    const payload = await getPayload({ config: configPromise })
     const { searchParams } = new URL(req.url)
     const filters: MapFilters = searchParams.get('filters')
       ? JSON.parse(searchParams.get('filters') as string)
       : undefined
+
+    const propertyTypes = await payload
+      .find({
+        collection: 'property-types',
+        limit: 50,
+        select: {
+          title: true,
+        },
+      })
+      .then((res) => res.docs)
+
+    const sanitized = sanitizeFilterData(filters)
+    if (
+      sanitized.propertyType &&
+      !propertyTypes.map((pt) => pt.id).includes(Number(sanitized.propertyType))
+    ) {
+      sanitized.propertyType = undefined
+    }
+
     const page = searchParams.get('page')
     const sort = searchParams.get('sort')
     const bounds = searchParams.get('bounds') ? JSON.parse(searchParams.get('bounds')!) : undefined
 
-    const payload = await getPayload({ config: configPromise })
     const whereQuery: Where = {
       and: [
         {
-          ...(filters?.status
+          ...(sanitized?.status
             ? {
-                _status: { in: filters.status }
+                _status: { in: sanitized.status },
               }
             : {
-              _status: { equals: 'published' }
-            }),
+                _status: { equals: 'published' },
+              }),
         },
-       {
-          ...(filters?.search
+        {
+          ...(sanitized?.search
             ? {
                 or: [
-                  { title: { like: filters.search } },
-                  { streetAddress: { like: filters.search } },
-                  { city: { like: filters.search } },
-                  { state: { like: filters.search } },
-                  { zipCode: { like: filters.search } },
+                  { title: { like: sanitized.search } },
+                  { streetAddress: { like: sanitized.search } },
+                  { city: { like: sanitized.search } },
+                  { state: { like: sanitized.search } },
+                  { zipCode: { like: sanitized.search } },
                 ],
               }
             : {}),
@@ -44,10 +64,14 @@ export async function GET(req: NextRequest) {
             { price: { exists: false } },
             {
               and: [
-                { price: { greater_than_equal: filters?.minPrice ? Number(filters.minPrice) : 0 } },
                 {
                   price: {
-                    less_than_equal: filters?.maxPrice ? Number(filters.maxPrice) : Infinity,
+                    greater_than_equal: sanitized?.minPrice ? Number(sanitized.minPrice) : 0,
+                  },
+                },
+                {
+                  price: {
+                    less_than_equal: sanitized?.maxPrice ? Number(sanitized.maxPrice) : Infinity,
                   },
                 },
               ],
@@ -55,26 +79,30 @@ export async function GET(req: NextRequest) {
           ],
         },
         {
-          ...(filters?.sizeType && filters.sizeType === 'sqft'
+          ...(sanitized?.sizeType && sanitized.sizeType === 'sqft'
             ? {
                 and: [
-                  { area: { greater_than_equal: filters.minSize ? Number(filters.minSize) : 0 } },
                   {
-                    area: { less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity },
+                    area: { greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0 },
+                  },
+                  {
+                    area: {
+                      less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
+                    },
                   },
                 ],
               }
-            : filters?.sizeType && filters.sizeType === 'acres'
+            : sanitized?.sizeType && sanitized.sizeType === 'acres'
               ? {
                   and: [
                     {
                       acreage: {
-                        greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
+                        greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
                       },
                     },
                     {
                       acreage: {
-                        less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
+                        less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
                       },
                     },
                   ],
@@ -82,27 +110,27 @@ export async function GET(req: NextRequest) {
               : {}),
         },
         {
-          ...(filters?.transactionType &&
-          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
-            ? { transactionType: { equals: filters.transactionType } }
+          ...(sanitized?.transactionType &&
+          (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
+            ? { transactionType: { equals: sanitized.transactionType } }
             : {}),
         },
         {
-          ...(filters?.propertyType && filters.propertyType !== 'all'
-            ? { 'propertyType.id': { equals: filters.propertyType } }
+          ...(sanitized?.propertyType && sanitized.propertyType !== 'all'
+            ? { 'propertyType.id': { equals: sanitized.propertyType } }
             : {}),
         },
         {
-          ...(filters?.category && filters.category !== 'all'
-            ? { category: { equals: filters.category } }
+          ...(sanitized?.category && sanitized.category !== 'all'
+            ? { category: { equals: sanitized.category } }
             : {}),
         },
         {
-          ...(filters?.availability
-            ? { availability: { equals: filters.availability } }
+          ...(sanitized?.availability
+            ? { availability: { equals: sanitized.availability } }
             : {
-              availability: { in: ['available', 'active'] },
-            }),
+                availability: { in: ['available', 'active'] },
+              }),
         },
         {
           ...(bounds
