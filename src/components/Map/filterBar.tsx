@@ -19,15 +19,15 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { formatNumber } from '@/utilities/formatNumber'
 import { usePayloadAPI } from '@payloadcms/ui'
 import { formatPrice } from '@/utilities/formatPrice'
-// import { useSearchParams } from 'next/navigation'
-import { FormSchema, MapFilters } from '@/app/(frontend)/listings/map/page.client'
+import { FormSchema } from '@/app/(frontend)/listings/map/page.client'
 import useWindowDimensions from '@/utilities/useWindowDimensions'
 import defaultTheme from 'tailwindcss/defaultTheme'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { Label } from '../ui/label'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
-import { useSearchParams } from 'next/navigation'
+import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
+import { MapFilters } from '@/app/(frontend)/api/listings/types'
 
 interface FilterBarProps {
   handleFilter: (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => void
@@ -44,10 +44,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   form,
   isLoading,
 }) => {
-  // const searchParams = useSearchParams()
   const [sizeText, setSizeText] = useState('Size')
   const [priceText, setPriceText] = useState('Price')
-  const [needsRefresh, setNeedsRefresh] = useState(true)
   const [propertyTypes, setPropertyTypes] = useState<{ value: string; label: string }[]>([])
   const { width } = useWindowDimensions()
   const formRef = useRef<HTMLFormElement | null>(null)
@@ -61,7 +59,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/api/property-types`,
   )
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    setNeedsRefresh(false)
     const filterData = {
       search: data.search,
       category: data.category,
@@ -74,8 +71,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       availability: data.availability,
       transactionType: data.transactionType as 'for-sale' | 'for-lease' | null | undefined,
     }
-    handleFilter(filterData, 1, sort, { ignoreBounds: true })
-
+    const sanitized = sanitizeFilterData(filterData)
+    handleFilter(sanitized, 1, sort, { ignoreBounds: true })
     setIsOpen(false)
   }
 
@@ -84,15 +81,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     max: string | number | undefined,
     type: string | undefined,
   ) => {
-    if ((min || max) && !type) {
+    const minNum = Number(min)
+    const maxNum = Number(max)
+    if (((minNum && !isNaN(minNum)) || (maxNum && !isNaN(maxNum))) && !type) {
       form.setValue('sizeType', 'sqft')
     }
-    if (min && max) {
-      setSizeText(`${formatNumber(Number(min))} - ${formatNumber(Number(max))} ${type}`)
-    } else if (min) {
-      setSizeText(`From ${formatNumber(Number(min))} ${type}`)
-    } else if (max) {
-      setSizeText(`Up to ${formatNumber(Number(max))} ${type}`)
+    if (min && max && !isNaN(minNum) && !isNaN(maxNum)) {
+      setSizeText(`${formatNumber(minNum)} - ${formatNumber(maxNum)} ${type}`)
+    } else if (min && !isNaN(minNum)) {
+      setSizeText(`From ${formatNumber(minNum)} ${type}`)
+    } else if (max && !isNaN(maxNum)) {
+      setSizeText(`Up to ${formatNumber(maxNum)} ${type}`)
     } else {
       setSizeText('Size')
     }
@@ -102,12 +101,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     min: string | number | undefined,
     max: string | number | undefined,
   ) => {
-    if (min && max) {
-      setPriceText(`${formatPrice(Number(min))} - ${formatPrice(Number(max))}`)
-    } else if (min) {
-      setPriceText(`From ${formatPrice(Number(min))}`)
-    } else if (max) {
-      setPriceText(`Up to ${formatPrice(Number(max))}`)
+    const minNum = Number(min)
+    const maxNum = Number(max)
+
+    if (min && max && !isNaN(minNum) && !isNaN(maxNum)) {
+      setPriceText(`${formatPrice(minNum)} - ${formatPrice(maxNum)}`)
+    } else if (min && !isNaN(minNum)) {
+      setPriceText(`From ${formatPrice(minNum)}`)
+    } else if (max && !isNaN(maxNum)) {
+      setPriceText(`Up to ${formatPrice(maxNum)}`)
     } else {
       setPriceText('Price')
     }
@@ -124,12 +126,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   }, [propertyTypesResponse])
 
   useEffect(() => {
-
     handleSizeChange(minSize, maxSize, sizeType)
-
-
     handlePriceChange(minPrice, maxPrice)
-
   }, [minSize, maxSize, sizeType, minPrice, maxPrice])
 
 
@@ -271,11 +269,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Input
                                     placeholder="Min price"
                                     {...field}
+                                    value={field.value || ''}
                                     className="h-full text-lg font-light text-brand-navy"
                                     onChange={(event) => {
-                                      field.onChange(event)
+                                      const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                      field.onChange(sanitized)
                                       handlePriceChange(
-                                        form.getValues().minPrice,
+                                        sanitized,
                                         form.getValues().maxPrice,
                                       )
                                     }}
@@ -297,12 +297,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Input
                                     placeholder="Max price"
                                     {...field}
+                                    value={field.value || ''}
                                     className="h-full text-lg font-light text-brand-navy"
                                     onChange={(event) => {
-                                      field.onChange(event)
+                                      const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                      field.onChange(sanitized)
                                       handlePriceChange(
                                         form.getValues().minPrice,
-                                        form.getValues().maxPrice,
+                                        sanitized,
                                       )
                                     }}
                                   />
@@ -376,12 +378,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Input
                                     placeholder="Min size"
                                     {...field}
+                                    value={field.value || ''}
                                     className="h-full text-lg font-light text-brand-navy"
-                                    onKeyUp={() => {
+                                    onChange={(event) => {
+                                      const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                      field.onChange(sanitized)
                                       handleSizeChange(
-                                        form.getValues().minSize,
+                                        sanitized,
                                         form.getValues().maxSize,
-                                        form.getValues().sizeType,
+                                        form.getValues().sizeType
                                       )
                                     }}
                                   />
@@ -402,12 +407,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Input
                                     placeholder="Max size"
                                     {...field}
+                                    value={field.value || ''}
                                     className="h-full text-lg font-light text-brand-navy"
-                                    onKeyUp={() => {
+                                    onChange={(event) => {
+                                      const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                      field.onChange(sanitized)
                                       handleSizeChange(
                                         form.getValues().minSize,
-                                        form.getValues().maxSize,
-                                        form.getValues().sizeType,
+                                        sanitized,
+                                        form.getValues().sizeType
                                       )
                                     }}
                                   />
@@ -590,7 +598,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 )
               }}
             />
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <span className="text-lg font-light text-brand-navy">{priceText}</span>
                 <FontAwesomeIcon
@@ -604,7 +612,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="minPrice"
-                    // defaultValue={searchParams.get('min_price') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -613,11 +620,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                             <Input
                               placeholder="Min price"
                               {...field}
+                              value={field.value || ''}
                               className="h-full text-lg font-light text-brand-navy"
                               onChange={(event) => {
-                                field.onChange(event)
+                                const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                field.onChange(sanitized)
                                 handlePriceChange(
-                                  event.currentTarget.value,
+                                  sanitized,
                                   form.getValues().maxPrice,
                                 )
                               }}
@@ -630,7 +639,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <FormField
                     control={form.control}
                     name="maxPrice"
-                    // defaultValue={searchParams.get('max_price') || ''}
                     render={({ field }) => {
                       return (
                         <FormItem className="w-full">
@@ -639,12 +647,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                             <Input
                               placeholder="Max price"
                               {...field}
+                              value={field.value || ''}
                               className="h-full text-lg font-light text-brand-navy"
                               onChange={(event) => {
-                                field.onChange(event)
+                                const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                field.onChange(sanitized)
                                 handlePriceChange(
                                   form.getValues().minPrice,
-                                  event.currentTarget.value,
+                                  sanitized,
                                 )
                               }}
                             />
@@ -671,7 +681,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <span className="text-lg font-light text-brand-navy">{sizeText}</span>
 
@@ -735,11 +745,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                               placeholder="Min size"
                               {...field}
                               className="h-full text-lg font-light text-brand-navy"
-                              onKeyUp={() => {
+                              onChange={(event) => {
+                                const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                field.onChange(sanitized)
                                 handleSizeChange(
-                                  form.getValues().minSize,
+                                  sanitized,
                                   form.getValues().maxSize,
-                                  form.getValues().sizeType,
+                                  form.getValues().sizeType
                                 )
                               }}
                             />
@@ -760,12 +772,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                             <Input
                               placeholder="Max size"
                               {...field}
+                              value={field.value || ''}
                               className="h-full text-lg font-light text-brand-navy"
-                              onKeyUp={() => {
+                              onChange={(event) => {
+                                const sanitized = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+                                field.onChange(sanitized)
                                 handleSizeChange(
                                   form.getValues().minSize,
-                                  form.getValues().maxSize,
-                                  form.getValues().sizeType,
+                                  sanitized,
+                                  form.getValues().sizeType
                                 )
                               }}
                             />
@@ -784,7 +799,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         form.resetField('sizeType')
                         form.setValue('minSize', '')
                         form.setValue('maxSize', '')
-                        handleSizeChange(form.getValues().minSize, form.getValues().maxSize, '')
+                        handleSizeChange(undefined, undefined, '')
                       }}
                     >
                       <FontAwesomeIcon icon={faXmark} /> Reset
