@@ -119,6 +119,7 @@ export const updateListing = async (
       })
       .catch((error) => {
         console.error('UNKNOWN ERROR UPDATING LISTING: ' + listing.title)
+        console.error(error.message)
         return undefined
       })
     return updatedListing
