@@ -27,6 +27,11 @@ export const validateListingSlug: CollectionBeforeChangeHook<Listing> = async ({
       limit: 1000,
     })
 
+    if (!existingListings || existingListings.totalDocs === 0) {
+      console.log('No existing listings found with slug:', baseSlug)
+      return data
+    }
+
     // Filter to get only listings that match the exact pattern (base or base-number)
     const matchingListings = existingListings.docs.filter((listing) => {
       // Exclude the current document if we're updating

@@ -502,7 +502,10 @@ export const Listings: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateListing],
-    beforeChange: [populatePublishedAt, validateListingSlug],
+    beforeChange: [
+      populatePublishedAt,
+      // validateListingSlug
+    ],
   },
   versions: {
     drafts: {

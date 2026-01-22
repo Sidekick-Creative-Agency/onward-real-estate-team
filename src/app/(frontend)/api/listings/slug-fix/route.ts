@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         }
         console.log('Fixing listing without slug:', listing.title)
         const newSlug = formatSlug(listing.title)
+        console.log('New slug generated:', newSlug)
         const updatedListing = await payload.update({
           collection: 'listings',
           id: listing.id,
@@ -45,6 +46,7 @@ export async function GET(req: NextRequest) {
         return { id: listing.id, slug: updatedListing.slug }
       }),
     ).then((results) => results.filter((item) => item !== null))
+    console.log(`Fixed ${fixedListings.length} listings without slugs.`)
     return NextResponse.json(
       { ok: true, fixedListings: fixedListings, error: null },
       { status: 200 },
