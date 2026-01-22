@@ -1,7 +1,6 @@
 import DigestClient from 'digest-fetch'
 import { XMLParser } from 'fast-xml-parser'
 import { RETSListing, RETSSearchResponse } from '../types/types'
-import { formatAddress } from './formatAddress'
 
 const RETS_COUNTIES = {
   bell: 14,
@@ -44,7 +43,10 @@ export const fetchRETSListings = async (limit: string, offset: string) => {
         }
 
         const columns = parsedObj.RETS.COLUMNS.split('\t')
-        const data = parsedObj.RETS.DATA
+        let data = parsedObj.RETS.DATA
+        if (!Array.isArray(data)) {
+          data = [data]
+        }
         return data.map((listingString, i) => {
           const listingData = listingString.split('\t')
           const listing: RETSListing = {

@@ -34,75 +34,96 @@ export async function GET(request: NextRequest) {
     console.log('LIMIT: ' + limit)
     console.log('OFFSET: ' + offset)
 
-    const payload = await getPayload({ config: configPromise })
-    const existingListings = await payload
-      .find({
-        collection: 'listings',
-        pagination: false,
-      })
-      .then((res) => res.docs)
-    const existingMedia = await payload
-      .find({
-        collection: 'media',
-        pagination: false,
-      })
-      .then((res) => res.docs)
+    // const payload = await getPayload({ config: configPromise })
+    // const existingListings = await payload
+    //   .find({
+    //     collection: 'listings',
+    //     pagination: false,
+    //   })
+    //   .then((res) => res.docs)
+    // const existingMedia = await payload
+    //   .find({
+    //     collection: 'media',
+    //     pagination: false,
+    //   })
+    //   .then((res) => res.docs)
     const retsListings = await fetchRETSListings(limit, offset)
-    if (!retsListings) return
+    if (!retsListings) {
+      return new Response(
+        JSON.stringify({
+          listings: undefined,
+        }),
+        {
+          status: 200,
+          statusText: 'No RETS listings found',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+    }
     const BATCH_SIZE = 100
     const createdOrUpdatedListings: Listing[] = []
-    const batchedListings = retsListings.filter((retsListing) => {
-      const existingListing = findExistingListing(retsListing.ListingKeyNumeric, existingListings)
-      if (existingListing) {
-        console.log('LISTING ALREADY EXISTS: ' + existingListing.title)
-        console.log('CHECKING FOR UPDATE FOR: ' + existingListing.title)
-        return checkNeedsUpdate(existingListing, retsListing)
-      }
-      return true
-    })
+    const batchedListings = await Promise.all(
+      retsListings.map(async (retsListing) => {
+        const existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
+        if (existingListing) {
+          return { existingListing: existingListing, retsListing: retsListing }
+        } else {
+          return { existingListing: undefined, retsListing: retsListing }
+        }
+      }),
+    ).then((res) =>
+      res.filter((batchedListing) => {
+        if (batchedListing.existingListing) {
+          console.log('LISTING ALREADY EXISTS: ' + batchedListing.existingListing.title)
+          console.log('CHECKING FOR UPDATE FOR: ' + batchedListing.existingListing.title)
+          return checkNeedsUpdate(batchedListing.existingListing, batchedListing.retsListing)
+        }
+        return true
+      }),
+    )
 
     console.log('BATCHING ' + batchedListings.length + ' LISTINGS\n\n')
 
     for (let i = 0; i < batchedListings.length; i += BATCH_SIZE) {
       const batchNum = Math.floor(i / BATCH_SIZE)
-      console.log('RUNNING BATCH: ' + batchNum)
-      const offsetMs = batchNum * 5000 // 1 second per batch, adjust as needed
-      const retsListingPromises = batchedListings
-        .slice(i, i + BATCH_SIZE)
-        .map(async (retsListing) => {
+      console.log('RUNNING BATCH: ' + (batchNum + 1))
+
+      const batchResults = await Promise.all(
+        batchedListings.slice(i, i + BATCH_SIZE).map(async (batchedListing) => {
           return new Promise<Listing | undefined>((resolve) => {
             setTimeout(async () => {
-              const existingListing = findExistingListing(
-                retsListing.ListingKeyNumeric,
-                existingListings,
-              )
-              if (existingListing) {
-                console.log('UPDATING LISTING: ' + existingListing.title)
-                const updatedListing = await updateListing(
-                  existingListing,
-                  retsListing,
-                  existingMedia,
-                )
-                if (updatedListing) {
-                  createdOrUpdatedListings.push(updatedListing)
+              try {
+                if (batchedListing.existingListing) {
+                  console.log('UPDATING LISTING: ' + batchedListing.existingListing.title)
+                  const updatedListing = await updateListing(
+                    batchedListing.existingListing,
+                    batchedListing.retsListing,
+                  )
+                  resolve(updatedListing)
+                } else {
+                  const createdListing = await createListing(batchedListing.retsListing)
+                  resolve(createdListing)
                 }
-                resolve(updatedListing)
-              } else {
-                const createdListing = await createListing(retsListing, existingMedia)
-                if (createdListing) {
-                  createdOrUpdatedListings.push(createdListing)
-                }
-                resolve(createdListing)
+              } catch (error) {
+                console.error('ERROR PROCESSING LISTING: ' + error)
+                resolve(undefined)
               }
             }, 5000)
           })
-        })
-      await Promise.all(retsListingPromises)
-    }
+        }),
+      )
 
+      // Add successful results to the collection
+      createdOrUpdatedListings.push(
+        ...batchResults.filter((listing): listing is Listing => listing !== undefined),
+      )
+    }
     return new Response(
       JSON.stringify({
-        listings: createdOrUpdatedListings.filter((listing) => listing),
+        listings: createdOrUpdatedListings.map((listing) => ({
+          id: listing.id,
+          title: listing.title,
+        })),
       }),
       {
         status: 200,
