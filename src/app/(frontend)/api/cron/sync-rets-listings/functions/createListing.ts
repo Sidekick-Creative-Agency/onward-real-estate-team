@@ -11,12 +11,12 @@ import configPromise from '@payload-config'
 import { getFirstTwoSentences } from './getFirstTwoSentences'
 import { headers as getHeaders } from 'next/headers'
 
-export const createListing = async (listing: RETSListing, existingMedia: Media[]) => {
+export const createListing = async (listing: RETSListing) => {
   if (listing.ListingKeyNumeric) {
     const urls = await fetchRETSPhotos(listing.ListingKeyNumeric, listing.PhotosCount)
     if (!urls || urls.length === 0) {
       console.log(`NO PHOTOS FOUND FOR LISTING: ${formatAddress(listing)}. RETURNING.`)
-      return
+      return undefined
     }
     const payload = await getPayload({ config: configPromise })
     const headers = await getHeaders()
@@ -26,7 +26,7 @@ export const createListing = async (listing: RETSListing, existingMedia: Media[]
     const matchingAgent = await findAgentByName(listing.ListAgentFullName)
     let featuredImageId: number | undefined = undefined
     const filename = `${formatAddress(listing).replaceAll(/[,#]/g, '').replaceAll(' ', '_')}_featured`
-    const matchingMedia = findMediaByFilename(filename, existingMedia)
+    const matchingMedia = await findMediaByFilename(filename)
     if (matchingMedia) {
       // MEDIA EXISTS
       featuredImageId = matchingMedia.id
@@ -55,8 +55,11 @@ export const createListing = async (listing: RETSListing, existingMedia: Media[]
         price: listing.ListPrice,
         area: listing.LivingArea,
         acreage: listing.LotSizeAcres,
-        // Default to Waco coordinates if not provided
-        coordinates: [listing.Longitude || -97.2753695, listing.Latitude || 31.5532499],
+        // Default to Waco coordinates if not provided. Force a negative longitude for US area.
+        coordinates: [
+          listing.Longitude && listing.Longitude >= 0 ? listing.Longitude * -1 : -97.2753695,
+          listing.Latitude || 31.5532499,
+        ],
         bedrooms: listing.BedroomsTotal,
         bathrooms: listing.BathroomsTotalInteger,
         featuredImage: featuredImageId || 0,
@@ -100,5 +103,5 @@ export const createListing = async (listing: RETSListing, existingMedia: Media[]
     return createdListing
   }
   console.log(`ERROR CREATING LISTING. NO LISTING_KEY_NUMERIC FOUND: ${formatAddress(listing)}\n\n`)
-  return undefined
+  throw new Error('NO LISTING_KEY_NUMERIC FOUND')
 }
