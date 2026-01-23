@@ -11,11 +11,7 @@ import { getFirstTwoSentences } from './getFirstTwoSentences'
 import { findMediaByFilename } from './findMediaByFilename'
 import { headers as getHeaders } from 'next/headers'
 
-export const updateListing = async (
-  listing: Listing,
-  retsListing: RETSListing,
-  existingMedia: Media[],
-) => {
+export const updateListing = async (listing: Listing, retsListing: RETSListing) => {
   if (retsListing.ListingKeyNumeric) {
     const urls = await fetchRETSPhotos(retsListing.ListingKeyNumeric, retsListing.PhotosCount)
     if (!urls || urls.length === 0) {
@@ -29,7 +25,7 @@ export const updateListing = async (
     const matchingAgent = await findAgentByName(retsListing.ListAgentFullName)
     let featuredImageId: number | undefined = undefined
     const filename = `${listing.title.replaceAll(/[,#]/g, '').replaceAll(' ', '_')}_featured`
-    const matchingMedia = findMediaByFilename(filename, existingMedia)
+    const matchingMedia = await findMediaByFilename(filename)
     if (matchingMedia) {
       // MEDIA EXISTS
       featuredImageId = matchingMedia.id
@@ -51,6 +47,7 @@ export const updateListing = async (
       .update({
         collection: 'listings',
         id: listing.id,
+        overrideLock: false,
         data: {
           title: formatAddress(retsListing),
           streetAddress: `${retsListing.StreetNumber ? `${retsListing.StreetNumber} ` : ''}${retsListing.StreetName}${retsListing.StreetSuffix ? ` ${retsListing.StreetSuffix}` : ''}`,
@@ -63,8 +60,13 @@ export const updateListing = async (
           price: retsListing.ListPrice,
           area: retsListing.LivingArea,
           acreage: retsListing.LotSizeAcres,
-          // Default to Waco coordinates if not provided
-          coordinates: [retsListing.Longitude || -97.2753695, retsListing.Latitude || 31.5532499],
+          // Default to Waco coordinates if not provided. Force a negative longitude for US area.
+          coordinates: [
+            retsListing.Longitude && retsListing.Longitude >= 0
+              ? retsListing.Longitude * -1
+              : -97.2753695,
+            retsListing.Latitude || 31.5532499,
+          ],
           bedrooms: retsListing.BedroomsTotal,
           bathrooms: retsListing.BathroomsTotalInteger,
           featuredImage: featuredImageId || 0,
@@ -109,21 +111,20 @@ export const updateListing = async (
           for (const error of res.errors) {
             console.error('ERROR UPDATING LISTING: ' + listing.title)
             console.error(error.message)
-            return undefined
           }
+          throw new Error(res.errors[0].message)
         }
-        if (res.docs && res.docs[0]) {
-          console.log(`UPDATED LISTING: ${listing.title}\n\n`)
-          return res.docs[0]
-        }
+
+        console.log(`UPDATED LISTING: ${listing.title}\n\n`)
+        return res
       })
       .catch((error) => {
         console.error('UNKNOWN ERROR UPDATING LISTING: ' + listing.title)
-        console.error(error.message)
-        return undefined
+        throw new Error(error.message)
       })
-    return updatedListing
+    console.log()
+    // @ts-ignore
+    return updatedListing as Listing
   }
-  console.error('ERROR UPDATING LISTING: ' + listing.title)
-  return undefined
+  throw new Error('UNKNOWN ERROR UPDATING LISTING: ' + listing.title)
 }
