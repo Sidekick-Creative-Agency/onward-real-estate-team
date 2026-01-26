@@ -90,6 +90,7 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
             description: getFirstTwoSentences(retsListing.PublicRemarks),
           },
           MLS: {
+            ...listing.MLS,
             ListingKeyNumeric: retsListing.ListingKeyNumeric,
             MlsStatus: 'Active',
             ListAgentKeyNumeric: retsListing.ListAgentKeyNumeric,

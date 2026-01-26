@@ -1,12 +1,12 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
-import { fetchRETSListings } from './functions/fetchRETSListings'
-import { findExistingListing } from './functions/findExistingListing'
-import { updateListing } from './functions/updateListing'
-import { createListing } from './functions/createListing'
+import { fetchRETSListings } from '../functions/fetchRETSListings'
+import { findExistingListing } from '../functions/findExistingListing'
+import { updateListing } from '../functions/updateListing'
+import { createListing } from '../functions/createListing'
 import { Listing } from '@/payload-types'
-import { checkNeedsUpdate } from './functions/checkNeedsUpdate'
+import { checkNeedsUpdate } from '../functions/checkNeedsUpdate'
 import { NextRequest } from 'next/server'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 export const maxDuration = 300
 
@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
         },
       )
     }
+    const payload = await getPayload({ config: configPromise })
+
     console.log('LIMIT: ' + limit)
     console.log('OFFSET: ' + offset)
 
@@ -66,6 +68,25 @@ export async function GET(request: NextRequest) {
       retsListings.map(async (retsListing) => {
         const existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
         if (existingListing) {
+          const startOfDay = new Date()
+          startOfDay.setHours(0, 0, 0, 0)
+
+          const updatedListing = await payload.update({
+            collection: 'listings',
+            id: existingListing.id,
+            data: {
+              MLS: {
+                ...existingListing.MLS,
+                LastSeenAt: startOfDay.toISOString(),
+              },
+            },
+          })
+          console.log(
+            'UPDATED LASTSEENAT FOR LISTING: ' +
+              existingListing.title +
+              ' TO: ' +
+              updatedListing.MLS?.LastSeenAt,
+          )
           return { existingListing: existingListing, retsListing: retsListing }
         } else {
           return { existingListing: undefined, retsListing: retsListing }
@@ -74,8 +95,9 @@ export async function GET(request: NextRequest) {
     ).then((res) =>
       res.filter((batchedListing) => {
         if (batchedListing.existingListing) {
-          console.log('LISTING ALREADY EXISTS: ' + batchedListing.existingListing.title)
-          console.log('CHECKING FOR UPDATE FOR: ' + batchedListing.existingListing.title)
+          console.log(
+            'LISTING ALREADY EXISTS, CHECKING FOR UPDATE: ' + batchedListing.existingListing.title,
+          )
           return checkNeedsUpdate(batchedListing.existingListing, batchedListing.retsListing)
         }
         return true
