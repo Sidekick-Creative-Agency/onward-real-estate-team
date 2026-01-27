@@ -14,7 +14,7 @@ export const validateListingSlug: CollectionBeforeChangeHook<Listing> = async ({
     console.log('Validating slug:', data.slug)
     console.log('ID of original document:', originalDoc?.id)
     // Get the base slug (remove any trailing -number)
-    const baseSlug = data.slug
+    const baseSlug = data.slug.trim()
 
     // Find all listings that match this slug pattern
     const existingListings = await payload.find({
@@ -54,7 +54,7 @@ export const validateListingSlug: CollectionBeforeChangeHook<Listing> = async ({
         data.slug = baseSlug
       }
     }
-
+    console.log('Final slug after validation:', data.slug)
     return data
   } catch (error) {
     payload.logger.error('Error validating slug:', error)
