@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/toaster'
 
 import { CookieBanner } from '@/CookieBanner/Component'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import Chatbot from '@/components/Intercom/Chatbot'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // const { isEnabled } = await draftMode()
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <Footer />
           <CookieBanner />
+          <Chatbot />
         </Providers>
         <Toaster />
       </body>
