@@ -47,7 +47,7 @@ export function Recaptcha({ action, setToken, register }: Props) {
     return (
         <>
             <Script
-                src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+                src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}&badge=bottomleft`}
                 strategy="afterInteractive"
             />
             <input type="hidden" id={`recaptcha-token_${id}`} {...register('recaptchaToken')} />

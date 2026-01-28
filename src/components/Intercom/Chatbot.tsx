@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import Intercom from '@intercom/messenger-js-sdk';
 

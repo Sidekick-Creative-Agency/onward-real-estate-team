@@ -458,6 +458,7 @@ export interface Listing {
           id?: string | null;
         }[]
       | null;
+    LastSeenAt?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -2477,6 +2478,7 @@ export interface ListingsSelect<T extends boolean = true> {
               url?: T;
               id?: T;
             };
+        LastSeenAt?: T;
       };
   updatedAt?: T;
   createdAt?: T;
