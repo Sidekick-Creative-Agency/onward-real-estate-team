@@ -497,6 +497,10 @@ export const Listings: CollectionConfig = {
             },
           ],
         },
+        {
+          name: 'LastSeenAt',
+          type: 'date',
+        },
       ],
     },
   ],
