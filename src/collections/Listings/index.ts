@@ -28,8 +28,7 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/Slug'
 import { anyone } from '@/access/anyone'
-import { deleteRelatedMedia } from './hooks/deleteRelatedMedia'
-import { validateListingSlug } from './hooks/validateListingSlug'
+import { checkForMatchingListingSlug } from './hooks/checkForMatchingListingSlug'
 
 export const Listings: CollectionConfig = {
   slug: 'listings',
@@ -60,9 +59,9 @@ export const Listings: CollectionConfig = {
 
       return `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}${path}`
     },
-    components: {
-      beforeList: ['/components/Admin/LinkToImportView#LinkToImportView'],
-    },
+    // components: {
+    //   beforeList: ['/components/Admin/LinkToImportView#LinkToImportView'],
+    // },
     useAsTitle: 'title',
   },
   fields: [
@@ -506,10 +505,7 @@ export const Listings: CollectionConfig = {
   ],
   hooks: {
     afterChange: [revalidateListing],
-    beforeChange: [
-      populatePublishedAt,
-      // validateListingSlug
-    ],
+    beforeChange: [populatePublishedAt, checkForMatchingListingSlug],
   },
   versions: {
     drafts: {

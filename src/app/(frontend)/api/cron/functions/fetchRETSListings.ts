@@ -31,86 +31,97 @@ export const fetchRETSListings = async (limit: string, offset: string) => {
   const client = new DigestClient(process.env.RETS_USERNAME, process.env.RETS_PASSWORD, {
     algorithm: 'MD5',
   })
-  const listings = await client
-    .fetch(`https://ntrdd.mlsmatrix.com/rets/Search.ashx?${searchParams.toString()}`)
-    .then((res) =>
-      res.text().then((text) => {
-        const parser = new XMLParser()
-        const parsedObj = parser.parse(text) as RETSSearchResponse
-        if (!parsedObj.RETS.COLUMNS) {
-          console.log('ERROR: Columns not found')
-          return
-        }
-
-        const columns = parsedObj.RETS.COLUMNS.split('\t')
-        let data = parsedObj.RETS.DATA
-        if (!Array.isArray(data)) {
-          data = [data]
-        }
-        return data.map((listingString, i) => {
-          const listingData = listingString.split('\t')
-          const listing: RETSListing = {
-            ListingKeyNumeric: listingData[columns.indexOf('ListingKeyNumeric')]
-              ? Number(listingData[columns.indexOf('ListingKeyNumeric')])
-              : undefined,
-            City: listingData[columns.indexOf('City')]
-              ? listingData[columns.indexOf('City')]
-              : undefined,
-            Latitude: listingData[columns.indexOf('Latitude')]
-              ? Number(listingData[columns.indexOf('Latitude')])
-              : undefined,
-            ListAgentFullName: listingData[columns.indexOf('ListAgentFullName')] || undefined,
-            ListAgentKeyNumeric: listingData[columns.indexOf('ListAgentKeyNumeric')]
-              ? Number(listingData[columns.indexOf('ListAgentKeyNumeric')])
-              : undefined,
-            ListOfficeKeyNumeric: listingData[columns.indexOf('ListOfficeKeyNumeric')]
-              ? Number(listingData[columns.indexOf('ListOfficeKeyNumeric')])
-              : undefined,
-            ListOfficeName: listingData[columns.indexOf('ListOfficeName')] || undefined,
-            ListPrice: listingData[columns.indexOf('ListPrice')]
-              ? Number(listingData[columns.indexOf('ListPrice')])
-              : undefined,
-            LivingArea: listingData[columns.indexOf('LivingArea')]
-              ? Number(listingData[columns.indexOf('LivingArea')])
-              : undefined,
-            Longitude: listingData[columns.indexOf('Longitude')]
-              ? Number(listingData[columns.indexOf('Longitude')])
-              : undefined,
-            ModificationTimestamp:
-              listingData[columns.indexOf('ModificationTimestamp')] || undefined,
-            PhotosChangeTimestamp:
-              listingData[columns.indexOf('PhotosChangeTimestamp')] || undefined,
-            PhotosCount: listingData[columns.indexOf('PhotosCount')]
-              ? Number(listingData[columns.indexOf('PhotosCount')])
-              : undefined,
-            PostalCode: listingData[columns.indexOf('PostalCode')] || undefined,
-            PropertySubType: listingData[columns.indexOf('PropertySubType')] || undefined,
-            PropertyType: listingData[columns.indexOf('PropertyType')] || undefined,
-            PublicRemarks: listingData[columns.indexOf('PublicRemarks')] || undefined,
-            StateOrProvince: listingData[columns.indexOf('StateOrProvince')] || undefined,
-            StreetName: listingData[columns.indexOf('StreetName')] || '',
-            StreetNumber: listingData[columns.indexOf('StreetNumber')] || '',
-            StreetSuffix: listingData[columns.indexOf('StreetSuffix')] || '',
-            LotSizeAcres: listingData[columns.indexOf('LotSizeAcres')]
-              ? Number(listingData[columns.indexOf('LotSizeAcres')])
-              : undefined,
-            LotSizeArea: listingData[columns.indexOf('LotSizeArea')]
-              ? Number(listingData[columns.indexOf('LotSizeArea')])
-              : undefined,
-            LotSizeSquareFeet: listingData[columns.indexOf('LotSizeSquareFeet')]
-              ? Number(listingData[columns.indexOf('LotSizeSquareFeet')])
-              : undefined,
-            LotSizeUnits: listingData[columns.indexOf('LotSizeUnits')] || undefined,
-            BedroomsTotal: listingData[columns.indexOf('BedroomsTotal')]
-              ? Number(listingData[columns.indexOf('BedroomsTotal')])
-              : undefined,
-            BathroomsTotalInteger: listingData[columns.indexOf('BathroomsTotalInteger')]
-              ? Number(listingData[columns.indexOf('BathroomsTotalInteger')])
-              : undefined,
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30000)
+  try {
+    const listings = await client
+      .fetch(`https://ntrdd.mlsmatrix.com/rets/Search.ashx?${searchParams.toString()}`, {
+        signal: controller.signal,
+      })
+      .then((res) =>
+        res.text().then((text) => {
+          const parser = new XMLParser()
+          const parsedObj = parser.parse(text) as RETSSearchResponse
+          if (!parsedObj.RETS.COLUMNS) {
+            console.log('ERROR: Columns not found')
+            return
           }
-          return listing
-        })
-      }),
-    )
-  return listings
+
+          const columns = parsedObj.RETS.COLUMNS.split('\t')
+          let data = parsedObj.RETS.DATA
+          if (!Array.isArray(data)) {
+            data = [data]
+          }
+          return data.map((listingString) => {
+            const listingData = listingString.split('\t')
+            const listing: RETSListing = {
+              ListingKeyNumeric: listingData[columns.indexOf('ListingKeyNumeric')]
+                ? Number(listingData[columns.indexOf('ListingKeyNumeric')])
+                : undefined,
+              City: listingData[columns.indexOf('City')]
+                ? listingData[columns.indexOf('City')]
+                : undefined,
+              Latitude: listingData[columns.indexOf('Latitude')]
+                ? Number(listingData[columns.indexOf('Latitude')])
+                : undefined,
+              ListAgentFullName: listingData[columns.indexOf('ListAgentFullName')] || undefined,
+              ListAgentKeyNumeric: listingData[columns.indexOf('ListAgentKeyNumeric')]
+                ? Number(listingData[columns.indexOf('ListAgentKeyNumeric')])
+                : undefined,
+              ListOfficeKeyNumeric: listingData[columns.indexOf('ListOfficeKeyNumeric')]
+                ? Number(listingData[columns.indexOf('ListOfficeKeyNumeric')])
+                : undefined,
+              ListOfficeName: listingData[columns.indexOf('ListOfficeName')] || undefined,
+              ListPrice: listingData[columns.indexOf('ListPrice')]
+                ? Number(listingData[columns.indexOf('ListPrice')])
+                : undefined,
+              LivingArea: listingData[columns.indexOf('LivingArea')]
+                ? Number(listingData[columns.indexOf('LivingArea')])
+                : undefined,
+              Longitude: listingData[columns.indexOf('Longitude')]
+                ? Number(listingData[columns.indexOf('Longitude')])
+                : undefined,
+              ModificationTimestamp:
+                listingData[columns.indexOf('ModificationTimestamp')] || undefined,
+              PhotosChangeTimestamp:
+                listingData[columns.indexOf('PhotosChangeTimestamp')] || undefined,
+              PhotosCount: listingData[columns.indexOf('PhotosCount')]
+                ? Number(listingData[columns.indexOf('PhotosCount')])
+                : undefined,
+              PostalCode: listingData[columns.indexOf('PostalCode')] || undefined,
+              PropertySubType: listingData[columns.indexOf('PropertySubType')] || undefined,
+              PropertyType: listingData[columns.indexOf('PropertyType')] || undefined,
+              PublicRemarks: listingData[columns.indexOf('PublicRemarks')] || undefined,
+              StateOrProvince: listingData[columns.indexOf('StateOrProvince')] || undefined,
+              StreetName: listingData[columns.indexOf('StreetName')] || '',
+              StreetNumber: listingData[columns.indexOf('StreetNumber')] || '',
+              StreetSuffix: listingData[columns.indexOf('StreetSuffix')] || '',
+              LotSizeAcres: listingData[columns.indexOf('LotSizeAcres')]
+                ? Number(listingData[columns.indexOf('LotSizeAcres')])
+                : undefined,
+              LotSizeArea: listingData[columns.indexOf('LotSizeArea')]
+                ? Number(listingData[columns.indexOf('LotSizeArea')])
+                : undefined,
+              LotSizeSquareFeet: listingData[columns.indexOf('LotSizeSquareFeet')]
+                ? Number(listingData[columns.indexOf('LotSizeSquareFeet')])
+                : undefined,
+              LotSizeUnits: listingData[columns.indexOf('LotSizeUnits')] || undefined,
+              BedroomsTotal: listingData[columns.indexOf('BedroomsTotal')]
+                ? Number(listingData[columns.indexOf('BedroomsTotal')])
+                : undefined,
+              BathroomsTotalInteger: listingData[columns.indexOf('BathroomsTotalInteger')]
+                ? Number(listingData[columns.indexOf('BathroomsTotalInteger')])
+                : undefined,
+            }
+            return listing
+          })
+        }),
+      )
+    return listings
+  } catch (error) {
+    console.error('ERROR FETCHING RETS LISTINGS:', error)
+    return
+  } finally {
+    clearTimeout(timeout)
+  }
 }
