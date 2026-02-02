@@ -1,7 +1,6 @@
 import DigestClient from 'digest-fetch'
 import { XMLParser } from 'fast-xml-parser'
 import { RETSListingStatus, RETSSearchResponse } from '../types/types'
-import { th } from 'framer-motion/client'
 
 export const fetchRETSListingStatus = async (listingKeyNumeric: number | undefined) => {
   if (!listingKeyNumeric) {
