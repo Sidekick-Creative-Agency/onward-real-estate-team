@@ -10,6 +10,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { getFirstTwoSentences } from './getFirstTwoSentences'
 import { headers as getHeaders } from 'next/headers'
+import { formatSlug } from '@/fields/Slug/formatSlug'
 
 export const createListing = async (listing: RETSListing) => {
   if (listing.ListingKeyNumeric) {
@@ -41,10 +42,12 @@ export const createListing = async (listing: RETSListing) => {
         }
       }
     }
+    const formattedAddress = formatAddress(listing)
     const createdListing = await payload.create({
       collection: 'listings',
       data: {
-        title: formatAddress(listing),
+        title: formattedAddress,
+        slug: formatSlug(formattedAddress),
         streetAddress: `${listing.StreetNumber ? `${listing.StreetNumber} ` : ''}${listing.StreetName}${listing.StreetSuffix ? ` ${listing.StreetSuffix}` : ''}`,
         city: listing.City || '',
         state: listing.StateOrProvince || '',
@@ -78,7 +81,7 @@ export const createListing = async (listing: RETSListing) => {
             }
           : {}),
         meta: {
-          title: `${formatAddress(listing)} | Residential Properties | Onward Real Estate Team`,
+          title: `${formattedAddress} | Residential Properties | Onward Real Estate Team`,
           image: featuredImageId,
           description: getFirstTwoSentences(listing.PublicRemarks),
         },
@@ -95,6 +98,7 @@ export const createListing = async (listing: RETSListing) => {
           PropertySubType: listing.PropertySubType,
           FeaturedImageUrl: urls[0] || undefined,
           ImageGalleryUrls: urls.slice(2).map((url) => ({ url: url })),
+          LastSeenAt: new Date().toISOString(),
         },
         _status: 'published',
       },

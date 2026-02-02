@@ -191,7 +191,7 @@ export const syncResidentialListings = async () => {
               formData.append('file', mediaBlob, filename)
 
               const createMediaResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL || `http://localhost:${process.env.PORT}`}/api/media`,
                 {
                   method: 'POST',
                   body: formData,

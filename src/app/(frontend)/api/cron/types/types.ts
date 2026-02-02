@@ -37,3 +37,7 @@ export type RETSListing = {
 export type RETSObjectResponse = {
   RETS: string
 }
+
+export type RETSListingStatus = {
+  MlsStatus: string | undefined
+}
