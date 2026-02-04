@@ -1,6 +1,4 @@
 import type { Metadata } from 'next/types'
-
-import { CollectionArchiveGrid } from '@/components/CollectionArchive/GridArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
@@ -78,24 +76,24 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   }
 }
 
-export async function generateStaticParams() {
-  if (process.env.ENV !== 'development') {
-    const payload = await getPayload({ config: configPromise })
-    const listings = await payload.find({
-      collection: 'listings',
-      depth: 0,
-      limit: 10,
-      draft: false,
-      overrideAccess: false,
-    })
+// export async function generateStaticParams() {
+//   if (process.env.ENV !== 'development') {
+//     const payload = await getPayload({ config: configPromise })
+//     const listings = await payload.find({
+//       collection: 'listings',
+//       depth: 0,
+//       limit: 10,
+//       draft: false,
+//       overrideAccess: false,
+//     })
 
-    const pages: { pageNumber: string }[] = []
+//     const pages: { pageNumber: string }[] = []
 
-    for (let i = 1; i <= listings.totalPages; i++) {
-      pages.push({ pageNumber: String(i) })
-    }
+//     for (let i = 1; i <= listings.totalPages; i++) {
+//       pages.push({ pageNumber: String(i) })
+//     }
 
-    return pages
-  }
-  return []
-}
+//     return pages
+//   }
+//   return []
+// }

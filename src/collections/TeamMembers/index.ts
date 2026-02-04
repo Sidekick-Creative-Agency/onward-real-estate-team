@@ -20,6 +20,7 @@ import {
 import { populateLastName } from './hooks/populateLastName'
 import { revalidateTeamPage } from './hooks/revalidateTeamPage'
 import { revalidateSignaturesPage } from './hooks/revalidateSignaturesPage'
+import { populateSlug } from '@/utilities/populateSlug'
 
 export const TeamMembers: CollectionConfig = {
   slug: 'team-members',
@@ -246,6 +247,7 @@ export const TeamMembers: CollectionConfig = {
     ...slugField(),
   ],
   hooks: {
+    beforeChange: [populateSlug],
     afterChange: [revalidateTeamMember, revalidateTeamPage, revalidateSignaturesPage],
   },
 }

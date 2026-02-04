@@ -27,6 +27,7 @@ import {
 import { slugField } from '@/fields/Slug'
 import { anyone } from '@/access/anyone'
 import { checkForMatchingListingSlug } from './hooks/checkForMatchingListingSlug'
+import { populateSlug } from '@/utilities/populateSlug'
 
 export const Listings: CollectionConfig = {
   slug: 'listings',
@@ -502,8 +503,8 @@ export const Listings: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [populateSlug, populatePublishedAt, checkForMatchingListingSlug],
     afterChange: [revalidateListing],
-    beforeChange: [populatePublishedAt, checkForMatchingListingSlug],
   },
   versions: {
     drafts: {

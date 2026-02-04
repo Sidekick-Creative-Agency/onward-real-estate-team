@@ -32,6 +32,7 @@ import { MediaGridLexicalBlock } from '@/blocks/Lexical/MediaGrid/config'
 import { SpacerLexicalBlock } from '@/blocks/Lexical/Spacer/config'
 import { CheckmarkListLexicalBlock } from '@/blocks/Lexical/CheckmarkList/config'
 import { updatePublishedAt } from './hooks/updatePublishedAt'
+import { populateSlug } from '@/utilities/populateSlug'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -217,7 +218,7 @@ export const Posts: CollectionConfig = {
     ...slugField(),
   ],
   hooks: {
-    beforeChange: [updatePublishedAt],
+    beforeChange: [populateSlug, updatePublishedAt],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
   },
