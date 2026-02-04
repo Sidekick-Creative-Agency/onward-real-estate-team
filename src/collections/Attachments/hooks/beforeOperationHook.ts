@@ -10,6 +10,6 @@ export const beforeOperationHook: CollectionBeforeOperationHook = async ({ args,
     }
   } catch (error) {
     // Silently fail during static generation
-    console.log('Skipping getMeUser during static generation')
+    console.log('Error getting me user in beforeOperationHook:', error)
   }
 }
