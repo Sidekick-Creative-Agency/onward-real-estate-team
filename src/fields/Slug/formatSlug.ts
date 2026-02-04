@@ -5,6 +5,7 @@ export const formatSlug = (val: string): string =>
     .replace(/ /g, '-')
     .replace(/[^\w-]+/g, '')
     .toLowerCase()
+    .trim()
 
 export const formatSlugHook =
   (fallback: string): FieldHook =>

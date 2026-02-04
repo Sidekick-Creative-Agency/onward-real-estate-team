@@ -53,7 +53,10 @@ export async function GET(
     try {
       user = jwt.verify(token, payload.secret)
     } catch (error) {
-      payload.logger.error('Error verifying token for live preview:', error)
+      payload.logger.error(
+        'Error verifying token for live preview:',
+        'message' in error && typeof error === 'object' ? error.message : error,
+      )
     }
 
     const draft = await draftMode()
@@ -80,7 +83,10 @@ export async function GET(
         return new Response('Document not found', { status: 404 })
       }
     } catch (error) {
-      payload.logger.error('Error verifying token for live preview:', error)
+      payload.logger.error(
+        'Error verifying token for live preview:',
+        'message' in error && typeof error === 'object' ? error.message : error,
+      )
     }
 
     draft.enable()
