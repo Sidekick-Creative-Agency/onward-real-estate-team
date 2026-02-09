@@ -1,8 +1,8 @@
-import { Dropzone, Gutter, Upload } from '@payloadcms/ui'
+import { Gutter } from '@payloadcms/ui'
 
 import { AdminViewProps } from 'payload'
 import { DefaultTemplate } from '@payloadcms/next/templates'
-import { AdminDropzone } from '@/components/Admin/AdminDropzone'
+
 import { AdminPostsDropzone } from '@/components/Admin/AdminPostsDropzone'
 export const ImportView: React.FC<AdminViewProps> = ({ initPageResult, params, searchParams }) => {
   return (

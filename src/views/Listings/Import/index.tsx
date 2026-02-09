@@ -2,7 +2,6 @@ import { Gutter } from '@payloadcms/ui'
 
 import { AdminViewProps } from 'payload'
 import { DefaultTemplate } from '@payloadcms/next/templates'
-import { AdminDropzone } from '@/components/Admin/AdminDropzone'
 import { ListingsImport } from '@/components/Admin/ListingsImport'
 export const ImportView: React.FC<AdminViewProps> = ({ initPageResult, params, searchParams }) => {
   return (
@@ -20,7 +19,6 @@ export const ImportView: React.FC<AdminViewProps> = ({ initPageResult, params, s
         <h1>Import Listings</h1>
       </Gutter>
       <Gutter className="mt-8">
-        {/* <AdminDropzone collectionSlug={initPageResult.collectionConfig?.slug || ''} /> */}
         <ListingsImport />
       </Gutter>
     </DefaultTemplate>
