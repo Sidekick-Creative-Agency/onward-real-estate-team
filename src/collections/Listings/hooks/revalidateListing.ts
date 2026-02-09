@@ -15,7 +15,7 @@ export const revalidateListing: CollectionAfterChangeHook<Listing> = ({
     payload.logger.info(`Revalidating listing at path: ${path}`)
 
     revalidatePath(path)
-    revalidateTag('listings-sitemap')
+    revalidateTag('listings-sitemap', 'max')
   }
 
   // If the post was previously published, we need to revalidate the old path
@@ -25,7 +25,7 @@ export const revalidateListing: CollectionAfterChangeHook<Listing> = ({
     payload.logger.info(`Revalidating old listing at path: ${oldPath}`)
 
     revalidatePath(oldPath)
-    revalidateTag('listings-sitemap')
+    revalidateTag('listings-sitemap', 'max')
   }
 
   return doc

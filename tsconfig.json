@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -47,7 +47,8 @@
     ".next/types/**/*.ts",
     "redirects.js",
     "next.config.ts",
-    "src/saveAllMedia.js"
+    "src/saveAllMedia.js",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules/*"

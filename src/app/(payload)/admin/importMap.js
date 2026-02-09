@@ -34,7 +34,7 @@ import { default as default_23cade6f0f915ee2a7bd9bceb0c04941 } from '@/component
 import { Actions as Actions_8a2900ac8f5913205117ba0684c31e0c } from '@/components/Admin/Actions'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { ImportView as ImportView_24bdc7c68b1ec1593b048688d4d42f3b } from '../../../views/Posts/Import'
-import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
   "@/components/ColorPicker#default": default_55a7d1ebef7afeed563b856ae2e2cbf4,
@@ -73,5 +73,5 @@ export const importMap = {
   "@/components/Admin/Actions#Actions": Actions_8a2900ac8f5913205117ba0684c31e0c,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/views/Posts/Import#ImportView": ImportView_24bdc7c68b1ec1593b048688d4d42f3b,
-  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
