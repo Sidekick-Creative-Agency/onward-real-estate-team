@@ -12,17 +12,13 @@ const RETS_COUNTIES = {
   mclennan: 161,
 }
 
-export const fetchRETSListings = async (limit: string, offset: string) => {
+export const fetchRETSListing = async (listingKeyNumeric: number | undefined | null) => {
+  if (!listingKeyNumeric) return
   const searchParams = new URLSearchParams()
   searchParams.append('searchType', 'Property')
   searchParams.append('class', 'Property')
-  searchParams.append(
-    'query',
-    `(CountyOrParish=${Object.values(RETS_COUNTIES).join(',')}),(MlsStatus=ACT)`,
-  )
+  searchParams.append('query', `(ListingKeyNumeric=${listingKeyNumeric})`)
   searchParams.append('format', 'COMPACT-DECODED')
-  searchParams.append('limit', String(limit))
-  searchParams.append('offset', String(offset))
   searchParams.append(
     'select',
     'ListingKeyNumeric,ListingId,City,Latitude,ListAgentFullName,ListAgentKeyNumeric,ListOfficeKeyNumeric,ListOfficeName,ListPrice,LivingArea,Longitude,ModificationTimestamp,PhotosChangeTimestamp,PhotosCount,PostalCode,PropertySubType,PropertyType,PublicRemarks,StateOrProvince,StreetName,StreetNumber,StreetSuffix,LotSizeAcres,LotSizeArea,LotSizeSquareFeet,LotSizeUnits,BedroomsTotal,BathroomsTotalInteger',
@@ -120,7 +116,11 @@ export const fetchRETSListings = async (limit: string, offset: string) => {
           })
         }),
       )
-    return listings
+    if (!listings || listings.length === 0) {
+      console.log('No listings found for ListingKeyNumeric:', listingKeyNumeric)
+      return
+    }
+    return listings[0]
   } catch (error) {
     console.error('ERROR FETCHING RETS LISTINGS:', error)
     return

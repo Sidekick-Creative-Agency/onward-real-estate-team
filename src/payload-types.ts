@@ -440,6 +440,7 @@ export interface Listing {
    */
   MLS?: {
     ListingKeyNumeric?: number | null;
+    ListingId?: number | null;
     MlsStatus?: string | null;
     ListAgentKeyNumeric?: number | null;
     ListAgentFullName?: string | null;
@@ -2461,6 +2462,7 @@ export interface ListingsSelect<T extends boolean = true> {
     | T
     | {
         ListingKeyNumeric?: T;
+        ListingId?: T;
         MlsStatus?: T;
         ListAgentKeyNumeric?: T;
         ListAgentFullName?: T;

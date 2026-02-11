@@ -7,6 +7,7 @@ export type RETSSearchResponse = {
 }
 export type RETSListing = {
   ListingKeyNumeric: number | undefined
+  ListingId: number | undefined
   City: string | undefined
   Latitude: number | undefined
   ListAgentFullName: string | undefined

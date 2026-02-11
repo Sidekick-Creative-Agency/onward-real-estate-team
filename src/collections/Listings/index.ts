@@ -446,6 +446,10 @@ export const Listings: CollectionConfig = {
           type: 'number',
         },
         {
+          name: 'ListingId',
+          type: 'number',
+        },
+        {
           name: 'MlsStatus',
           type: 'text',
         },

@@ -558,45 +558,59 @@ export default async function Listing({ params: paramsPromise }: Args) {
 
 							{((listing.agents && listing.agents.length > 0) || (listing.MLS?.ListAgentFullName)) && (
 								<div className="flex flex-col gap-4 mt-4 p-4 py-10 sm:p-10 bg-white">
-									<h2 className="text-2xl font-bold text-brand-navy">
-										Listed By:
-									</h2>
+
+
 									{listing.agents && listing.agents.length > 0 && listing.agents.map((_agent) => {
 										const agent = typeof _agent === 'object' ? _agent as TeamMember : null;
-										console.log('Rendering agent:', agent);
 										if (!agent) return null;
 										return (
 											<div key={agent.id} className="">
-												<h3 className="text-lg font-bold text-brand-navy ">
-													{agent.title.split(' ')[0]} {agent.lastName}
-												</h3>
+												<p className="text-lg">Listed by {agent.title}</p>
+
 												<p className="text-base text-brand-gray-04 font-light">
-													Onward Real Estate Team
+													Brokered by {listing?.MLS?.ListOfficeName ? listing.MLS.ListOfficeName : "Onward Real Estate Team"}
 												</p>
-												{agent.details.phone && (
-
-													<a href={`tel:${agent.details.phone.replaceAll(/\D/g, '')}`} className="text-base text-brand-gray-04 font-light block hover:underline focus-visible:underline">{agent.details.phone}</a>
-
+												<p className="text-base text-brand-gray-04 font-light">
+													Last updated: {new Date(listing?.MLS?.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+												</p>
+												{listing?.MLS?.ListingId && (
+													<>
+														<p className="text-base text-brand-gray-04 font-light">
+															MLS# {listing.MLS.ListingId}
+														</p>
+														<p className="text-base text-brand-gray-04 font-light">
+															Source: NTREIS
+														</p>
+													</>
 												)}
-												{agent.details.email && (
 
-													<a href={`mailto:${agent.details.email}`} className="text-base text-brand-gray-04 font-light block hover:underline focus-visible:underline">{agent.details.email}</a>
 
-												)}
 											</div>
 										)
 									})}
+
 									{listing.MLS?.ListAgentFullName && (!listing.agents || listing.agents.length === 0) && (
 
 										<div className="">
-											<h3 className="text-lg font-bold text-brand-navy">
-												{listing.MLS.ListAgentFullName.split(' ')[0]} {listing.MLS.ListAgentFullName.split(' ')[1]}
-											</h3>
+											<p className="text-lg">Listed by {listing.MLS.ListAgentFullName}</p>
+
 											{listing.MLS.ListOfficeName && (
 												<p className="text-base text-brand-gray-04 font-light">
-													{listing.MLS.ListOfficeName}
+													Brokered by {listing.MLS.ListOfficeName}
 												</p>
 											)}
+											<p className="text-base text-brand-gray-04 font-light">
+												Last updated: {new Date(listing.MLS.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+											</p>
+											{listing.MLS.ListingId && (
+
+												<p className="text-base text-brand-gray-04 font-light">
+													MLS# {listing.MLS.ListingId}
+												</p>
+											)}
+											<p className="text-base text-brand-gray-04 font-light">
+												Source: NTREIS
+											</p>
 
 										</div>
 									)}
@@ -638,7 +652,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 							</p>
 						</div>
 						<FormBlock
-							//  @ts-ignore
+							// @ts-expect-error type mismatch between form and footerContactForm
 							form={footerContactForm}
 							styles={{ global: {}, resp: {} }}
 						/>

@@ -72,7 +72,6 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           featuredImage: featuredImageId || 0,
           availability: 'active',
           transactionType: retsListing.PropertyType === 'RLSE' ? 'for-lease' : 'for-sale',
-          // @ts-ignore
           description: formattedDescription,
           ...(retsListing.PropertyType === 'RLSE'
             ? {
@@ -92,6 +91,7 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           MLS: {
             ...listing.MLS,
             ListingKeyNumeric: retsListing.ListingKeyNumeric,
+            ListingId: retsListing.ListingId,
             MlsStatus: 'Active',
             ListAgentKeyNumeric: retsListing.ListAgentKeyNumeric,
             ListAgentFullName: retsListing.ListAgentFullName,
