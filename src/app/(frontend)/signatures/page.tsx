@@ -7,6 +7,7 @@ import PageClient from './page.client'
 import './styles.scss'
 import { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   robots: {
