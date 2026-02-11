@@ -20,18 +20,29 @@ export const fetchRETSPhotos = async (
   })
   let urls: string[] = []
   for await (const [index, _] of Array(photosCount).entries()) {
-    const url = await client
-      .fetch(`https://ntrdd.mlsmatrix.com/rets/GetObject.ashx?${searchParams.toString()}${index}`)
-      .then((res) =>
-        res.text().then((text) => {
-          const parser = new XMLParser()
-          const parsedObj = parser.parse(text) as RETSObjectResponse
-          const url = parsedObj.RETS.split('Location=')[1]
-          return url
-        }),
-      )
-    if (url) {
-      urls.push(url)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
+    try {
+      const url = await client
+        .fetch(
+          `https://ntrdd.mlsmatrix.com/rets/GetObject.ashx?${searchParams.toString()}${index}`,
+          { signal: controller.signal },
+        )
+        .then((res) =>
+          res.text().then((text) => {
+            const parser = new XMLParser()
+            const parsedObj = parser.parse(text) as RETSObjectResponse
+            const url = parsedObj.RETS.split('Location=')[1]
+            return url
+          }),
+        )
+      if (url) {
+        urls.push(url)
+      }
+    } catch (error) {
+      console.error('ERROR FETCHING RETS PHOTO URL:', listingKeyNumeric, index, error)
+    } finally {
+      clearTimeout(timeout)
     }
   }
   return urls.filter((url) => url !== undefined)

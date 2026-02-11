@@ -29,6 +29,7 @@ import { MediaCarouselBlock } from '@/blocks/MediaCarouselBlock/config'
 import { CardGridBlock } from '@/blocks/CardGridBlock/config'
 import { FeaturedListingsBlock } from '@/blocks/FeaturedListingsBlock/config'
 import { SearchBarBlock } from '@/blocks/SearchBarBlock/config'
+import { populateSlug } from '@/utilities/populateSlug'
 export const Pages: CollectionConfig = {
   slug: 'pages',
   access: {
@@ -153,8 +154,8 @@ export const Pages: CollectionConfig = {
     ...slugField(),
   ],
   hooks: {
+    beforeChange: [populateSlug, populatePublishedAt],
     afterChange: [revalidatePage],
-    beforeChange: [populatePublishedAt],
   },
   versions: {
     drafts: {

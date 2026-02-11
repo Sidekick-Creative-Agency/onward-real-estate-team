@@ -1,10 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
 import {
-  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
-  HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
   LinkFeature,
@@ -28,8 +26,8 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/Slug'
 import { anyone } from '@/access/anyone'
-import { deleteRelatedMedia } from './hooks/deleteRelatedMedia'
-import { validateListingSlug } from './hooks/validateListingSlug'
+import { checkForMatchingListingSlug } from './hooks/checkForMatchingListingSlug'
+import { populateSlug } from '@/utilities/populateSlug'
 
 export const Listings: CollectionConfig = {
   slug: 'listings',
@@ -60,9 +58,9 @@ export const Listings: CollectionConfig = {
 
       return `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}${path}`
     },
-    components: {
-      beforeList: ['/components/Admin/LinkToImportView#LinkToImportView'],
-    },
+    // components: {
+    //   beforeList: ['/components/Admin/LinkToImportView#LinkToImportView'],
+    // },
     useAsTitle: 'title',
   },
   fields: [
@@ -505,8 +503,8 @@ export const Listings: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [populateSlug, populatePublishedAt, checkForMatchingListingSlug],
     afterChange: [revalidateListing],
-    beforeChange: [populatePublishedAt, validateListingSlug],
   },
   versions: {
     drafts: {

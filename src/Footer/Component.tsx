@@ -33,11 +33,11 @@ export async function Footer() {
   const consumerProtectionHeading = footer?.middleRow?.consumerProtectionHeading
   const consumerProtectionText = footer?.middleRow?.consumerProtectionText
   const payload = await getPayload({ config: configPromise })
-  const footerNewsletterForm = await payload.findByID({
-    collection: 'forms',
-    id: '2',
-    disableErrors: true
-  })
+  // const footerNewsletterForm = await payload.findByID({
+  //   collection: 'forms',
+  //   id: '2',
+  //   disableErrors: true
+  // })
   return (
     <footer className="bg-brand-navy text-white px-[1.25rem] md:px-10 2xl:px-20 pt-20 pb-10">
       <div className=" pb-10 gap-x-8 gap-y-16 flex flex-col items-center md:items-start md:flex-row md:justify-between flex-wrap">
@@ -73,7 +73,7 @@ export async function Footer() {
               )
             })}
         </div>
-        {footerNewsletterForm && (
+        {/* {footerNewsletterForm && (
           <div className="flex flex-col gap-6 md:max-w-fit lg:max-w-[21rem] md:mx-auto lg:m-0">
             <h2 className="font-bold text-2xl text-white text-center md:text-left">
               Get new properties sent straight to your inbox weekly!
@@ -81,7 +81,7 @@ export async function Footer() {
             <div className="w-full h-[1px] bg-brand-gray-04/50"></div>
             <NewsletterForm form={footerNewsletterForm} />
           </div>
-        )}
+        )} */}
       </div>
       <div className="grid grid-cols-2 lg:flex justify-between items-center gap-10 lg:gap-20 xl:gap-40 py-10 border-t border-b border-brand-gray-04/50">
         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-10 sm:gap-20 min-w-fit col-span-2">

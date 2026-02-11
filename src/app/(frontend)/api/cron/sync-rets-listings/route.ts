@@ -1,12 +1,12 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
-import { fetchRETSListings } from './functions/fetchRETSListings'
-import { findExistingListing } from './functions/findExistingListing'
-import { updateListing } from './functions/updateListing'
-import { createListing } from './functions/createListing'
+import { fetchRETSListings } from '../functions/fetchRETSListings'
+import { findExistingListing } from '../functions/findExistingListing'
+import { updateListing } from '../functions/updateListing'
+import { createListing } from '../functions/createListing'
 import { Listing } from '@/payload-types'
-import { checkNeedsUpdate } from './functions/checkNeedsUpdate'
+import { checkNeedsUpdate } from '../functions/checkNeedsUpdate'
 import { NextRequest } from 'next/server'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 export const maxDuration = 300
 
@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
         },
       )
     }
+    const payload = await getPayload({ config: configPromise })
+
     console.log('LIMIT: ' + limit)
     console.log('OFFSET: ' + offset)
 
@@ -62,46 +64,133 @@ export async function GET(request: NextRequest) {
     }
     const BATCH_SIZE = 100
     const createdOrUpdatedListings: Listing[] = []
-    const batchedListings = await Promise.all(
-      retsListings.map(async (retsListing) => {
-        const existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
-        if (existingListing) {
-          return { existingListing: existingListing, retsListing: retsListing }
-        } else {
-          return { existingListing: undefined, retsListing: retsListing }
-        }
-      }),
-    ).then((res) =>
-      res.filter((batchedListing) => {
-        if (batchedListing.existingListing) {
-          console.log('LISTING ALREADY EXISTS: ' + batchedListing.existingListing.title)
-          console.log('CHECKING FOR UPDATE FOR: ' + batchedListing.existingListing.title)
-          return checkNeedsUpdate(batchedListing.existingListing, batchedListing.retsListing)
-        }
-        return true
-      }),
-    )
+    const precheckBatchSize = 50
+    const precheckedListings: {
+      existingListing?: Listing
+      retsListing: (typeof retsListings)[0]
+    }[] = []
+    for (let i = 0; i < retsListings.length; i += precheckBatchSize) {
+      const batchNum = Math.floor(i / precheckBatchSize)
+      console.log('PRECHECKING BATCH: ' + (batchNum + 1))
+      const batchResults = await Promise.all(
+        retsListings.slice(i, i + precheckBatchSize).map(async (retsListing) => {
+          const existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
+          if (existingListing) {
+            const startOfDay = new Date()
+            startOfDay.setHours(0, 0, 0, 0)
+            if (existingListing.MLS?.LastSeenAt !== startOfDay.toISOString()) {
+              const updatedListing = await payload.update({
+                collection: 'listings',
+                id: existingListing.id,
+                data: {
+                  MLS: {
+                    ...existingListing.MLS,
+                    LastSeenAt: startOfDay.toISOString(),
+                  },
+                },
+              })
+              console.log(
+                'UPDATED LAST_SEEN_AT FOR LISTING: ' +
+                  existingListing.title +
+                  ' TO: ' +
+                  updatedListing.MLS?.LastSeenAt,
+              )
+            }
+            return { existingListing: existingListing, retsListing: retsListing }
+          } else {
+            return { existingListing: undefined, retsListing: retsListing }
+          }
+        }),
+      )
+      precheckedListings.push(...batchResults)
+    }
+
+    const batchedListings = precheckedListings.filter((batchedListing) => {
+      if (batchedListing.existingListing) {
+        console.log(
+          'LISTING ALREADY EXISTS, CHECKING FOR UPDATE: ' + batchedListing.existingListing.title,
+        )
+        return checkNeedsUpdate(batchedListing.existingListing, batchedListing.retsListing)
+      }
+      return true
+    })
 
     console.log('BATCHING ' + batchedListings.length + ' LISTINGS\n\n')
+
+    const processWithTimeout = async (
+      task: Promise<Listing | undefined>,
+      ms: number,
+      label: string,
+    ) => {
+      let timeoutHandle: NodeJS.Timeout | undefined
+      try {
+        return await Promise.race([
+          task,
+          new Promise<undefined>((_, reject) => {
+            timeoutHandle = setTimeout(() => {
+              reject(new Error(`TIMEOUT after ${ms}ms: ${label}`))
+            }, ms)
+          }),
+        ])
+      } finally {
+        if (timeoutHandle) clearTimeout(timeoutHandle)
+      }
+    }
 
     for (let i = 0; i < batchedListings.length; i += BATCH_SIZE) {
       const batchNum = Math.floor(i / BATCH_SIZE)
       console.log('RUNNING BATCH: ' + (batchNum + 1))
 
       const batchResults = await Promise.all(
-        batchedListings.slice(i, i + BATCH_SIZE).map(async (batchedListing) => {
+        batchedListings.slice(i, i + BATCH_SIZE).map(async (batchedListing, index) => {
           return new Promise<Listing | undefined>((resolve) => {
             setTimeout(async () => {
               try {
                 if (batchedListing.existingListing) {
-                  console.log('UPDATING LISTING: ' + batchedListing.existingListing.title)
-                  const updatedListing = await updateListing(
-                    batchedListing.existingListing,
-                    batchedListing.retsListing,
+                  console.log(
+                    'UPDATING LISTING (' +
+                      (i + index + 1) +
+                      '/' +
+                      batchedListings.length +
+                      '): ' +
+                      batchedListing.existingListing.title,
+                  )
+                  const updatedListing = await processWithTimeout(
+                    updateListing(batchedListing.existingListing, batchedListing.retsListing),
+                    30000,
+                    `update:${batchedListing.existingListing.id}`,
+                  )
+                  console.log(
+                    'FINISHED UPDATE (' +
+                      (i + index + 1) +
+                      '/' +
+                      batchedListings.length +
+                      '): ' +
+                      batchedListing.existingListing.title,
                   )
                   resolve(updatedListing)
                 } else {
-                  const createdListing = await createListing(batchedListing.retsListing)
+                  console.log(
+                    'CREATING LISTING (' +
+                      (i + index + 1) +
+                      '/' +
+                      batchedListings.length +
+                      '): ' +
+                      batchedListing.retsListing.ListingKeyNumeric,
+                  )
+                  const createdListing = await processWithTimeout(
+                    createListing(batchedListing.retsListing),
+                    30000,
+                    `create:${batchedListing.retsListing.ListingKeyNumeric}`,
+                  )
+                  console.log(
+                    'FINISHED CREATE (' +
+                      (i + index + 1) +
+                      '/' +
+                      batchedListings.length +
+                      '): ' +
+                      batchedListing.retsListing.ListingKeyNumeric,
+                  )
                   resolve(createdListing)
                 }
               } catch (error) {

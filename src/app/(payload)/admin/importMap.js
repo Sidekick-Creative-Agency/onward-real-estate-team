@@ -24,7 +24,6 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SlugComponent as SlugComponent_311c6d7b8ff1b150e4c0938742fd4baa } from '@/fields/Slug/SlugComponent'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { LinkToImportView as LinkToImportView_3a4810d23e9e9d7672441e06323d5b45 } from '../../../components/Admin/LinkToImportView'
 import { FieldMessage as FieldMessage_3185027efecf19811e43743295be0c12 } from '@/blocks/Form/PageTitle/FieldMessage/index'
 import { FieldMessage as FieldMessage_d86e1416047055d94d7b09406b7618e7 } from '@/blocks/Form/PageSlug/FieldMessage/index'
 import { FieldMessage as FieldMessage_045f0cc8bbddec66d1cb40c788e8a718 } from '@/blocks/Form/TeamMemberEmail/FieldMessage/index'
@@ -35,7 +34,7 @@ import { default as default_23cade6f0f915ee2a7bd9bceb0c04941 } from '@/component
 import { Actions as Actions_8a2900ac8f5913205117ba0684c31e0c } from '@/components/Admin/Actions'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { ImportView as ImportView_24bdc7c68b1ec1593b048688d4d42f3b } from '../../../views/Posts/Import'
-import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
   "@/components/ColorPicker#default": default_55a7d1ebef7afeed563b856ae2e2cbf4,
@@ -64,7 +63,6 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@/fields/Slug/SlugComponent#SlugComponent": SlugComponent_311c6d7b8ff1b150e4c0938742fd4baa,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "/components/Admin/LinkToImportView#LinkToImportView": LinkToImportView_3a4810d23e9e9d7672441e06323d5b45,
   "@/blocks/Form/PageTitle/FieldMessage/index#FieldMessage": FieldMessage_3185027efecf19811e43743295be0c12,
   "@/blocks/Form/PageSlug/FieldMessage/index#FieldMessage": FieldMessage_d86e1416047055d94d7b09406b7618e7,
   "@/blocks/Form/TeamMemberEmail/FieldMessage/index#FieldMessage": FieldMessage_045f0cc8bbddec66d1cb40c788e8a718,
@@ -75,5 +73,5 @@ export const importMap = {
   "@/components/Admin/Actions#Actions": Actions_8a2900ac8f5913205117ba0684c31e0c,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/views/Posts/Import#ImportView": ImportView_24bdc7c68b1ec1593b048688d4d42f3b,
-  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

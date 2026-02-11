@@ -1,23 +1,17 @@
 import jwt from 'jsonwebtoken'
-import { draftMode } from 'next/headers'
+import { cookies, draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { CollectionSlug } from 'payload'
+import { NextRequest } from 'next/server'
 
 const payloadToken = 'payload-token'
 
-export async function GET(
-  req: Request & {
-    cookies: {
-      get: (name: string) => {
-        value: string
-      }
-    }
-  },
-): Promise<Response> {
+export async function GET(req: NextRequest): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
-  const token = req.cookies.get(payloadToken)?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get(payloadToken)?.value
   const { searchParams } = new URL(req.url)
   const path = searchParams.get('path')
   const collection = searchParams.get('collection') as CollectionSlug
@@ -41,11 +35,11 @@ export async function GET(
     }
 
     if (!token) {
-      new Response('You are not allowed to preview this page', { status: 403 })
+      return new Response('You are not allowed to preview this page', { status: 403 })
     }
 
     if (!path.startsWith('/')) {
-      new Response('This endpoint can only be used for internal previews', { status: 500 })
+      return new Response('This endpoint can only be used for internal previews', { status: 500 })
     }
 
     let user
@@ -53,7 +47,10 @@ export async function GET(
     try {
       user = jwt.verify(token, payload.secret)
     } catch (error) {
-      payload.logger.error('Error verifying token for live preview:', error)
+      payload.logger.error(
+        'Error verifying token for live preview:',
+        'message' in error && typeof error === 'object' ? error.message : error,
+      )
     }
 
     const draft = await draftMode()
@@ -80,7 +77,10 @@ export async function GET(
         return new Response('Document not found', { status: 404 })
       }
     } catch (error) {
-      payload.logger.error('Error verifying token for live preview:', error)
+      payload.logger.error(
+        'Error verifying token for live preview:',
+        'message' in error && typeof error === 'object' ? error.message : error,
+      )
     }
 
     draft.enable()

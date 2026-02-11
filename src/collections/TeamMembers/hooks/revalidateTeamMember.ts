@@ -12,7 +12,7 @@ export const revalidateTeamMember: CollectionAfterChangeHook<TeamMember> = ({
     const path = `/team-members/${doc.slug}`
     payload.logger.info(`Revalidating team member at path: ${path}`)
     revalidatePath(path)
-    revalidateTag('team-sitemap')
+    revalidateTag('team-sitemap', 'max')
   }
 
   return doc
