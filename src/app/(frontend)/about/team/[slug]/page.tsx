@@ -17,7 +17,7 @@ import {
 import RichText from '@/components/RichText'
 import { PageClient } from './page.client'
 import { TestimonialCarousel } from '@/components/TeamMembers/TestimonialCarousel'
-import { Listing, Media as MediaType } from '@/payload-types'
+import { Listing } from '@/payload-types'
 import {
   Carousel,
   CarouselContent,
@@ -28,10 +28,8 @@ import {
 import { ListingCard } from '@/components/Listings/ListingCard'
 import { FormBlock } from '@/blocks/Form/Component'
 import { Metadata } from 'next'
-// import { cache } from 'react'
 import { generateMeta } from '@/utilities/generateMeta'
 import { Media } from '@/components/Media'
-// import { draftMode } from 'next/headers'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -334,23 +332,3 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
   return generateMeta({ doc: teamMember })
 }
-
-// const queryTeamMemberBySlug = cache(async ({ slug }: { slug: string }) => {
-//   const { isEnabled: draft } = await draftMode()
-
-//   const payload = await getPayload({ config: configPromise })
-
-//   const result = await payload.find({
-//     collection: 'team-members',
-//     draft,
-//     limit: 1,
-//     overrideAccess: draft,
-//     where: {
-//       slug: {
-//         equals: slug,
-//       },
-//     },
-//   })
-
-//   return result.docs?.[0] || null
-// })
