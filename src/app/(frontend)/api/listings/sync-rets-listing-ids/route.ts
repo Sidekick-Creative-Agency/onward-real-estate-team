@@ -47,12 +47,11 @@ export async function GET(req: NextRequest) {
           id: listing.id,
           data: {
             MLS: {
-              // @ts-expect-error ListingId exists on Listing.MLS
+              ...listing.MLS,
               ListingId: retsListing?.ListingId ? retsListing.ListingId : undefined,
             },
           },
         })
-        // @ts-expect-error ListingId exists on Listing.MLS
         return { id: listing.id, listingId: updatedListing.MLS?.ListingId }
       }),
     ).then((results) => results.filter((item) => item !== null))

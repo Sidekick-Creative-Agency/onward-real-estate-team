@@ -25,7 +25,7 @@ export const fetchRETSListings = async (limit: string, offset: string) => {
   searchParams.append('offset', String(offset))
   searchParams.append(
     'select',
-    'ListingKeyNumeric,ListingId,City,Latitude,ListAgentFullName,ListAgentKeyNumeric,ListOfficeKeyNumeric,ListOfficeName,ListPrice,LivingArea,Longitude,ModificationTimestamp,PhotosChangeTimestamp,PhotosCount,PostalCode,PropertySubType,PropertyType,PublicRemarks,StateOrProvince,StreetName,StreetNumber,StreetSuffix,LotSizeAcres,LotSizeArea,LotSizeSquareFeet,LotSizeUnits,BedroomsTotal,BathroomsTotalInteger',
+    'ListingKeyNumeric,ListingId,City,Latitude,ListAgentFullName,ListAgentKeyNumeric,ListOfficeKeyNumeric,ListOfficeName,ListPrice,LivingArea,Longitude,ModificationTimestamp,PhotosChangeTimestamp,PhotosCount,PostalCode,PropertySubType,PropertyType,PublicRemarks,StateOrProvince,StreetName,StreetNumber,StreetSuffix,LotSizeAcres,LotSizeArea,LotSizeSquareFeet,LotSizeUnits,BedroomsTotal,BathroomsTotalInteger,MlsStatus',
   )
 
   const client = new DigestClient(process.env.RETS_USERNAME, process.env.RETS_PASSWORD, {
@@ -115,6 +115,7 @@ export const fetchRETSListings = async (limit: string, offset: string) => {
               BathroomsTotalInteger: listingData[columns.indexOf('BathroomsTotalInteger')]
                 ? Number(listingData[columns.indexOf('BathroomsTotalInteger')])
                 : undefined,
+              MlsStatus: listingData[columns.indexOf('MlsStatus')] || undefined,
             }
             return listing
           })

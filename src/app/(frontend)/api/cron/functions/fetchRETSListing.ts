@@ -2,16 +2,6 @@ import DigestClient from 'digest-fetch'
 import { XMLParser } from 'fast-xml-parser'
 import { RETSListing, RETSSearchResponse } from '../types/types'
 
-const RETS_COUNTIES = {
-  bell: 14,
-  bosque: 18,
-  coryell: 50,
-  falls: 73,
-  hill: 109,
-  limestone: 147,
-  mclennan: 161,
-}
-
 export const fetchRETSListing = async (listingKeyNumeric: number | undefined | null) => {
   if (!listingKeyNumeric) return
   const searchParams = new URLSearchParams()
@@ -21,7 +11,7 @@ export const fetchRETSListing = async (listingKeyNumeric: number | undefined | n
   searchParams.append('format', 'COMPACT-DECODED')
   searchParams.append(
     'select',
-    'ListingKeyNumeric,ListingId,City,Latitude,ListAgentFullName,ListAgentKeyNumeric,ListOfficeKeyNumeric,ListOfficeName,ListPrice,LivingArea,Longitude,ModificationTimestamp,PhotosChangeTimestamp,PhotosCount,PostalCode,PropertySubType,PropertyType,PublicRemarks,StateOrProvince,StreetName,StreetNumber,StreetSuffix,LotSizeAcres,LotSizeArea,LotSizeSquareFeet,LotSizeUnits,BedroomsTotal,BathroomsTotalInteger',
+    'ListingKeyNumeric,ListingId,City,Latitude,ListAgentFullName,ListAgentKeyNumeric,ListOfficeKeyNumeric,ListOfficeName,ListPrice,LivingArea,Longitude,ModificationTimestamp,PhotosChangeTimestamp,PhotosCount,PostalCode,PropertySubType,PropertyType,PublicRemarks,StateOrProvince,StreetName,StreetNumber,StreetSuffix,LotSizeAcres,LotSizeArea,LotSizeSquareFeet,LotSizeUnits,BedroomsTotal,BathroomsTotalInteger,MlsStatus',
   )
 
   const client = new DigestClient(process.env.RETS_USERNAME, process.env.RETS_PASSWORD, {
@@ -111,6 +101,7 @@ export const fetchRETSListing = async (listingKeyNumeric: number | undefined | n
               BathroomsTotalInteger: listingData[columns.indexOf('BathroomsTotalInteger')]
                 ? Number(listingData[columns.indexOf('BathroomsTotalInteger')])
                 : undefined,
+              MlsStatus: listingData[columns.indexOf('MlsStatus')] || undefined,
             }
             return listing
           })
