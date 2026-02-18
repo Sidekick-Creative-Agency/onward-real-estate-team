@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-
-import { RelatedPosts } from "@/blocks/RelatedPosts/Component";
 import { PayloadRedirects } from "@/components/PayloadRedirects";
 import configPromise from "@payload-config";
 import { getPayload } from "payload";
 import { draftMode } from "next/headers";
-import React, { cache } from "react";
+import { cache } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -15,8 +13,6 @@ import {
 
 import type {
 	Attachment,
-	Form,
-	Post,
 	PropertyType,
 	TeamMember,
 } from "@/payload-types";
@@ -52,24 +48,10 @@ import { ArchiveBlock } from "@/blocks/ArchiveBlock/Component";
 import { Media } from "@/components/Media";
 import { Button } from "@/components/ui/button";
 import { Media as MediaType } from "@/payload-types";
-import {
-	Carousel,
-	CarouselContent,
-	CarouselItem,
-	CarouselNext,
-	CarouselPrevious,
-} from "@/components/ui/carousel";
-import { notFound, redirect } from "next/navigation";
 import { FormBlock } from "@/blocks/Form/Component";
 import Image from "next/image";
 import Link from "next/link";
-import AutoHeight from "embla-carousel-auto-height";
 import { ImageGallery } from "@/components/Listings/ImageGallery";
-import { FormFieldBlock } from "@payloadcms/plugin-form-builder/types";
-import { PhoneNumberField } from "@/blocks/Form/PhoneNumber/Field";
-import { PageTitleField } from "@/blocks/Form/PageTitle/Field/input";
-import { TeamMemberEmailField } from "@/blocks/Form/TeamMemberEmail/Field/input";
-import { li } from "framer-motion/client";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
