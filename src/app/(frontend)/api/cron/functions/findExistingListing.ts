@@ -1,4 +1,3 @@
-import { Listing } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 export const findExistingListing = async (listingKeyNumeric: number | undefined) => {

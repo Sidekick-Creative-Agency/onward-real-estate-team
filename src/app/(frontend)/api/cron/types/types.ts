@@ -6,17 +6,25 @@ export type RETSSearchResponse = {
   }
 }
 export type RETSListing = {
-  ListingKeyNumeric: number | undefined
+  BedroomsTotal: number | undefined
+  BathroomsTotalInteger: number | undefined
   City: string | undefined
   Latitude: number | undefined
   ListAgentFullName: string | undefined
   ListAgentKeyNumeric: number | undefined
+  ListingId: number | undefined
+  ListingKeyNumeric: number | undefined
   ListOfficeKeyNumeric: number | undefined
   ListOfficeName: string | undefined
   ListPrice: number | undefined
   LivingArea: number | undefined
   Longitude: number | undefined
+  LotSizeAcres: number | undefined
+  LotSizeArea: number | undefined
+  LotSizeSquareFeet: number | undefined
+  LotSizeUnits: string | undefined
   ModificationTimestamp: string | undefined
+  MlsStatus: string | undefined
   PhotosChangeTimestamp: string | undefined
   PhotosCount: number | undefined
   PostalCode: string | undefined
@@ -27,12 +35,6 @@ export type RETSListing = {
   StreetName: string | undefined
   StreetNumber: string | undefined
   StreetSuffix: string | undefined
-  LotSizeAcres: number | undefined
-  LotSizeArea: number | undefined
-  LotSizeSquareFeet: number | undefined
-  LotSizeUnits: string | undefined
-  BedroomsTotal: number | undefined
-  BathroomsTotalInteger: number | undefined
 }
 export type RETSObjectResponse = {
   RETS: string

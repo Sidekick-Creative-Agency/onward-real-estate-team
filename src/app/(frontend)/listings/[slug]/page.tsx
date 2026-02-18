@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-
-import { RelatedPosts } from "@/blocks/RelatedPosts/Component";
 import { PayloadRedirects } from "@/components/PayloadRedirects";
 import configPromise from "@payload-config";
 import { getPayload } from "payload";
 import { draftMode } from "next/headers";
-import React, { cache } from "react";
+import { cache } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -15,8 +13,6 @@ import {
 
 import type {
 	Attachment,
-	Form,
-	Post,
 	PropertyType,
 	TeamMember,
 } from "@/payload-types";
@@ -52,23 +48,10 @@ import { ArchiveBlock } from "@/blocks/ArchiveBlock/Component";
 import { Media } from "@/components/Media";
 import { Button } from "@/components/ui/button";
 import { Media as MediaType } from "@/payload-types";
-import {
-	Carousel,
-	CarouselContent,
-	CarouselItem,
-	CarouselNext,
-	CarouselPrevious,
-} from "@/components/ui/carousel";
-import { notFound, redirect } from "next/navigation";
 import { FormBlock } from "@/blocks/Form/Component";
 import Image from "next/image";
 import Link from "next/link";
-import AutoHeight from "embla-carousel-auto-height";
 import { ImageGallery } from "@/components/Listings/ImageGallery";
-import { FormFieldBlock } from "@payloadcms/plugin-form-builder/types";
-import { PhoneNumberField } from "@/blocks/Form/PhoneNumber/Field";
-import { PageTitleField } from "@/blocks/Form/PageTitle/Field/input";
-import { TeamMemberEmailField } from "@/blocks/Form/TeamMemberEmail/Field/input";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -539,19 +522,83 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								)}
 							</Accordion>
 						</div>
-						<div className="col-span-1 p-4 py-10 sm:p-10 bg-white border-t-[10px] border-brand-navy flex flex-col h-fit sticky top-24">
-							<div className="pb-10 flex gap-10 justify-between items-end">
-								<div className="flex flex-col gap-2">
-									<h2 className="text-2xl font-bold text-brand-navy">
-										Get in Touch
-									</h2>
+						<div className="col-span-1 h-fit sticky top-24">
+							<div className="p-4 py-10 sm:p-10 bg-white border-t-[10px] border-brand-navy flex flex-col ">
+								<div className="pb-10 flex gap-10 justify-between items-end">
+									<div className="flex flex-col gap-2">
+										<h2 className="text-2xl font-bold text-brand-navy">
+											Get in Touch
+										</h2>
+									</div>
 								</div>
+								<FormBlock
+									// @ts-ignore
+									form={sidebarForm}
+									styles={{ global: { theme: "thin" }, resp: {} }}
+								/>
 							</div>
-							<FormBlock
-								// @ts-ignore
-								form={sidebarForm}
-								styles={{ global: { theme: "thin" }, resp: {} }}
-							/>
+
+							{((listing.agents && listing.agents.length > 0) || (listing.MLS?.ListAgentFullName)) && (
+								<div className="flex flex-col gap-4 mt-4 p-4 py-10 sm:p-10 bg-white">
+
+
+									{listing.agents && listing.agents.length > 0 && listing.agents.map((_agent) => {
+										const agent = typeof _agent === 'object' ? _agent as TeamMember : null;
+										if (!agent) return null;
+										return (
+											<div key={agent.id} className="">
+												<p className="text-lg">Listed by {agent.title}</p>
+
+												<p className="text-base text-brand-gray-04 font-light">
+													Brokered by {listing?.MLS?.ListOfficeName ? listing.MLS.ListOfficeName : "Onward Real Estate Team"}
+												</p>
+												<p className="text-base text-brand-gray-04 font-light">
+													Last updated: {new Date(listing?.MLS?.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+												</p>
+												{listing?.MLS?.ListingId && (
+													<>
+														<p className="text-base text-brand-gray-04 font-light">
+															MLS# {listing.MLS.ListingId}
+														</p>
+														<p className="text-base text-brand-gray-04 font-light">
+															Source: NTREIS
+														</p>
+													</>
+												)}
+
+
+											</div>
+										)
+									})}
+
+									{listing.MLS?.ListAgentFullName && (!listing.agents || listing.agents.length === 0) && (
+
+										<div className="">
+											<p className="text-lg">Listed by {listing.MLS.ListAgentFullName}</p>
+
+											{listing.MLS.ListOfficeName && (
+												<p className="text-base text-brand-gray-04 font-light">
+													Brokered by {listing.MLS.ListOfficeName}
+												</p>
+											)}
+											<p className="text-base text-brand-gray-04 font-light">
+												Last updated: {new Date(listing.MLS.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+											</p>
+											{listing.MLS.ListingId && (
+
+												<p className="text-base text-brand-gray-04 font-light">
+													MLS# {listing.MLS.ListingId}
+												</p>
+											)}
+											<p className="text-base text-brand-gray-04 font-light">
+												Source: NTREIS
+											</p>
+
+										</div>
+									)}
+
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
@@ -587,7 +634,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 							</p>
 						</div>
 						<FormBlock
-							//  @ts-ignore
+							// @ts-expect-error type mismatch between form and footerContactForm
 							form={footerContactForm}
 							styles={{ global: {}, resp: {} }}
 						/>

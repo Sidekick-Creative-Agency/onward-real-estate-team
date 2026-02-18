@@ -32,23 +32,6 @@ export async function GET(request: NextRequest) {
       )
     }
     const payload = await getPayload({ config: configPromise })
-
-    console.log('LIMIT: ' + limit)
-    console.log('OFFSET: ' + offset)
-
-    // const payload = await getPayload({ config: configPromise })
-    // const existingListings = await payload
-    //   .find({
-    //     collection: 'listings',
-    //     pagination: false,
-    //   })
-    //   .then((res) => res.docs)
-    // const existingMedia = await payload
-    //   .find({
-    //     collection: 'media',
-    //     pagination: false,
-    //   })
-    //   .then((res) => res.docs)
     const retsListings = await fetchRETSListings(limit, offset)
     if (!retsListings) {
       return new Response(
@@ -74,7 +57,7 @@ export async function GET(request: NextRequest) {
       console.log('PRECHECKING BATCH: ' + (batchNum + 1))
       const batchResults = await Promise.all(
         retsListings.slice(i, i + precheckBatchSize).map(async (retsListing) => {
-          const existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
+          let existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
           if (existingListing) {
             const startOfDay = new Date()
             startOfDay.setHours(0, 0, 0, 0)
@@ -94,6 +77,37 @@ export async function GET(request: NextRequest) {
                   existingListing.title +
                   ' TO: ' +
                   updatedListing.MLS?.LastSeenAt,
+              )
+            }
+            if (
+              existingListing.MLS &&
+              (existingListing.MLS.ListingId !== retsListing.ListingId ||
+                existingListing.MLS.ListAgentFullName !== retsListing.ListAgentFullName ||
+                existingListing.MLS.ListAgentKeyNumeric !== retsListing.ListAgentKeyNumeric ||
+                existingListing.MLS.ListOfficeName !== retsListing.ListOfficeName ||
+                existingListing.MLS.ListOfficeKeyNumeric !== retsListing.ListOfficeKeyNumeric ||
+                existingListing.MLS.ModificationTimestamp !== retsListing.ModificationTimestamp)
+            ) {
+              existingListing = await payload.update({
+                collection: 'listings',
+                id: existingListing.id,
+                data: {
+                  MLS: {
+                    ...retsListing,
+                    ListingId: retsListing.ListingId,
+                    ListAgentFullName: retsListing.ListAgentFullName,
+                    ListAgentKeyNumeric: retsListing.ListAgentKeyNumeric,
+                    ListOfficeName: retsListing.ListOfficeName,
+                    ListOfficeKeyNumeric: retsListing.ListOfficeKeyNumeric,
+                    ModificationTimestamp: retsListing.ModificationTimestamp,
+                  },
+                },
+              })
+              console.log(
+                'UPDATED INCOMPLETE MLS DATA FOR LISTING: ' +
+                  existingListing.title +
+                  ' WITH MLS ID: ' +
+                  existingListing.MLS?.ListingId,
               )
             }
             return { existingListing: existingListing, retsListing: retsListing }

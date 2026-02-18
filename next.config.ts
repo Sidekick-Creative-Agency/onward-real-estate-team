@@ -7,6 +7,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://loc
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL, 'https://ntrdd.mlsmatrix.com'].map((item) => {
         const url = new URL(item)

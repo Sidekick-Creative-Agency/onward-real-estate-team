@@ -1,12 +1,10 @@
 'use client'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import canUseDOM from '@/utilities/canUseDOM'
-import { usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 
 const PageClient: React.FC = () => {
   const { setHeaderTheme } = useHeaderTheme()
-  const pathname = usePathname()
   useEffect(() => {
     setHeaderTheme('filled')
     if (canUseDOM) {

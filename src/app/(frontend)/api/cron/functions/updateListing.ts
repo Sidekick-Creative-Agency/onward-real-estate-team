@@ -70,9 +70,9 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           bedrooms: retsListing.BedroomsTotal,
           bathrooms: retsListing.BathroomsTotalInteger,
           featuredImage: featuredImageId || 0,
-          availability: 'active',
+          availability: retsListing.MlsStatus === 'ACT' ? 'active' : undefined,
           transactionType: retsListing.PropertyType === 'RLSE' ? 'for-lease' : 'for-sale',
-          // @ts-ignore
+          // @ts-expect-error type mismatch between description and SerializedEditorState<SerializedLexicalNode> | undefined
           description: formattedDescription,
           ...(retsListing.PropertyType === 'RLSE'
             ? {
@@ -92,7 +92,8 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           MLS: {
             ...listing.MLS,
             ListingKeyNumeric: retsListing.ListingKeyNumeric,
-            MlsStatus: 'Active',
+            ListingId: retsListing.ListingId,
+            MlsStatus: retsListing.MlsStatus,
             ListAgentKeyNumeric: retsListing.ListAgentKeyNumeric,
             ListAgentFullName: retsListing.ListAgentFullName,
             ListOfficeKeyNumeric: retsListing.ListOfficeKeyNumeric,
@@ -115,7 +116,6 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           }
           throw new Error(res.errors[0].message)
         }
-
         console.log(`UPDATED LISTING: ${listing.title}\n\n`)
         return res
       })
@@ -123,8 +123,7 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
         console.error('UNKNOWN ERROR UPDATING LISTING: ' + listing.title)
         throw new Error(error.message)
       })
-    console.log()
-    // @ts-ignore
+    // @ts-expect-error - type mismatch between BulkOperationResult<"listings", ListingsSelect<false> | ListingsSelect<true>> and Listing
     return updatedListing as Listing
   }
   throw new Error('UNKNOWN ERROR UPDATING LISTING: ' + listing.title)
