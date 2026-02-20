@@ -31,7 +31,7 @@ export const checkForMatchingListingSlug: CollectionBeforeChangeHook<Listing> = 
             depth: 0,
           }),
           new Promise<null>((resolve) => {
-            timeoutHandle = setTimeout(() => resolve(null), 10000)
+            timeoutHandle = setTimeout(() => resolve(null), 4000)
           }),
         ])
       } finally {
