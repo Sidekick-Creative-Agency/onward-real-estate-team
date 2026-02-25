@@ -31,18 +31,18 @@ export const Text: React.FC<
   className,
   fieldClassName,
 }) => {
-  return (
-    <div className={className}>
-      {label && <Label htmlFor={name}>{label}</Label>}
-      <Input
-        defaultValue={defaultValue}
-        id={name}
-        type="text"
-        placeholder={placeholder}
-        className={fieldClassName}
-        {...register(name, { required: requiredFromProps })}
-      />
-      {requiredFromProps && errors[name] && <Error error={errors[name]} />}
-    </div>
-  )
-}
+    return (
+      <div className={className}>
+        <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
+        <Input
+          defaultValue={defaultValue}
+          id={name}
+          type="text"
+          placeholder={placeholder}
+          className={fieldClassName}
+          {...register(name, { required: requiredFromProps })}
+        />
+        {requiredFromProps && errors[name] && <Error error={errors[name]} />}
+      </div>
+    )
+  }

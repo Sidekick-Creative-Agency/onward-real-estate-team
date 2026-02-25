@@ -2,12 +2,9 @@
 
 import * as React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { ChevronDown } from 'lucide-react'
-
 import { cn } from 'src/utilities/cn'
 import { faMinus, faPlus } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JSX } from 'react'
 import { IconDefinition } from '@awesome.me/kit-a7a0dd333d/icons'
 
 const Accordion = AccordionPrimitive.Root

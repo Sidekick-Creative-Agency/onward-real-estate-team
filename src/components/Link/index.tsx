@@ -23,8 +23,6 @@ export type CMSLinkType = {
 }
 
 export const CMSLink: React.FC<CMSLinkType> = (props) => {
-  const router = useRouter()
-  const pathname = usePathname()
   const {
     type,
     appearance = 'inline',

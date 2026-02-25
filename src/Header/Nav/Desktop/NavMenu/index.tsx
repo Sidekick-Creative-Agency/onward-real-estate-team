@@ -13,14 +13,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/Nav/dropdown-menu'
 
-export const NavMenu: React.FC<{ navItems: Header['navItems']; isScrolled: boolean }> = ({
+export const NavMenu: React.FC<{ navItems: Header['navItems']; isScrolled: boolean, label: string }> = ({
   navItems,
   isScrolled,
+  label
 }) => {
   const { headerTheme } = useHeaderTheme()
   if (!navItems) return null
   return (
-    <nav className="w-full">
+    <nav className="w-full" aria-label={label || "Navigation Menu"}>
       <ul className="flex w-full gap-10 justify-evenly items-center">
         {navItems.map(({ navItem }, i) => {
           if (navItem?.type === 'link') {

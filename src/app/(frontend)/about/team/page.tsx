@@ -16,13 +16,13 @@ export default async function Page() {
   }
   const { hero, layout, title } = page
   return (
-    <div>
+    <main id="main">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       <RenderHero {...hero} title={title} />
       <RenderBlocks blocks={layout} />
-    </div>
+    </main>
   )
 }
 

@@ -1,13 +1,9 @@
 import type { Metadata } from 'next/types'
-
-import { CollectionArchiveGrid } from '@/components/CollectionArchive/GridArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import React from 'react'
 import PageClient from './page.client'
-import { ListingArchiveGrid } from '@/components/Archive/ListingArchive'
 import { ListingCard } from '@/components/Listings/ListingCard'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
@@ -25,7 +21,7 @@ export default async function Page() {
   })
 
   return (
-    <div className="py-28">
+    <main id="main" className="py-28">
       <PageClient />
       <div className="container mb-16 flex flex-col gap-16">
         <div className="prose dark:prose-invert max-w-none">
@@ -58,7 +54,7 @@ export default async function Page() {
           <Pagination page={listings.page} totalPages={listings.totalPages} collection='listings' />
         )}
       </div>
-    </div>
+    </main>
   )
 }
 

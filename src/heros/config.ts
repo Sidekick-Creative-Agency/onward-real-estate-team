@@ -1,15 +1,5 @@
 import type { Field } from 'payload'
-
-import {
-  BlocksFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
-
 import { linkGroup } from '@/fields/linkGroup'
-import { ColumnsBlock } from '@/blocks/ColumnsBlock/config'
 import { link } from '@/fields/link'
 
 export const hero: Field = {

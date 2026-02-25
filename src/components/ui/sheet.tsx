@@ -3,11 +3,10 @@
 import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { X } from 'lucide-react'
 
 import { cn } from 'src/utilities/cn'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faX, faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
+import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 
 const Sheet = SheetPrimitive.Root
 
@@ -53,17 +52,14 @@ const sheetVariants = cva(
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
+  VariantProps<typeof sheetVariants> { }
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps & {
     closeButton?: React.ForwardRefExoticComponent<any & React.RefAttributes<SVGSVGElement>>
   }
->(({ side = 'right', className, closeButton: CloseButton, children, ...props }, ref) => {
-  // const hasCloseButton = (children)?.filter(
-  //   (child) => child?.type?.render?.displayName === 'DialogClose',
-  // )
+>(({ side = 'right', className, children, ...props }, ref) => {
   const hasCloseButton = false
   return (
     <SheetPortal>

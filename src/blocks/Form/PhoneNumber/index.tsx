@@ -40,41 +40,41 @@ export const PhoneNumber: React.FC<
   fieldClassName,
   placeholder,
 }) => {
-  const [error, setError] = useState<
-    FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined
-  >(errors[name])
+    const [error, setError] = useState<
+      FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined
+    >(errors[name])
 
-  const formatPhoneNumber = (value: string) => {
-    // Format phone number as (XXX) XXX-XXXX
-    if (!value) return value
-    const digits = value.replaceAll(/\D/g, '')
-    if (digits.length <= 3) return digits
-    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+    const formatPhoneNumber = (value: string) => {
+      // Format phone number as (XXX) XXX-XXXX
+      if (!value) return value
+      const digits = value.replaceAll(/\D/g, '')
+      if (digits.length <= 3) return digits
+      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+    }
+    useEffect(() => {
+      setError(errors[name])
+    }, [errors, name])
+    return (
+      <div className={className}>
+        <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
+        <Input
+          defaultValue={defaultValue}
+          id={name}
+          maxLength={14}
+          type="tel"
+          placeholder={placeholder}
+          className={fieldClassName}
+          {...register(name, {
+            required: requiredFromProps,
+            minLength: 14,
+            maxLength: 14,
+          })}
+          onChange={(e) => {
+            setValue(name, formatPhoneNumber(e.target.value))
+          }}
+        />
+        {requiredFromProps && errors[name] && <Error error={errors[name]} />}
+      </div>
+    )
   }
-  useEffect(() => {
-    setError(errors[name])
-  }, [errors, name])
-  return (
-    <div className={className}>
-      {label && <Label htmlFor={name}>{label}</Label>}
-      <Input
-        defaultValue={defaultValue}
-        id={name}
-        maxLength={14}
-        type="tel"
-        placeholder={placeholder}
-        className={fieldClassName}
-        {...register(name, {
-          required: requiredFromProps,
-          minLength: 14,
-          maxLength: 14,
-        })}
-        onChange={(e) => {
-          setValue(name, formatPhoneNumber(e.target.value))
-        }}
-      />
-      {requiredFromProps && errors[name] && <Error error={errors[name]} />}
-    </div>
-  )
-}

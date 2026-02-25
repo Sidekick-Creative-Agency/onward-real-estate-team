@@ -6,6 +6,13 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
   }
   const sanitized: MapFilters = {}
 
+
+  // Sanitize status - undefined or plain text
+  if (data.status) {
+    const status = data.status.map((s) => s.toLowerCase()).filter((s) => ['draft','published'].includes(s))
+    sanitized.status = status .length > 0 ? status : undefined
+  }
+
   // Sanitize search - undefined or plain text
   if (data.search) {
     sanitized.search = String(data.search).trim() || undefined
@@ -15,7 +22,6 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
   if (data.category) {
     const category = data.category.toLowerCase()
     if (['all', 'commercial', 'residential'].includes(category)) {
-      // @ts-ignore
       sanitized.category = category === 'all' ? undefined : category
     }
   }
@@ -47,7 +53,6 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
   if (data.sizeType) {
     const sizeType = data.sizeType.toLowerCase()
     if (['sqft', 'acres'].includes(sizeType)) {
-      // @ts-ignore
       sanitized.sizeType = sizeType
     }
   }
@@ -71,6 +76,14 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
     const num = Number(data.propertyType)
     if (!isNaN(num)) {
       sanitized.propertyType = String(num)
+    }
+  }
+
+  // Sanitize availability - undefined or string
+  if (data.availability) {
+    const availability = String(data.availability)
+    if (['available','unavailable', 'sold', 'active', 'pending'].includes(availability)) {
+      sanitized.availability = availability
     }
   }
 

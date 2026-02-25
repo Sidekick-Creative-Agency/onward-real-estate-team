@@ -14,7 +14,6 @@ type SlugComponentProps = {
 
 export const SlugComponent: React.FC<SlugComponentProps> = ({
   field,
-  fieldToUse,
   checkboxFieldPath: checkboxFieldPathFromProps,
   path,
   readOnly: readOnlyFromProps,

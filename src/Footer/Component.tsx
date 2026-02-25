@@ -1,6 +1,5 @@
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
-import React from 'react'
 import type { Footer } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
@@ -14,13 +13,8 @@ import {
   faYoutube,
 } from '@awesome.me/kit-a7a0dd333d/icons/classic/brands'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import Image from 'next/image'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { Form } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { NewsletterForm } from './NewsletterForm'
 import { Media as MediaType } from '@/payload-types'
 import RichText from '@/components/RichText'
 
@@ -32,12 +26,6 @@ export async function Footer() {
   const brokerageServicesText = footer?.middleRow?.brokerageServicesText
   const consumerProtectionHeading = footer?.middleRow?.consumerProtectionHeading
   const consumerProtectionText = footer?.middleRow?.consumerProtectionText
-  const payload = await getPayload({ config: configPromise })
-  // const footerNewsletterForm = await payload.findByID({
-  //   collection: 'forms',
-  //   id: '2',
-  //   disableErrors: true
-  // })
   return (
     <footer className="bg-brand-navy text-white px-[1.25rem] md:px-10 2xl:px-20 pt-20 pb-10">
       <div className=" pb-10 gap-x-8 gap-y-16 flex flex-col items-center md:items-start md:flex-row md:justify-between flex-wrap">
@@ -58,7 +46,7 @@ export async function Footer() {
                   <span className="text-white text-base font-bold leading-none uppercase tracking-wider text-center md:text-left whitespace-nowrap">
                     {title}
                   </span>
-                  <nav className="flex flex-col gap-2">
+                  <nav className="flex flex-col gap-2" aria-label={`${title} Footer Navigation`}>
                     {navItems.map((navItem, index) => {
                       return (
                         <CMSLink
@@ -155,6 +143,7 @@ export async function Footer() {
                   href={social.url || '/'}
                   target="_blank"
                   className="w-8 h-8 p-2 rounded-full bg-[rgba(148,148,148,0.25)] flex justify-center items-center"
+                  aria-label={`Visit our ${social.platform} page`}
                 >
                   {icon && <FontAwesomeIcon icon={icon} className="w-full text-brand-gray-02" />}
                 </Link>

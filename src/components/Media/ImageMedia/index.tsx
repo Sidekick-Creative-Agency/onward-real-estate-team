@@ -36,7 +36,6 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         response.json().then((json) => {
           const {
             alt: altFromResource,
-            filename: fullFilename,
             height: fullHeight,
             url,
             width: fullWidth,
@@ -53,7 +52,6 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     } else if (!src && resource && typeof resource === 'object') {
       const {
         alt: altFromResource,
-        filename: fullFilename,
         height: fullHeight,
         url,
         width: fullWidth,
@@ -78,8 +76,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   const sizes = sizeFromProps
     ? sizeFromProps
     : Object.entries(breakpoints)
-        .map(([, value]) => `(max-width: ${value}px) ${value}px`)
-        .join(', ')
+      .map(([, value]) => `(max-width: ${value}px) ${value}px`)
+      .join(', ')
 
   if (!src) return <Skeleton className="w-full h-full rounded-none" />
 

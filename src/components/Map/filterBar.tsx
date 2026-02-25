@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { FormControl, Form, FormField, FormItem, FormLabel } from '../ui/form'
+import { FormControl, Form, FormField, FormItem, FormLabel, FormDescription } from '../ui/form'
 import { z } from 'zod'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -14,7 +14,6 @@ import {
   faChevronUp,
 } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { formatNumber } from '@/utilities/formatNumber'
 import { usePayloadAPI } from '@payloadcms/ui'
@@ -28,6 +27,7 @@ import { Label } from '../ui/label'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
 import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
 import { MapFilters } from '@/app/(frontend)/api/listings/types'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 interface FilterBarProps {
   handleFilter: (filters: MapFilters, page: number | undefined, sort?: string | null, options?: { ignoreBounds: boolean }) => void
@@ -147,13 +147,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
+                    <Label htmlFor={`${field.name}-mobile`} className="sr-only">Search</Label>
                     <FormControl>
                       <Input
+                        id={`${field.name}-mobile`}
                         placeholder="Search by Address, City, Zipcode..."
                         {...field}
                         className="h-full text-lg font-light text-brand-navy"
                       />
                     </FormControl>
+                    <FormDescription className='sr-only'>Search by Address, City, or Zipcode</FormDescription>
                   </FormItem>
                 )
               }}
@@ -162,7 +165,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <SheetTrigger asChild>
                 <Button
                   variant={'link'}
-                  className="flex items-center gap-2 text-brand-gray-03 font-medium bg-transparent p-2 hover:no-underline focus-visible:no-underline normal-case tracking-normal"
+                  className="flex items-center gap-2 text-brand-gray-03 font-medium bg-transparent p-2 hover:no-underline focus-visible:no-underline normal-case tracking-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-navy"
                 >
                   Filters <FontAwesomeIcon icon={faBarsFilter} className="" />
                 </Button>
@@ -203,6 +206,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Label htmlFor="category_r2">Residential</Label>
                                 </div>
                               </RadioGroup>
+                              <FormDescription className='sr-only'>Category</FormDescription>
                             </FormItem>
                           )
                         }}
@@ -240,6 +244,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                   <Label htmlFor="transaction_type_r2">For Lease</Label>
                                 </div>
                               </RadioGroup>
+                              <FormDescription className='sr-only'>Transaction type</FormDescription>
                             </FormItem>
                           )
                         }}
@@ -281,6 +286,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     }}
                                   />
                                 </FormControl>
+                                <FormDescription className='sr-only'>Minimum price</FormDescription>
                               </FormItem>
                             )
                           }}
@@ -309,6 +315,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     }}
                                   />
                                 </FormControl>
+                                <FormDescription className='sr-only'>Maximum price</FormDescription>
                               </FormItem>
                             )
                           }}
@@ -362,6 +369,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     </FormItem>
                                   </RadioGroup>
                                 </FormControl>
+                                <FormDescription className='sr-only'>Size type</FormDescription>
                               </FormItem>
                             )
                           }}
@@ -391,6 +399,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     }}
                                   />
                                 </FormControl>
+                                <FormDescription className='sr-only'>Minimum size</FormDescription>
                               </FormItem>
                             )
                           }}
@@ -420,6 +429,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     }}
                                   />
                                 </FormControl>
+                                <FormDescription className='sr-only'>Maximum size</FormDescription>
                               </FormItem>
                             )
                           }}
@@ -473,6 +483,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                     )
                                   })}
                               </RadioGroup>
+                              <FormDescription className='sr-only'>Property type</FormDescription>
                             </FormItem>
                           )
                         }}
@@ -507,17 +518,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <FormField
               control={form.control}
               name="search"
+
               // defaultValue={searchParams.get('search') || ''}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
+                    <Label htmlFor={`${field.name}-desktop`} className="sr-only">Search</Label>
                     <FormControl>
                       <Input
+                        id={`${field.name}-desktop`}
                         placeholder="Search by Address, City, Zipcode..."
                         {...field}
                         className="h-full text-lg font-light text-brand-navy"
                       />
                     </FormControl>
+                    <FormDescription className='sr-only'>Search by Address, City, or Zipcode</FormDescription>
                   </FormItem>
                 )
               }}
@@ -556,6 +571,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormDescription className='sr-only'>Property type</FormDescription>
                   </FormItem>
                 )
               }}
@@ -594,20 +610,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormDescription className='sr-only'>Transaction type</FormDescription>
                   </FormItem>
                 )
               }}
             />
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
+            <Popover>
+              <PopoverTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <span className="text-lg font-light text-brand-navy">{priceText}</span>
                 <FontAwesomeIcon
                   icon={faChevronDown}
                   className="text-sm text-brand-gray-03 w-3.5"
                   fontSize={14}
                 />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="p-2 rounded-none" tabIndex={0}>
+              </PopoverTrigger>
+              <PopoverContent className="p-2 rounded-none">
                 <div className="flex flex-col gap-2">
                   <FormField
                     control={form.control}
@@ -678,11 +695,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       Reset
                     </Button>
                   )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger className="w-full border border-input flex justify-between items-center py-2 px-3 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <span className="text-lg font-light text-brand-navy">{sizeText}</span>
 
                 <FontAwesomeIcon
@@ -690,8 +706,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   className="text-sm text-brand-gray-03 w-3.5"
                   fontSize={14}
                 />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="p-2 rounded-none">
+              </PopoverTrigger>
+              <PopoverContent className="p-2 rounded-none">
                 <div className="flex flex-col gap-2">
                   <FormField
                     control={form.control}
@@ -728,6 +744,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                               </FormItem>
                             </RadioGroup>
                           </FormControl>
+                          <FormDescription className='sr-only'>Size type</FormDescription>
                         </FormItem>
                       )
                     }}
@@ -756,6 +773,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                               }}
                             />
                           </FormControl>
+                          <FormDescription className='sr-only'>Minimum size</FormDescription>
                         </FormItem>
                       )
                     }}
@@ -785,6 +803,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                               }}
                             />
                           </FormControl>
+                          <FormDescription className='sr-only'>Maximum size</FormDescription>
                         </FormItem>
                       )
                     }}
@@ -805,8 +824,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       <FontAwesomeIcon icon={faXmark} /> Reset
                     </Button>
                   )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </PopoverContent>
+            </Popover>
+
+
+
             <FormField
               control={form.control}
               name="propertyType"
@@ -851,6 +873,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                           ))}
                       </SelectContent>
                     </Select>
+                    <FormDescription className='sr-only'>Property type</FormDescription>
                   </FormItem>
                 )
               }}
@@ -881,7 +904,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           form.getValues().transactionType) && (
             <Button
               variant={'link'}
-              className="absolute bottom-2 right-10  flex gap-1 items-center text-sm normal-case tracking-normal leading-none p-1 hover:no-underline focus-visible:no-underline"
+              className="absolute bottom-2 right-10  flex gap-1 items-center text-sm normal-case tracking-normal leading-none p-1 hover:no-underline focus-visible:no-underline focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
               type="button"
               onClick={(e) => {
                 e.preventDefault()

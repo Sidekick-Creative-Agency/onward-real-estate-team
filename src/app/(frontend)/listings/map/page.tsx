@@ -31,7 +31,10 @@ export default async function Page() {
   })
   return (
     <Suspense fallback={LoadingState()}>
-      <PageClient listingsCount={listingsCount.totalDocs} />
+      <main id="main">
+        <h1 className='sr-only'>Listings Map</h1>
+        <PageClient listingsCount={listingsCount.totalDocs} />
+      </main>
     </Suspense>
   )
 }

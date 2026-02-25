@@ -3,11 +3,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from '../ui/button'
 import { faChevronDown } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { useDebounce } from '@/utilities/useDebounce'
 
-import { useHeaderTheme } from '@/providers/HeaderTheme'
-import { HeaderContext } from '@/Header/Component.client'
 import Link from 'next/link'
 import { CMSLinkType } from '../Link'
 import { Page } from '@/payload-types'
@@ -23,7 +21,7 @@ type DropdownMenuContextType = {
 }
 const DropdownMenuContext = createContext<DropdownMenuContextType>({
   isOpen: false,
-  setIsOpen: () => {},
+  setIsOpen: () => { },
 })
 
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({ children, className }) => {
@@ -50,8 +48,6 @@ export const DropdownMenuTrigger: React.FC<DropdownMenuTriggerProps> = ({
   link,
 }) => {
   const context = useContext(DropdownMenuContext)
-  const headerContext = useContext(HeaderContext)
-  const { headerTheme } = useHeaderTheme()
 
   if (asLink && link) {
     const href =

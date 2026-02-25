@@ -1,12 +1,7 @@
 'use client'
-
 import React, { useEffect, useState } from 'react'
-
 import type { Header as HeaderType } from '@/payload-types'
-
 import { CMSLink } from '@/components/Link'
-import Link from 'next/link'
-import { Menu, SearchIcon, X } from 'lucide-react'
 import {
   Sheet,
   SheetClose,
@@ -21,19 +16,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Button } from '@/components/ui/button'
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from '@/components/ui/navigation-menu'
 import { useMotionValueEvent, useScroll } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBars,
   faChevronDown,
   faChevronUp,
-  faX,
   faXmark,
 } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
@@ -68,7 +56,7 @@ export const HeaderMobileNav: React.FC<{ header: HeaderType }> = ({ header }) =>
         <SheetHeader className="sr-only">
           <SheetTitle>Mobile Menu</SheetTitle>
         </SheetHeader>
-        <nav className="w-full justify-stretch">
+        <nav className="w-full justify-stretch" aria-label="Mobile Navigation">
           <ul className="flex-col items-start mt-16 space-x-0 gap-2 w-full">
             <Accordion type="single" collapsible className="w-full">
               {navItems.map(({ navItem }, i) => {

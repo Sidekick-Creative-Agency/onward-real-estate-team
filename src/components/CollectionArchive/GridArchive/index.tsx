@@ -1,8 +1,4 @@
-import { cn } from 'src/utilities/cn'
 import React from 'react'
-
-import type { Post } from '@/payload-types'
-
 import { Card } from '@/components/Card'
 import { DataFromCollectionSlug } from 'payload'
 

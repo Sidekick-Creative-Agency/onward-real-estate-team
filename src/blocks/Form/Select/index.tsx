@@ -13,7 +13,6 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
-import { Width } from '../Width'
 
 export const Select: React.FC<
   SelectField & {
@@ -26,10 +25,10 @@ export const Select: React.FC<
     className?: string
     fieldClassName?: string
   }
-> = ({ name, control, errors, label, options, required, width, className, fieldClassName }) => {
+> = ({ name, control, errors, label, options, required, className, fieldClassName }) => {
   return (
     <div className={className}>
-      <Label htmlFor={name}>{label}</Label>
+      <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
       <Controller
         control={control}
         defaultValue=""

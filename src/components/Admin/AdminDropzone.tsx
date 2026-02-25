@@ -1,11 +1,11 @@
 'use client'
 
-import { Button, Dropzone, Table, toast } from '@payloadcms/ui'
-import React, { useRef, useState } from 'react'
+import { Button, Dropzone, toast } from '@payloadcms/ui'
+import React, { useState } from 'react'
 import Papa from 'papaparse'
 import { $generateNodesFromDOM } from '@lexical/html'
 import { createHeadlessEditor } from '@lexical/headless'
-import { $getRoot, LexicalNode, SerializedEditor, SerializedEditorState } from 'lexical'
+import { $getRoot, SerializedEditorState } from 'lexical'
 import { PropertyType } from '@/payload-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
@@ -40,13 +40,12 @@ interface ListingData {
   isFeatured: string | null | undefined
   agents: string | null | undefined
 }
-export const AdminDropzone: React.FC<AdminDropzoneProps> = ({ collectionSlug }) => {
+export const AdminDropzone: React.FC<AdminDropzoneProps> = () => {
   const [file, setFile] = useState<File | null>(null)
   const [data, setData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [importAmount, setImportAmount] = useState<number | undefined>(undefined)
   const [importOffset, setImportOffset] = useState(0)
-  const router = useRouter()
 
   const handleUpload = async () => {
     try {
@@ -204,7 +203,7 @@ export const AdminDropzone: React.FC<AdminDropzoneProps> = ({ collectionSlug }) 
           const acreage = item.acreage ? cleanNumber(item.acreage) : undefined
           const isFeatured =
             item.is_featured &&
-            (item.is_featured.toLowerCase() === 'yes' || item.is_featured.toLowerCase() === 'true')
+              (item.is_featured.toLowerCase() === 'yes' || item.is_featured.toLowerCase() === 'true')
               ? true
               : false
           const streetAddress = item.street_address ? item.street_address : undefined

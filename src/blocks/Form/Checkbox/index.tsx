@@ -33,24 +33,24 @@ export const Checkbox: React.FC<
   className,
   fieldClassName,
 }) => {
-  const props = register(name, { required: requiredFromProps })
-  const { setValue } = useFormContext()
+    const props = register(name, { required: requiredFromProps })
+    const { setValue } = useFormContext()
 
-  return (
-    <div className={className}>
-      <div className="flex items-center gap-2">
-        <CheckboxUi
-          defaultChecked={defaultValue}
-          id={name}
-          className={fieldClassName}
-          {...props}
-          onCheckedChange={(checked) => {
-            setValue(props.name, checked)
-          }}
-        />
-        {label && <Label htmlFor={name}>{label}</Label>}
+    return (
+      <div className={className}>
+        <div className="flex items-center gap-2">
+          <CheckboxUi
+            defaultChecked={defaultValue}
+            id={name}
+            className={fieldClassName}
+            {...props}
+            onCheckedChange={(checked) => {
+              setValue(props.name, checked)
+            }}
+          />
+          <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
+        </div>
+        {requiredFromProps && errors[name] && <Error error={errors[name]} />}
       </div>
-      {requiredFromProps && errors[name] && <Error error={errors[name]} />}
-    </div>
-  )
-}
+    )
+  }
