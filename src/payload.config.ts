@@ -55,9 +55,7 @@ import { TeamMemberEmail } from './blocks/Form/TeamMemberEmail/Field/input'
 import { generateContactFormSubmitterEmail } from './emails/Contact/Submitter'
 import { generateContactFormRecipientEmail } from './emails/Contact/Recipient'
 import { CookieBanner } from './CookieBanner/config'
-import { authenticated } from './access/authenticated'
 import { MessageField } from './blocks/Form/Message/Field'
-import { anyone } from './access/anyone'
 import { PageSlug } from './blocks/Form/PageSlug/Field/input'
 
 const filename = fileURLToPath(import.meta.url)
@@ -213,7 +211,7 @@ export default buildConfig({
     redirectsPlugin({
       collections: ['pages', 'posts', 'listings'],
       overrides: {
-        // @ts-expect-error
+        // @ts-expect-error --- IGNORE ---
         fields: ({ defaultFields }) => {
           return defaultFields.map((field) => {
             if ('name' in field && field.name === 'from') {

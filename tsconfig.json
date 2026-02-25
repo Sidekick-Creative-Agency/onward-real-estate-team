@@ -39,7 +39,8 @@
       "@fontawesome-kit/*": [
         "@awesome.me/kit-a7a0dd333d/*"
       ]
-    }
+    },
+    "types": ["node", "react", "react-dom"]
   },
   "include": [
     "**/*.ts",

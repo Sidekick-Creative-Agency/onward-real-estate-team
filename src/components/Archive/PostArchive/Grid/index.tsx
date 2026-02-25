@@ -168,7 +168,7 @@ export const PostArchiveGrid: React.FC<PostArchiveGridProps> = ({
               All
             </SelectItem>
             {categories &&
-              categories.map((category, index) => {
+              categories.map((category) => {
                 return (
                   <SelectItem
                     key={category.id}

@@ -1,6 +1,6 @@
 'use client'
 import { Listing } from '@/payload-types'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { Media } from '../Media'
 import Link from 'next/link'
 import { formatPrice } from '../../utilities/formatPrice'

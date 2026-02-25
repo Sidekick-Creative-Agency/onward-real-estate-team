@@ -12,13 +12,10 @@ type Props = {
 }
 
 export default function Toolbar({
-	active = false,
-	anchorElem,
 	editor,
-	enabled = true,
 	item,
 }: Props): React.JSX.Element {
-	const [ activeColor, setActiveColor ] = useState<string>('')
+	const [activeColor, setActiveColor] = useState<string>('')
 
 	const onChange = (color: string) => {
 		editor.dispatchCommand(item.command, { color });
@@ -31,7 +28,7 @@ export default function Toolbar({
 
 			current && setActiveColor(current)
 		})
-	}, [ editor ])
+	}, [editor])
 
 	return (
 		<ColorPicker color={activeColor} onChange={onChange} colors={item.colors} />

@@ -13,7 +13,6 @@ import React from 'react'
 import { Controller } from 'react-hook-form'
 
 import { Error } from '../Error'
-import { Width } from '../Width'
 import { stateOptions } from './options'
 
 export const State: React.FC<
@@ -28,10 +27,10 @@ export const State: React.FC<
     placeholder?: string
     fieldClassName?: string
   }
-> = ({ name, control, errors, label, required, width, className, placeholder, fieldClassName }) => {
+> = ({ name, control, errors, label, required, className, placeholder, fieldClassName }) => {
   return (
     <div className={className}>
-      {label && <Label htmlFor={name}>{label}</Label>}
+      <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
 
       <Controller
         control={control}

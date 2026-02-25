@@ -1,4 +1,4 @@
-import { deepMerge, Field } from 'payload'
+import {  Field } from 'payload'
 
 type ColorFieldType = (options?: {
   name?: string

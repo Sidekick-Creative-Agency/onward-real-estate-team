@@ -1,9 +1,7 @@
 import * as React from 'react'
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 import { cva } from 'class-variance-authority'
-import { ChevronDown } from 'lucide-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { byPrefixAndName } from '@awesome.me/kit-a7a0dd333d/icons'
 import { faChevronDown } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 
 import { cn } from 'src/utilities/cn'

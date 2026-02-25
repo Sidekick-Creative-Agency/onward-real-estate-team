@@ -5,14 +5,12 @@ import { z } from 'zod'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
-import { Form as FormType, Listing, TeamMember } from '@/payload-types'
+import { TeamMember } from '@/payload-types'
 import { Button } from '../ui/button'
-import { Data, FormBlock } from '@/blocks/Form/Component'
 import { useEffect, useState } from 'react'
 import canUseDOM from '@/utilities/canUseDOM'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
-import { Message } from '@/blocks/Form/Message'
 
 export const TeamMemberContactFormSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
@@ -42,10 +40,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({ teamMember }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false)
   const [error, setError] = useState<{ message: string; status?: string } | undefined>()
-
-  // const onSubmit = (data: z.infer<typeof TeamMemberContactFormSchema>) => {
-  //   console.log('Submitted data:', data)
-  // }
 
   const onSubmit = (data) => {
     const submitForm = async () => {

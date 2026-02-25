@@ -4,9 +4,6 @@ import { TeamMember } from '@/payload-types'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { Media } from '@/components/Media'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import RichText from '../RichText'
 
 interface TestimonialCarouselProps {
   testimonials: TeamMember['details']['testimonials']

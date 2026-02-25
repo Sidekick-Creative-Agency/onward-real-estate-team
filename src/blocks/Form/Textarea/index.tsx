@@ -33,20 +33,19 @@ export const Textarea: React.FC<
   className,
   fieldClassName,
 }) => {
-  return (
-    <div className={className}>
-      {label && <Label htmlFor={name}>{label}</Label>}
+    return (
+      <div className={className}>
+        <Label htmlFor={name} className={`${!label ? 'sr-only' : ''}`}>{label || name}</Label>
+        <TextAreaComponent
+          defaultValue={defaultValue}
+          id={name}
+          rows={rows}
+          placeholder={placeholder}
+          className={fieldClassName}
+          {...register(name, { required: requiredFromProps })}
+        />
 
-      <TextAreaComponent
-        defaultValue={defaultValue}
-        id={name}
-        rows={rows}
-        placeholder={placeholder}
-        className={fieldClassName}
-        {...register(name, { required: requiredFromProps })}
-      />
-
-      {requiredFromProps && errors[name] && <Error error={errors[name]} />}
-    </div>
-  )
-}
+        {requiredFromProps && errors[name] && <Error error={errors[name]} />}
+      </div>
+    )
+  }

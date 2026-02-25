@@ -1,12 +1,7 @@
 'use client'
-import { useHeaderTheme } from '@/providers/HeaderTheme'
-import React, { useEffect, useState } from 'react'
-
+import React, { useState } from 'react'
 import type { Page } from '@/payload-types'
-
-import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
-import RichText from '@/components/RichText'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -14,7 +9,6 @@ import {
   faChevronRight,
   faCircleNotch,
   faMagnifyingGlass,
-  faSpinner,
 } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -22,7 +16,6 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import Link from 'next/link'
-import useWindowDimensions from '@/utilities/useWindowDimensions'
 
 const SearchFormSchema = z.object({
   search: z.string().min(1, { message: 'This field is required' }),
@@ -36,9 +29,7 @@ export const HomeHero: React.FC<Page['hero'] & { title: string }> = ({
   heroLogos,
   homeHeroLinks,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { width } = useWindowDimensions()
   const form = useForm<z.infer<typeof SearchFormSchema>>({
     resolver: zodResolver(SearchFormSchema),
   })

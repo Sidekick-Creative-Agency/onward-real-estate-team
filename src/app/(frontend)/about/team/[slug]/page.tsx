@@ -77,7 +77,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
   const relatedListings = teamMember.relatedListings?.docs
   return (
-    <>
+    <main id="main">
       <PageClient teamMember={teamMember} />
       <div>
         {/* HERO */}
@@ -309,7 +309,7 @@ export default async function Page({ params: paramsPromise }: Args) {
           </div>
         </div>
       </div>
-    </>
+    </main>
   )
 }
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {

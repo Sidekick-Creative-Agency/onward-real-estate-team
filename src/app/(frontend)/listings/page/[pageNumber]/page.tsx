@@ -33,7 +33,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
 
   return (
-    <div className="pt-24 pb-24">
+    <main id='main' className="pt-24 pb-24">
       <PageClient />
       <div className="container mb-16 flex flex-col gap-16">
         <div className="prose dark:prose-invert max-w-none">
@@ -65,7 +65,7 @@ export default async function Page({ params: paramsPromise }: Args) {
           <Pagination page={listings.page} totalPages={listings.totalPages} collection='listings' />
         )}
       </div>
-    </div>
+    </main>
   )
 }
 

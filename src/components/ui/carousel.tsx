@@ -2,8 +2,6 @@
 
 import * as React from 'react'
 import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-
 import { cn } from 'src/utilities/cn'
 import { Button } from '@/components/ui/button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -169,7 +167,6 @@ CarouselContent.displayName = 'CarouselContent'
 
 const CarouselItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
-    const { orientation } = useCarousel()
 
     return (
       <div
@@ -217,6 +214,7 @@ const CarouselDots = React.forwardRef<
               dotClassName,
             )}
             onClick={() => scrollTo(index)}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
     </div>
@@ -243,6 +241,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         disabled={!canScrollPrev}
         onClick={scrollPrev}
         {...props}
+        aria-label='Previous Slide'
       >
         {!props.children ? (
           <FontAwesomeIcon icon={faChevronLeft} className="w-full h-auto max-h-full" />
@@ -276,6 +275,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         disabled={!canScrollNext}
         onClick={scrollNext}
         {...props}
+        aria-label='Next Slide'
       >
         {!props.children ? (
           <FontAwesomeIcon icon={faChevronRight} className="w-full h-auto max-h-full" />

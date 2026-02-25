@@ -1,4 +1,4 @@
-import { Category, Media as MediaType, Post } from '@/payload-types'
+import { Category, Post } from '@/payload-types'
 import { Media } from '../Media'
 
 import React from 'react'

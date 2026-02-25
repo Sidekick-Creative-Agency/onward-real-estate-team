@@ -3,7 +3,6 @@ import React from 'react'
 
 import { serializeLexical } from './serialize'
 
-import { JSXConverters } from 'payloadcms-lexical-ext/'
 
 type Props = {
   className?: string

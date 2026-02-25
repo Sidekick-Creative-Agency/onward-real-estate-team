@@ -1,21 +1,20 @@
 'use client'
 
-import { Button, Dropzone, NumberField, Table, TextInput, toast } from '@payloadcms/ui'
-import React, { useRef, useState } from 'react'
+import { Button, Dropzone, toast } from '@payloadcms/ui'
+import React, { useState } from 'react'
 import Papa from 'papaparse'
 import { $generateNodesFromDOM } from '@lexical/html'
 import { createHeadlessEditor } from '@lexical/headless'
-import { $getRoot, LexicalNode, SerializedEditor, SerializedEditorState } from 'lexical'
+import { $getRoot, SerializedEditorState } from 'lexical'
 import { PropertyType } from '@/payload-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { $getSelection } from '@payloadcms/richtext-lexical/lexical'
-import { Input } from '../ui/input'
 
 interface AdminPostsDropzoneProps {
   collectionSlug: string
 }
-export const AdminPostsDropzone: React.FC<AdminPostsDropzoneProps> = ({ collectionSlug }) => {
+export const AdminPostsDropzone: React.FC<AdminPostsDropzoneProps> = () => {
   const [file, setFile] = useState<File | null>(null)
   const [data, setData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)

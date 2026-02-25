@@ -12,7 +12,7 @@ export const RightHeaderNav: React.FC<{ navItems: Header['navItems']; isScrolled
 }) => {
   return (
     <div className="flex items-center justify-center">
-      <NavMenu navItems={navItems} isScrolled={isScrolled} />
+      <NavMenu navItems={navItems} isScrolled={isScrolled} label='Right Desktop Navigation' />
     </div>
   )
 }

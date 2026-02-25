@@ -45,6 +45,10 @@ import { useDebounce } from '@/utilities/useDebounce'
 import { PaginatedDocs } from 'payload'
 import { sanitizeFilterData } from '@/utilities/sanitizeFilterData'
 import { MapFilters } from '../../api/listings/types'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@radix-ui/react-label'
+import { Field, FieldContent } from '@/components/ui/field'
 
 interface MapPageClientProps {
   listingsCount?: number
@@ -705,13 +709,13 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
         {width && width <= parseInt(defaultTheme.screens.md) && (
           <div className="flex">
             <Button
-              className={`flex-1 flex gap-2 items-center text-lg font-medium tracking-normal normal-case bg-transparent hover:bg-transparent focus-visible:bg-transparent  border-0 border-b-2 ${activeTab === 'map' ? 'text-brand-navy border-b-brand-navy' : 'text-brand-gray-03 border-b-transparent'}`}
+              className={`flex-1 flex gap-2 items-center text-lg font-medium tracking-normal normal-case bg-transparent hover:bg-transparent focus-visible:bg-transparent  border-0 border-b-2 ${activeTab === 'map' ? 'text-brand-navy border-b-brand-navy' : 'text-brand-gray-03 border-b-transparent focus-visible:border-b-brand-gray-02 '} focus-visible:bg-brand-gray-00`}
               onClick={() => setActiveTab('map')}
             >
               <FontAwesomeIcon icon={faMap} className="w-5 h-auto" /> Map
             </Button>
             <Button
-              className={`flex-1 flex gap-2 items-center text-lg font-medium tracking-normal normal-case bg-transparent hover:bg-transparent focus-visible:bg-transparent border-0 border-b-2 ${activeTab === 'list' ? 'text-brand-navy border-b-brand-navy' : 'text-brand-gray-03 border-b-transparent'}`}
+              className={`flex-1 flex gap-2 items-center text-lg font-medium tracking-normal normal-case bg-transparent hover:bg-transparent focus-visible:bg-transparent border-0 border-b-2 ${activeTab === 'list' ? 'text-brand-navy border-b-brand-navy' : 'text-brand-gray-03 border-b-transparent focus-visible:border-b-brand-gray-02 '} focus-visible:bg-brand-gray-00`}
               onClick={() => setActiveTab('list')}
             >
               <FontAwesomeIcon icon={faList} className="w-5 h-auto" /> List
@@ -743,34 +747,39 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
 
                 `${totalListings.toLocaleString()} Listings`}
             </span>
-            <DropdownMenu open={isSortOpen} onOpenChange={setIsSortOpen}>
-              <DropdownMenuTrigger className="text-lg text-brand-gray-03 font-medium tracking-normal flex items-center gap-2 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
+            <Popover open={isSortOpen} onOpenChange={setIsSortOpen}>
+              <PopoverTrigger className="text-lg text-brand-gray-03 font-medium tracking-normal flex items-center gap-2 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <FontAwesomeIcon icon={faArrowUpArrowDown} className="w-5 h-auto" />{' '}
                 {sortData ? sortData.label : 'Sort By'}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="rounded-none">
-                <DropdownMenuRadioGroup
-                  value={sortData?.value}
+              </PopoverTrigger>
+              <PopoverContent className="rounded-none p-2 w-fit" align='end'>
+                <RadioGroup value={sortData?.value}
                   onValueChange={(value) => {
                     fetchCardListings(filters, currentPage || 1, value).then((res) => updateSearchParams([res]))
                   }}
+                  className='gap-0 '
                 >
-                  {sortOptions.map((option, index) => {
+                  {sortOptions.map((option) => {
                     return (
-                      <DropdownMenuRadioItem
-                        key={index}
-                        className="hover:bg-brand-blue rounded-none text-base font-light"
-                        value={option.value}
-                      >
-                        {option.label}
-                      </DropdownMenuRadioItem>
+                      <Field key={option.value} orientation="horizontal" className='flex items-center gap-2 hover:bg-brand-blue/25 rounded-none p-2'>
+                        <RadioGroupItem
+
+                          className="rounded-full self-center"
+                          value={option.value}
+                          id={option.value}
+                        />
+                        <FieldContent>
+
+                          <Label htmlFor={option.value} className="text-base font-light">{option.label}</Label>
+                        </FieldContent>
+                      </Field>
                     )
                   })}
-                </DropdownMenuRadioGroup>
+                </RadioGroup>
                 {sortData && (
                   <Button
                     variant={'ghost'}
-                    className="flex items-center gap-2 w-full"
+                    className="flex items-center gap-2 w-full focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
                     onClick={() => {
                       fetchCardListings(filters, currentPage).then((res) => updateSearchParams([res]))
                       setIsSortOpen(false)
@@ -780,8 +789,8 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                     Reset
                   </Button>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] xl:grid-cols-2 gap-x-4 gap-y-6 p-6 content-start ">
             {(isFirstRender || isCardsLoading) &&
@@ -814,18 +823,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                   <Card
                     key={listing.id}
                     className="rounded-none bg-white border-none shadow-md transition-shadow hover:shadow-xl focus-visible:shadow-xl"
-                  // onMouseEnter={() => {
-                  //   setFocusedListing(listing)
-                  // }}
-                  // onMouseLeave={() => {
-                  //   setFocusedListing(null)
-                  // }}
-                  // onFocus={() => {
-                  //   setFocusedListing(listing)
-                  // }}
-                  // onBlur={() => {
-                  //   setFocusedListing(null)
-                  // }}
                   >
                     <Link href={`/listings/${listing.slug}`} className="h-full block">
                       <div className="relative pb-[66.66%] overflow-hidden w-full">
@@ -861,13 +858,13 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
                           </div>
                           <div>
                             <Button
-                              className="flex justify-center items-center w-12 h-12 p-0 rounded-full border border-brand-gray-00 bg-white text-brand-gray-06 hover:bg-brand-gray-00"
-                              style={{ boxShadow: '0px 3px 10px rgba(0,0,0,.1)' }}
+                              className="flex justify-center items-center w-12 h-12 p-0 rounded-full border border-brand-gray-00 bg-white text-brand-gray-06 shadow-[0px_3px_10px_rgba(0,0,0,.1)] hover:bg-brand-gray-00 focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
                               onClick={(e) => {
                                 e.preventDefault()
                                 const mailtoLink = `mailto:info@onwardrealestateteam.org?subject=${encodeURIComponent(`Onward Real Estate Property Inquiry: ${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}`)}&body=${encodeURIComponent(`Hello,\n\n I am interested in receiving more information about ${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}`)}.`
                                 window.location.href = mailtoLink
                               }}
+                              aria-label={`Email for more information about ${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zipCode}`}
                             >
                               <FontAwesomeIcon icon={faEnvelope} fontWeight={300} size="lg" />
                             </Button>
@@ -992,10 +989,6 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
     </div>
   )
 }
-
-const mapMarkerIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="37" height="48" viewBox="0 0 37 48" fill="none" style="width: 100%">
-        <path d="M18.1622 48C18.1622 48 36.3243 28.5 36.3243 18C36.3243 8.0625 28.1892 0 18.1622 0C8.13514 0 0 8.0625 0 18C0 28.5 18.1622 48 18.1622 48ZM18.1622 12C19.7678 12 21.3077 12.6321 22.443 13.7574C23.5784 14.8826 24.2162 16.4087 24.2162 18C24.2162 19.5913 23.5784 21.1174 22.443 22.2426C21.3077 23.3679 19.7678 24 18.1622 24C16.5565 24 15.0167 23.3679 13.8813 22.2426C12.7459 21.1174 12.1081 19.5913 12.1081 18C12.1081 16.4087 12.7459 14.8826 13.8813 13.7574C15.0167 12.6321 16.5565 12 18.1622 12Z" fill="#0B2A35" />
-      </svg>`
 
 export const FloorPlanIcon = (props) => {
   return (

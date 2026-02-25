@@ -22,20 +22,15 @@ import { FilterBar } from '@/components/Map/filterBar'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import useWindowDimensions from '@/utilities/useWindowDimensions'
 import { faXmark } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
 import { PaginatedDocs } from 'payload'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Field, FieldContent } from '@/components/ui/field'
+import { Label } from '@/components/ui/label'
 
 interface SoldLeasedPageClientProps {
   listings?: PaginatedDocs<Listing>
@@ -100,7 +95,6 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
 
 
   const searchParams = useSearchParams()
-  const { width } = useWindowDimensions()
   const [activeCardListings, setActiveCardListings] = useState<Listing[] | undefined>(listings?.docs)
 
   const [totalListings, setTotalListings] = useState<number | undefined>(listings?.totalDocs)
@@ -285,34 +279,39 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
 
                 `${totalListings} Listings`}
             </span>
-            <DropdownMenu open={isSortOpen} onOpenChange={setIsSortOpen}>
-              <DropdownMenuTrigger className="text-lg text-brand-gray-03 font-medium tracking-normal flex items-center gap-2 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
+            <Popover open={isSortOpen} onOpenChange={setIsSortOpen}>
+              <PopoverTrigger className="text-lg text-brand-gray-03 font-medium tracking-normal flex items-center gap-2 rounded-none focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2">
                 <FontAwesomeIcon icon={faArrowUpArrowDown} className="w-5 h-auto" />{' '}
                 {sortData ? sortData.label : 'Sort By'}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="rounded-none">
-                <DropdownMenuRadioGroup
-                  value={sortData?.value}
+              </PopoverTrigger>
+              <PopoverContent className="rounded-none p-2 w-fit" align='end'>
+                <RadioGroup value={sortData?.value}
                   onValueChange={(value) => {
                     fetchCardListings(filters, currentPage || 1, value).then((res) => updateSearchParams([res]))
                   }}
+                  className='gap-0 '
                 >
-                  {sortOptions.map((option, index) => {
+                  {sortOptions.map((option) => {
                     return (
-                      <DropdownMenuRadioItem
-                        key={index}
-                        className="hover:bg-brand-blue rounded-none text-base font-light"
-                        value={option.value}
-                      >
-                        {option.label}
-                      </DropdownMenuRadioItem>
+                      <Field key={option.value} orientation="horizontal" className='flex items-center gap-2 hover:bg-brand-blue/25 rounded-none p-2'>
+                        <RadioGroupItem
+
+                          className="rounded-full self-center"
+                          value={option.value}
+                          id={option.value}
+                        />
+                        <FieldContent>
+
+                          <Label htmlFor={option.value} className="text-base font-light">{option.label}</Label>
+                        </FieldContent>
+                      </Field>
                     )
                   })}
-                </DropdownMenuRadioGroup>
+                </RadioGroup>
                 {sortData && (
                   <Button
                     variant={'ghost'}
-                    className="flex items-center gap-2 w-full"
+                    className="flex items-center gap-2 w-full focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
                     onClick={() => {
                       fetchCardListings(filters, currentPage).then((res) => updateSearchParams([res]))
                       setIsSortOpen(false)
@@ -322,8 +321,8 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
                     Reset
                   </Button>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]  gap-x-4 gap-y-6 p-6 content-start ">
             {(isFirstRender || isCardsLoading) &&

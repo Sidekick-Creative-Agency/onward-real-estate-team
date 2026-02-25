@@ -4,7 +4,6 @@ import { cn } from '@/utilities/cn'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare } from '@awesome.me/kit-a7a0dd333d/icons/sharp/light'
 import { useDebounce } from '@/utilities/useDebounce'
-import { generateId } from '@/utilities/generateId'
 import { useEffect, useId, useRef, useState } from 'react'
 import useWindowDimensions from '@/utilities/useWindowDimensions'
 
@@ -13,7 +12,7 @@ interface CopyButtonProps extends ButtonProps {
   src?: string
 }
 
-export function CopyButton({ value, className, src, ...props }: CopyButtonProps) {
+export function CopyButton({ value, className, ...props }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = useState(false)
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const [toolTipPosition, setTooltipPosition] = useState('center')

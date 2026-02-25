@@ -106,21 +106,23 @@ export default async function Page({ searchParams: searchParamsPromise }: { sear
   })
   return (
     <Suspense fallback={LoadingState()}>
-      <div className=' border-b border-brand-gray-01 bg-brand-navy'>
-        <div className="container py-16 md:py-16 flex flex-col gap-16 md:gap-20">
-          <div
-            className={`flex flex-col -4 md:gap-4 md:items-center`}
-          >
-            <h2
-              className={`text-[2.5rem] font-bold text-white flex-1 text-center`}
+      <main id="main">
+        <div className=' border-b border-brand-gray-01 bg-brand-navy'>
+          <div className="container py-16 md:py-16 flex flex-col gap-16 md:gap-20">
+            <div
+              className={`flex flex-col -4 md:gap-4 md:items-center`}
             >
-              Sold and Leased Listings
-            </h2>
+              <h2
+                className={`text-[2.5rem] font-bold text-white flex-1 text-center`}
+              >
+                Sold and Leased Listings
+              </h2>
 
+            </div>
           </div>
         </div>
-      </div>
-      <PageClient listings={listingsResponse} />
+        <PageClient listings={listingsResponse} />
+      </main>
     </Suspense>
   )
 }

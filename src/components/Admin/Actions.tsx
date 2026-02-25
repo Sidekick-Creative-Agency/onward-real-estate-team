@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { ClientComponentProps } from 'payload'
 import { useState } from 'react'
 
-export const Actions: React.FC<ClientComponentProps> = (props) => {
+export const Actions: React.FC<ClientComponentProps> = () => {
   const [isRevalidating, setIsRevalidating] = useState(false);
   const handleRevalidateSite = async () => {
     setIsRevalidating(true)

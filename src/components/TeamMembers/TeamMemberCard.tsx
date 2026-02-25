@@ -1,32 +1,11 @@
-import { TeamMember, Media as MediaType } from '@/payload-types'
+import { TeamMember } from '@/payload-types'
 import React from 'react'
 import { Media } from '../Media'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faArrowUpRightFromSquare,
-  faEnvelope,
-  faPhone,
-} from '@awesome.me/kit-a7a0dd333d/icons/sharp-duotone/thin'
 import { Button } from '../ui/button'
 import Link from 'next/link'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog'
 import { faPlus } from '@awesome.me/kit-a7a0dd333d/icons/sharp/regular'
-import RichText from '../RichText'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import {
-  faFacebookF,
-  faInstagram,
-  faLinkedin,
-  faXTwitter,
-  faYoutube,
-} from '@awesome.me/kit-a7a0dd333d/icons/classic/brands'
+
 
 interface TeamMemberCardProps {
   teamMember: TeamMember

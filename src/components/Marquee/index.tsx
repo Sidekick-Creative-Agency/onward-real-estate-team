@@ -1,5 +1,4 @@
 'use client'
-import { Media } from '@/payload-types'
 import { useEffect, useRef, useState } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 
