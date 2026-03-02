@@ -170,6 +170,10 @@
       "schedule": "0 4 * * *"
     },
     {
+      "path": "/api/cron/reconcile-rets-listings?limit=250&offset=0",
+      "schedule": "10 4 * * *"
+    },
+    {
       "path": "/api/payload-jobs/run",
       "schedule": "0 * * * *"
     }
