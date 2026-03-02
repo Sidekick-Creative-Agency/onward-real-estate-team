@@ -27,7 +27,7 @@ export const checkForMatchingListingSlug: CollectionBeforeChangeHook<Listing> = 
                 like: `${baseSlug}%`,
               },
             },
-            limit: 1000,
+            limit: 10,
             depth: 0,
           }),
           new Promise<null>((resolve) => {
@@ -40,6 +40,7 @@ export const checkForMatchingListingSlug: CollectionBeforeChangeHook<Listing> = 
     }
 
     const existingListings = await findWithTimeout()
+
     if (existingListings === null) {
       payload.logger.warn(`Timeout while checking slug: ${baseSlug}`)
       return data

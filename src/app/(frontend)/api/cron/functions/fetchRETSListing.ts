@@ -29,7 +29,6 @@ export const fetchRETSListing = async (listingKeyNumeric: number | undefined | n
           const parser = new XMLParser()
           const parsedObj = parser.parse(text) as RETSSearchResponse
           if (!parsedObj.RETS.COLUMNS) {
-            console.log('ERROR: Columns not found')
             return
           }
 
@@ -108,7 +107,6 @@ export const fetchRETSListing = async (listingKeyNumeric: number | undefined | n
         }),
       )
     if (!listings || listings.length === 0) {
-      console.log('No listings found for ListingKeyNumeric:', listingKeyNumeric)
       return
     }
     return listings[0]
