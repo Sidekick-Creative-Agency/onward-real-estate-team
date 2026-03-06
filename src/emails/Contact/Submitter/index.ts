@@ -143,7 +143,7 @@ export const generateContactFormSubmitterEmail = (fields: Record<any, any>) => {
             </table>
             <p
               style="font-size:12px;line-height:24px;margin:16px 0 0;text-align:center;color:rgb(0,0,0, 0.7)">
-              © 2025 | Onward Real Estate Team
+              © ${new Date().getFullYear()} | Onward Real Estate Team
             </p>
             <p
               style="font-size:12px;line-height:24px;margin:0;text-align:center;color:rgb(0,0,0, 0.7)">
