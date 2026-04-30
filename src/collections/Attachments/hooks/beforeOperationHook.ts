@@ -1,12 +1,13 @@
 import { getMeUser } from '@/utilities/getMeUser'
 import { CollectionBeforeOperationHook } from 'payload'
 
-export const beforeOperationHook: CollectionBeforeOperationHook = async ({ args, req }) => {
-  const isStaticGeneration =
-    process.env.NEXT_PHASE === 'phase-production-build' ||
-    process.env.NEXT_PHASE === 'phase-export' ||
-    process.env.NEXT_EXPORT === 'true'
-  if (isStaticGeneration) {
+export const beforeOperationHook: CollectionBeforeOperationHook = async ({
+  req,
+  operation,
+}) => {
+  // Read operations are public — no need to resolve user, and doing so would
+  // call cookies() which breaks ISR revalidation (no request context available).
+  if (operation === 'find' || operation === 'findByID' || operation === 'count') {
     return
   }
 
@@ -17,7 +18,6 @@ export const beforeOperationHook: CollectionBeforeOperationHook = async ({ args,
       collection: 'users',
     }
   } catch (error) {
-    // Silently fail during static generation
     console.log('Error getting me user in beforeOperationHook:', error)
   }
 }
