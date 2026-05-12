@@ -583,6 +583,7 @@ export interface TeamMember {
       | null;
     isLeadership?: boolean | null;
     isRealtor?: boolean | null;
+    speaksSpanish?: boolean | null;
     company?: ('onward' | 'alliance') | null;
     emailSignatureHeadshot?: (number | null) | Media;
     iabsForm?: (number | null) | Attachment;
@@ -2566,6 +2567,7 @@ export interface TeamMembersSelect<T extends boolean = true> {
             };
         isLeadership?: T;
         isRealtor?: T;
+        speaksSpanish?: T;
         company?: T;
         emailSignatureHeadshot?: T;
         iabsForm?: T;

@@ -950,6 +950,40 @@ export const TeamMemberSignature: React.FC<{ teamMember: TeamMember }> = ({ team
                                                                             </table>
                                                                         </td>
                                                                     </tr>
+                                                                    {teamMember.details.speaksSpanish && (
+                                                                        <tr style={{
+                                                                            margin: 0,
+                                                                            padding: 0,
+                                                                            border: "0px solid transparent",
+                                                                            lineHeight: 1
+                                                                        }}>
+                                                                            <td style={{
+                                                                                margin: 0,
+                                                                                padding: 0,
+                                                                                border: "0px solid transparent",
+                                                                                lineHeight: 1
+                                                                            }}>
+                                                                                <div style={{
+                                                                                    marginTop: "8px"
+                                                                                }}>
+
+
+                                                                                    <span style={{
+                                                                                        display: "inline",
+                                                                                        lineHeight: 1,
+                                                                                        color: "#0b2a35",
+                                                                                        fontFamily:
+                                                                                            "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                                                                                        fontSize: "14px",
+                                                                                    }}>
+                                                                                        <em>
+                                                                                            Se habla Español
+                                                                                        </em>
+                                                                                    </span>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
                                                                 </tbody>
                                                             </table>
                                                         </td>

@@ -190,6 +190,11 @@ export const TeamMembers: CollectionConfig = {
               defaultValue: true,
             },
             {
+              name: 'speaksSpanish',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
               name: 'company',
               type: 'select',
               defaultValue: 'onward',
