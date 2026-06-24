@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { index } from 'drizzle-orm/pg-core'
 
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
@@ -176,6 +177,31 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    afterSchemaInit: [
+      ({ schema, extendTable }) => {
+        // The Listings collection enables drafts + aggressive autosave, so the
+        // `_listings_v` versions table grows very large (hundreds of thousands of
+        // rows from the MLS sync). Loading a doc in the admin runs:
+        //   WHERE parent_id = ? ORDER BY created_at DESC LIMIT 1
+        // With only separate single-column indexes on parent_id and created_at,
+        // Postgres walks the created_at index backwards and filters by parent_id,
+        // which is catastrophic for older listings (it scans hundreds of thousands
+        // of newer rows first → 90s+ → Vercel 60s timeout). This composite index
+        // lets one index satisfy both the filter and the ordering. See migration
+        // 20260624_000000.
+        extendTable({
+          table: schema.tables._listings_v,
+          extraConfig: (table) => ({
+            parentCreatedAtIdx: index('_listings_v_parent_created_at_idx').on(
+              table.parent,
+              table.createdAt,
+            ),
+          }),
+        })
+
+        return schema
+      },
+    ],
   }),
   collections: [
     Pages,
