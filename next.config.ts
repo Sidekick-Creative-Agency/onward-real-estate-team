@@ -8,6 +8,13 @@ const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://loc
 const nextConfig = {
   images: {
     dangerouslyAllowLocalIP: true,
+    localPatterns: [
+      // Preserve the pre-Next-16 default: allow all local images without a query string.
+      { pathname: '**', search: '' },
+      // Payload S3 storage appends ?prefix=<collection> to served upload URLs.
+      { pathname: '/api/media/file/**', search: '?prefix=media' },
+      { pathname: '/api/attachments/file/**', search: '?prefix=attachments' },
+    ],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL, 'https://ntrdd.mlsmatrix.com'].map((item) => {
         const url = new URL(item)

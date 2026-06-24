@@ -360,6 +360,7 @@ export const Listings: CollectionConfig = {
                   name: 'attachment',
                   type: 'upload',
                   relationTo: 'attachments',
+                  required: true
                 },
               ],
             },
