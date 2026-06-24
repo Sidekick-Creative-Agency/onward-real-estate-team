@@ -413,7 +413,7 @@ export interface Listing {
   coordinates: [number, number];
   attachments?:
     | {
-        attachment?: (number | null) | Attachment;
+        attachment: number | Attachment;
         id?: string | null;
       }[]
     | null;

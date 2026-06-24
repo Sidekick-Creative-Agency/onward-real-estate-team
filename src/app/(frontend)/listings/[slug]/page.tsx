@@ -393,35 +393,31 @@ export default async function Listing({ params: paramsPromise }: Args) {
 											</AccordionTrigger>
 											<AccordionContent className="pb-10">
 												<div className="flex gap-10 flex-wrap">
-													{listing.attachments &&
-														listing.attachments.length > 0 &&
-														listing.attachments.map((attachment, index) => {
-															if (typeof attachment.attachment === "object") {
-																return (
-																	<a
-																		key={attachment.id}
-																		className="flex items-center gap-2"
-																		href={
-																			(attachment.attachment as Attachment).url ||
-																			""
-																		}
-																		target="_blank"
-																	>
-																		<FontAwesomeIcon
-																			icon={faFilePdf}
-																			className="w-6 h-auto text-brand-navy"
-																		/>
-																		<span className="text-base font-bold text-brand-gray-04">
-																			{
-																				(attachment.attachment as Attachment)
-																					.title
-																			}
-																		</span>
-																	</a>
-																);
-															}
-															return "";
-														})}
+													{listing.attachments.map((attachment) => {
+														if (!attachment.attachment || (typeof attachment.attachment !== "object") || !("url" in attachment.attachment)) return null;
+														return (
+															<a
+																key={attachment.id}
+																className="flex items-center gap-2"
+																href={
+																	(attachment.attachment as Attachment)?.url ||
+																	""
+																}
+																target="_blank"
+															>
+																<FontAwesomeIcon
+																	icon={faFilePdf}
+																	className="w-6 h-auto text-brand-navy"
+																/>
+																<span className="text-base font-bold text-brand-gray-04">
+																	{
+																		(attachment.attachment as Attachment)?.title
+																	}
+																</span>
+															</a>
+
+														)
+													})}
 												</div>
 											</AccordionContent>
 										</AccordionItem>
