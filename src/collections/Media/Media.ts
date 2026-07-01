@@ -3,6 +3,7 @@ import { anyone } from '../../access/anyone'
 import { authenticated } from '../../access/authenticated'
 import { generateBlurHash } from './hooks/generateBlurHash'
 
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
@@ -42,31 +43,54 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     adminThumbnail: 'thumbnail',
+    // NOTE: `formatOptions` is intentionally NOT set at the upload level.
+    // With `clientUploads: true` the browser PUTs the original file straight to
+    // S3, so the server can't convert the main file to webp — doing so would
+    // record a `.webp` main filename that never gets uploaded (404s). Instead we
+    // convert each generated size to webp individually below.
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
+        formatOptions: {
+          format: 'webp',
+          options: {
+            compression: 'webp',
+          },
+        },
       },
       {
         name: 'square',
         width: 500,
         height: 500,
+        formatOptions: {
+          format: 'webp',
+          options: {
+            compression: 'webp',
+          },
+        },
       },
       {
         name: 'medium',
         width: 900,
+        formatOptions: {
+          format: 'webp',
+          options: {
+            compression: 'webp',
+          },
+        },
       },
       {
         name: 'xlarge',
         width: 1920,
+        formatOptions: {
+          format: 'webp',
+          options: {
+            compression: 'webp',
+          },
+        },
       },
     ],
-    formatOptions: {
-      format: 'webp',
-      options: {
-        compression: 'webp',
-      },
-    },
     mimeTypes: [
       'image/jpg',
       'image/jpeg',
