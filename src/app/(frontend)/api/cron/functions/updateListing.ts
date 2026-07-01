@@ -42,7 +42,6 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
         }
       }
     }
-
     const updatedListing = await payload
       .update({
         collection: 'listings',
@@ -76,13 +75,13 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
           description: formattedDescription,
           ...(retsListing.PropertyType === 'RLSE'
             ? {
-                textAfterPrice: '/MO',
-              }
+              textAfterPrice: '/MO',
+            }
             : {}),
           ...(matchingAgent
             ? {
-                agents: [matchingAgent.id],
-              }
+              agents: [matchingAgent.id],
+            }
             : {}),
           meta: {
             title: `${formatAddress(retsListing)} | Residential Properties | Onward Real Estate Team`,
@@ -103,7 +102,7 @@ export const updateListing = async (listing: Listing, retsListing: RETSListing) 
             PhotosCount: retsListing.PhotosCount,
             PropertySubType: retsListing.PropertySubType,
             FeaturedImageUrl: urls[0] || undefined,
-            ImageGalleryUrls: urls.slice(2).map((url) => ({ url: url })),
+            ImageGalleryUrls: urls.slice(1).map((url) => ({ url: url })),
           },
           _status: 'published',
         },

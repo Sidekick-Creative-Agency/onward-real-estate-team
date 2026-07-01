@@ -97,7 +97,7 @@ export const createListing = async (listing: RETSListing) => {
           PhotosCount: listing.PhotosCount,
           PropertySubType: listing.PropertySubType,
           FeaturedImageUrl: urls[0] || undefined,
-          ImageGalleryUrls: urls.slice(2).map((url) => ({ url: url })),
+          ImageGalleryUrls: urls.slice(1).map((url) => ({ url: url })),
           LastSeenAt: new Date().toISOString(),
         },
         _status: 'published',

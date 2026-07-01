@@ -7,7 +7,7 @@ export const beforeOperationHook: CollectionBeforeOperationHook = async ({
 }) => {
   // Read operations are public — no need to resolve user, and doing so would
   // call cookies() which breaks ISR revalidation (no request context available).
-  if (operation === 'find' || operation === 'findByID' || operation === 'count') {
+  if (operation === 'find' || operation === 'findByID' || operation === 'count' || operation === 'read' || operation === 'readDistinct' || operation === 'findDistinct') {
     return
   }
 

@@ -13,6 +13,22 @@ export const checkForMatchingListingSlug: CollectionBeforeChangeHook<Listing> = 
 
   try {
     const baseSlug = data.slug.trim()
+
+    // Fast path: on update, if this listing already owns a slug derived from the
+    // same base — either the base itself or a previously deduped "base-N" — the slug
+    // isn't really changing, so there's no possible new collision. Keep the existing
+    // slug and skip the expensive uniqueness lookup entirely. This is what spares the
+    // sync cron from running a full-table ILIKE scan (and timing out) on every update.
+    if (operation === 'update' && originalDoc?.slug) {
+      if (
+        originalDoc.slug === baseSlug ||
+        new RegExp(`^${baseSlug}-\\d+$`).test(originalDoc.slug)
+      ) {
+        data.slug = originalDoc.slug
+        return data
+      }
+    }
+
     payload.logger.info(`Checking for matching slug: ${baseSlug}`)
 
     const findWithTimeout = async () => {

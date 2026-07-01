@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
     const precheckedListings: {
       existingListing?: Listing
       retsListing: (typeof retsListings)[0]
+      needsUpdate: boolean
     }[] = []
     for (let i = 0; i < retsListings.length; i += precheckBatchSize) {
       const batchNum = Math.floor(i / precheckBatchSize)
@@ -59,60 +60,51 @@ export async function GET(request: NextRequest) {
         retsListings.slice(i, i + precheckBatchSize).map(async (retsListing) => {
           let existingListing = await findExistingListing(retsListing.ListingKeyNumeric)
           if (existingListing) {
+            console.log(
+              'LISTING ALREADY EXISTS, CHECKING FOR UPDATE: ' + existingListing.title,
+            )
+            // Determine whether the listing's content needs a full re-sync. This is
+            // based on ModificationTimestamp and is unaffected by the LastSeenAt write
+            // below (which never changes ModificationTimestamp).
+            const needsUpdate = checkNeedsUpdate(existingListing, retsListing)
             const startOfDay = new Date()
             startOfDay.setHours(0, 0, 0, 0)
             if (existingListing.MLS?.LastSeenAt !== startOfDay.toISOString()) {
-              const updatedListing = await payload.update({
-                collection: 'listings',
-                id: existingListing.id,
-                data: {
-                  MLS: {
-                    ...existingListing.MLS,
-                    LastSeenAt: startOfDay.toISOString(),
+              try {
+                // Reassign existingListing so the fresh LastSeenAt flows through
+                // updateListing()'s `...listing.MLS` spread and isn't reverted to the
+                // stale value when a full update runs in the main batch map below.
+                // overrideLock so a listing locked in the admin doesn't block the refresh.
+                existingListing = await payload.update({
+                  collection: 'listings',
+                  id: existingListing.id,
+                  overrideLock: true,
+                  data: {
+                    MLS: {
+                      ...existingListing.MLS,
+                      LastSeenAt: startOfDay.toISOString(),
+                    },
                   },
-                },
-              })
-              console.log(
-                'UPDATED LAST_SEEN_AT FOR LISTING: ' +
+                })
+                console.log(
+                  'UPDATED LAST_SEEN_AT FOR LISTING: ' +
                   existingListing.title +
                   ' TO: ' +
-                  updatedListing.MLS?.LastSeenAt,
-              )
+                  existingListing.MLS?.LastSeenAt,
+                )
+              } catch (error) {
+                // A single failed LastSeenAt write shouldn't abort the whole offset's run.
+                // Keep the original existingListing (stale LastSeenAt); it stays a reconcile
+                // candidate and gets refreshed on the next run.
+                console.error(
+                  'FAILED TO UPDATE LAST_SEEN_AT FOR LISTING: ' + existingListing.title,
+                  error,
+                )
+              }
             }
-            if (
-              existingListing.MLS &&
-              (existingListing.MLS.ListingId !== retsListing.ListingId ||
-                existingListing.MLS.ListAgentFullName !== retsListing.ListAgentFullName ||
-                existingListing.MLS.ListAgentKeyNumeric !== retsListing.ListAgentKeyNumeric ||
-                existingListing.MLS.ListOfficeName !== retsListing.ListOfficeName ||
-                existingListing.MLS.ListOfficeKeyNumeric !== retsListing.ListOfficeKeyNumeric ||
-                existingListing.MLS.ModificationTimestamp !== retsListing.ModificationTimestamp)
-            ) {
-              existingListing = await payload.update({
-                collection: 'listings',
-                id: existingListing.id,
-                data: {
-                  MLS: {
-                    ...retsListing,
-                    ListingId: retsListing.ListingId,
-                    ListAgentFullName: retsListing.ListAgentFullName,
-                    ListAgentKeyNumeric: retsListing.ListAgentKeyNumeric,
-                    ListOfficeName: retsListing.ListOfficeName,
-                    ListOfficeKeyNumeric: retsListing.ListOfficeKeyNumeric,
-                    ModificationTimestamp: retsListing.ModificationTimestamp,
-                  },
-                },
-              })
-              console.log(
-                'UPDATED INCOMPLETE MLS DATA FOR LISTING: ' +
-                  existingListing.title +
-                  ' WITH MLS ID: ' +
-                  existingListing.MLS?.ListingId,
-              )
-            }
-            return { existingListing: existingListing, retsListing: retsListing }
+            return { existingListing: existingListing, retsListing: retsListing, needsUpdate }
           } else {
-            return { existingListing: undefined, retsListing: retsListing }
+            return { existingListing: undefined, retsListing: retsListing, needsUpdate: true }
           }
         }),
       )
@@ -121,10 +113,7 @@ export async function GET(request: NextRequest) {
 
     const batchedListings = precheckedListings.filter((batchedListing) => {
       if (batchedListing.existingListing) {
-        console.log(
-          'LISTING ALREADY EXISTS, CHECKING FOR UPDATE: ' + batchedListing.existingListing.title,
-        )
-        return checkNeedsUpdate(batchedListing.existingListing, batchedListing.retsListing)
+        return batchedListing.needsUpdate
       }
       return true
     })
@@ -163,11 +152,11 @@ export async function GET(request: NextRequest) {
                 if (batchedListing.existingListing) {
                   console.log(
                     'UPDATING LISTING (' +
-                      (i + index + 1) +
-                      '/' +
-                      batchedListings.length +
-                      '): ' +
-                      batchedListing.existingListing.title,
+                    (i + index + 1) +
+                    '/' +
+                    batchedListings.length +
+                    '): ' +
+                    batchedListing.existingListing.title,
                   )
                   const updatedListing = await processWithTimeout(
                     updateListing(batchedListing.existingListing, batchedListing.retsListing),
@@ -176,21 +165,21 @@ export async function GET(request: NextRequest) {
                   )
                   console.log(
                     'FINISHED UPDATE (' +
-                      (i + index + 1) +
-                      '/' +
-                      batchedListings.length +
-                      '): ' +
-                      batchedListing.existingListing.title,
+                    (i + index + 1) +
+                    '/' +
+                    batchedListings.length +
+                    '): ' +
+                    batchedListing.existingListing.title,
                   )
                   resolve(updatedListing)
                 } else {
                   console.log(
                     'CREATING LISTING (' +
-                      (i + index + 1) +
-                      '/' +
-                      batchedListings.length +
-                      '): ' +
-                      batchedListing.retsListing.ListingKeyNumeric,
+                    (i + index + 1) +
+                    '/' +
+                    batchedListings.length +
+                    '): ' +
+                    batchedListing.retsListing.ListingKeyNumeric,
                   )
                   const createdListing = await processWithTimeout(
                     createListing(batchedListing.retsListing),
@@ -199,11 +188,11 @@ export async function GET(request: NextRequest) {
                   )
                   console.log(
                     'FINISHED CREATE (' +
-                      (i + index + 1) +
-                      '/' +
-                      batchedListings.length +
-                      '): ' +
-                      batchedListing.retsListing.ListingKeyNumeric,
+                    (i + index + 1) +
+                    '/' +
+                    batchedListings.length +
+                    '): ' +
+                    batchedListing.retsListing.ListingKeyNumeric,
                   )
                   resolve(createdListing)
                 }
