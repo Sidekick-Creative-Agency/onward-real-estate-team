@@ -181,7 +181,7 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'home';
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'home' | 'resources';
     enableOverrideTitle?: boolean | null;
     overrideTitle?: string | null;
     subtitle?: string | null;
@@ -238,6 +238,7 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    form?: (number | null) | Form;
   };
   layout: (
     | ArchiveBlock
@@ -608,190 +609,6 @@ export interface TeamMember {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock".
- */
-export interface ArchiveBlock {
-  heading?: string | null;
-  subtitle?: string | null;
-  headingAlign?: ('center' | 'left' | 'right') | null;
-  relationTo?: ('posts' | 'team-members' | 'listings') | null;
-  selectionType?: ('manual' | 'categories') | null;
-  manualSelection?: (number | Post)[] | null;
-  enableCategoryBanner?: boolean | null;
-  categories?: (number | Category)[] | null;
-  propertyTypes?: (number | PropertyType)[] | null;
-  limit?: number | null;
-  enablePropertyCategoryFilters?: boolean | null;
-  defaultCategoryFilter?: ('commercial' | 'residential') | null;
-  layout?: ('grid' | 'carousel') | null;
-  buttonColor?: string | null;
-  enablePostCategoryFilter?: boolean | null;
-  enableExcerpt?: boolean | null;
-  enableDate?: boolean | null;
-  /**
-   * Adds padding on the sides of the Post Card text
-   */
-  enableGutter?: boolean | null;
-  /**
-   * The HTML ID attribute of this block.
-   */
-  elementId?: string | null;
-  /**
-   * Omit the opening and closing <style> tags
-   */
-  customCss?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'archiveBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  featuredImage?: (number | null) | Media;
-  excerpt?: string | null;
-  category?: (number | null) | Category;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
- */
-export interface FormBlock {
-  form: number | Form;
-  enableIntro?: boolean | null;
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  styles?: {
-    global?: {
-      width?: ('full' | 'boxed' | 'narrow') | null;
-      theme?: ('default' | 'thin') | null;
-    };
-    resp?: {
-      padHorDeskVal?: number | null;
-      padHorDeskUnit?: ('rem' | 'px' | '%') | null;
-      padVertDeskVal?: number | null;
-      padVertDeskUnit?: ('rem' | 'px' | '%') | null;
-      padHorTabVal?: number | null;
-      padHorTabUnit?: ('rem' | 'px' | '%') | null;
-      padVertTabVal?: number | null;
-      padVertTabUnit?: ('rem' | 'px' | '%') | null;
-      padHorMbVal?: number | null;
-      padHorMbUnit?: ('rem' | 'px' | '%') | null;
-      padVertMbVal?: number | null;
-      padVertMbUnit?: ('rem' | 'px' | '%') | null;
-    };
-  };
-  /**
-   * The HTML ID attribute of this block.
-   */
-  elementId?: string | null;
-  /**
-   * Omit the opening and closing <style> tags
-   */
-  customCss?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'formBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
 export interface Form {
@@ -1008,6 +825,190 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock".
+ */
+export interface ArchiveBlock {
+  heading?: string | null;
+  subtitle?: string | null;
+  headingAlign?: ('center' | 'left' | 'right') | null;
+  relationTo?: ('posts' | 'team-members' | 'listings') | null;
+  selectionType?: ('manual' | 'categories') | null;
+  manualSelection?: (number | Post)[] | null;
+  enableCategoryBanner?: boolean | null;
+  categories?: (number | Category)[] | null;
+  propertyTypes?: (number | PropertyType)[] | null;
+  limit?: number | null;
+  enablePropertyCategoryFilters?: boolean | null;
+  defaultCategoryFilter?: ('commercial' | 'residential') | null;
+  layout?: ('grid' | 'carousel') | null;
+  buttonColor?: string | null;
+  enablePostCategoryFilter?: boolean | null;
+  enableExcerpt?: boolean | null;
+  enableDate?: boolean | null;
+  /**
+   * Adds padding on the sides of the Post Card text
+   */
+  enableGutter?: boolean | null;
+  /**
+   * The HTML ID attribute of this block.
+   */
+  elementId?: string | null;
+  /**
+   * Omit the opening and closing <style> tags
+   */
+  customCss?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archiveBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  featuredImage?: (number | null) | Media;
+  excerpt?: string | null;
+  category?: (number | null) | Category;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  form: number | Form;
+  enableIntro?: boolean | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  styles?: {
+    global?: {
+      width?: ('full' | 'boxed' | 'narrow') | null;
+      theme?: ('default' | 'thin') | null;
+    };
+    resp?: {
+      padHorDeskVal?: number | null;
+      padHorDeskUnit?: ('rem' | 'px' | '%') | null;
+      padVertDeskVal?: number | null;
+      padVertDeskUnit?: ('rem' | 'px' | '%') | null;
+      padHorTabVal?: number | null;
+      padHorTabUnit?: ('rem' | 'px' | '%') | null;
+      padVertTabVal?: number | null;
+      padVertTabUnit?: ('rem' | 'px' | '%') | null;
+      padHorMbVal?: number | null;
+      padHorMbUnit?: ('rem' | 'px' | '%') | null;
+      padVertMbVal?: number | null;
+      padVertMbUnit?: ('rem' | 'px' | '%') | null;
+    };
+  };
+  /**
+   * The HTML ID attribute of this block.
+   */
+  elementId?: string | null;
+  /**
+   * Omit the opening and closing <style> tags
+   */
+  customCss?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1849,6 +1850,7 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+        form?: T;
       };
   layout?:
     | T

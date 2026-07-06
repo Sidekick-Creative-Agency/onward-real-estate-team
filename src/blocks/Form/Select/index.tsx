@@ -41,10 +41,10 @@ export const Select: React.FC<
               <SelectTrigger className={`w-full rounded-none text-sm ${fieldClassName}`} id={name}>
                 <SelectValue placeholder={label} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-none text-sm bg-white text-brand-navy font-light">
                 {options.map(({ label, value }) => {
                   return (
-                    <SelectItem key={value} value={value}>
+                    <SelectItem key={value} value={value} className="rounded-none">
                       {label}
                     </SelectItem>
                   )
