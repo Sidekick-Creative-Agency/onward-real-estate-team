@@ -396,7 +396,7 @@ export interface Listing {
    */
   priceLabel?: string | null;
   propertyType?: (number | PropertyType)[] | null;
-  transactionType?: ('for-sale' | 'for-lease') | null;
+  transactionType?: ('for-sale' | 'for-lease' | 'both') | null;
   availability?: ('available' | 'unavailable' | 'sold' | 'active' | 'pending') | null;
   /**
    * Square footage of the property

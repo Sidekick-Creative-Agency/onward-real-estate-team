@@ -16,7 +16,7 @@ export interface MapFilters {
   maxSize?: string | null | undefined
   sizeType?: string | null | undefined
   availability?: string | null | undefined
-  transactionType?: 'for-sale' | 'for-lease' | null | undefined
+  transactionType?: 'for-sale' | 'for-lease' | 'both' | null | undefined
 }
 
 export const getCardListings = async (data: {
@@ -49,34 +49,34 @@ export const getCardListings = async (data: {
         {
           ...(filters?.search
             ? {
-                or: [
-                  {
-                    title: {
-                      like: filters.search,
-                    },
+              or: [
+                {
+                  title: {
+                    like: filters.search,
                   },
-                  {
-                    streetAddress: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  streetAddress: {
+                    like: filters.search,
                   },
-                  {
-                    city: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  city: {
+                    like: filters.search,
                   },
-                  {
-                    state: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  state: {
+                    like: filters.search,
                   },
-                  {
-                    zipCode: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  zipCode: {
+                    like: filters.search,
                   },
-                ],
-              }
+                },
+              ],
+            }
             : {}),
         },
 
@@ -109,46 +109,46 @@ export const getCardListings = async (data: {
         {
           ...(filters?.sizeType && filters.sizeType === 'sqft'
             ? {
+              and: [
+                {
+                  area: {
+                    greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
+                  },
+                },
+                {
+                  area: {
+                    less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
+                  },
+                },
+              ],
+            }
+            : filters?.sizeType && filters.sizeType === 'acres'
+              ? {
                 and: [
                   {
-                    area: {
+                    acreage: {
                       greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
                     },
                   },
                   {
-                    area: {
+                    acreage: {
                       less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
                     },
                   },
                 ],
               }
-            : filters?.sizeType && filters.sizeType === 'acres'
-              ? {
-                  and: [
-                    {
-                      acreage: {
-                        greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
-                      },
-                    },
-                    {
-                      acreage: {
-                        less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
-                      },
-                    },
-                  ],
-                }
               : {}),
         },
 
         // TRANSACTION TYPE
         {
           ...(filters?.transactionType &&
-          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
+            (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
             ? {
-                transactionType: {
-                  equals: filters.transactionType,
-                },
-              }
+              transactionType: {
+                in: [filters.transactionType, 'both'],
+              },
+            }
             : {}),
         },
 
@@ -156,10 +156,10 @@ export const getCardListings = async (data: {
         {
           ...(filters?.propertyType && filters.propertyType !== 'all'
             ? {
-                'propertyType.id': {
-                  equals: filters.propertyType,
-                },
-              }
+              'propertyType.id': {
+                equals: filters.propertyType,
+              },
+            }
             : {}),
         },
 
@@ -178,23 +178,23 @@ export const getCardListings = async (data: {
         {
           ...(filters?.category && filters.category !== 'all'
             ? {
-                category: {
-                  equals: filters.category,
-                },
-              }
+              category: {
+                equals: filters.category,
+              },
+            }
             : {}),
         },
         // BOUNDS
         {
           ...(bounds
             ? {
-                coordinates: {
-                  within: {
-                    type: 'Polygon',
-                    coordinates: [bounds],
-                  },
+              coordinates: {
+                within: {
+                  type: 'Polygon',
+                  coordinates: [bounds],
                 },
-              }
+              },
+            }
             : {}),
         },
       ],
@@ -204,15 +204,15 @@ export const getCardListings = async (data: {
       collection: 'listings',
       ...(MAP_PAGINATION_LIMIT
         ? {
-            limit: MAP_PAGINATION_LIMIT,
-          }
+          limit: MAP_PAGINATION_LIMIT,
+        }
         : {}),
       ...(page ? { page } : {}),
       where: whereQuery,
       ...(sort
         ? {
-            sort: sort.split(','),
-          }
+          sort: sort.split(','),
+        }
         : {}),
     })
 
@@ -249,34 +249,34 @@ export const getMapListings = async (data: {
         {
           ...(filters?.search
             ? {
-                or: [
-                  {
-                    title: {
-                      like: filters.search,
-                    },
+              or: [
+                {
+                  title: {
+                    like: filters.search,
                   },
-                  {
-                    streetAddress: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  streetAddress: {
+                    like: filters.search,
                   },
-                  {
-                    city: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  city: {
+                    like: filters.search,
                   },
-                  {
-                    state: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  state: {
+                    like: filters.search,
                   },
-                  {
-                    zipCode: {
-                      like: filters.search,
-                    },
+                },
+                {
+                  zipCode: {
+                    like: filters.search,
                   },
-                ],
-              }
+                },
+              ],
+            }
             : {}),
         },
 
@@ -309,46 +309,46 @@ export const getMapListings = async (data: {
         {
           ...(filters?.sizeType && filters.sizeType === 'sqft'
             ? {
+              and: [
+                {
+                  area: {
+                    greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
+                  },
+                },
+                {
+                  area: {
+                    less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
+                  },
+                },
+              ],
+            }
+            : filters?.sizeType && filters.sizeType === 'acres'
+              ? {
                 and: [
                   {
-                    area: {
+                    acreage: {
                       greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
                     },
                   },
                   {
-                    area: {
+                    acreage: {
                       less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
                     },
                   },
                 ],
               }
-            : filters?.sizeType && filters.sizeType === 'acres'
-              ? {
-                  and: [
-                    {
-                      acreage: {
-                        greater_than_equal: filters.minSize ? Number(filters.minSize) : 0,
-                      },
-                    },
-                    {
-                      acreage: {
-                        less_than_equal: filters.maxSize ? Number(filters.maxSize) : Infinity,
-                      },
-                    },
-                  ],
-                }
               : {}),
         },
 
         // TRANSACTION TYPE
         {
           ...(filters?.transactionType &&
-          (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
+            (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
             ? {
-                transactionType: {
-                  equals: filters.transactionType,
-                },
-              }
+              transactionType: {
+                in: [filters.transactionType, 'both'],
+              },
+            }
             : {}),
         },
 
@@ -356,10 +356,10 @@ export const getMapListings = async (data: {
         {
           ...(filters?.propertyType && filters.propertyType !== 'all'
             ? {
-                'propertyType.id': {
-                  equals: filters.propertyType,
-                },
-              }
+              'propertyType.id': {
+                equals: filters.propertyType,
+              },
+            }
             : {}),
         },
 
@@ -378,23 +378,23 @@ export const getMapListings = async (data: {
         {
           ...(filters?.category && filters.category !== 'all'
             ? {
-                category: {
-                  equals: filters.category,
-                },
-              }
+              category: {
+                equals: filters.category,
+              },
+            }
             : {}),
         },
         // BOUNDS
         {
           ...(bounds
             ? {
-                coordinates: {
-                  within: {
-                    type: 'Polygon',
-                    coordinates: [bounds],
-                  },
+              coordinates: {
+                within: {
+                  type: 'Polygon',
+                  coordinates: [bounds],
                 },
-              }
+              },
+            }
             : {}),
         },
       ],
@@ -407,17 +407,6 @@ export const getMapListings = async (data: {
       select: {
         coordinates: true,
         id: true,
-        // title: true,
-        // featuredImage: true,
-        // slug: true,
-        // streetAddress: true,
-        // price: true,
-        // textAfterPrice: true,
-        // transactionType: true,
-        // category: true,
-        // MLS: {
-        //   ListOfficeName: true,
-        // },
       },
     })
     return listings

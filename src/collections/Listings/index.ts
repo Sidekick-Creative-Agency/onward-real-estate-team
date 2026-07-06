@@ -269,6 +269,10 @@ export const Listings: CollectionConfig = {
                       label: 'For Lease',
                       value: 'for-lease',
                     },
+                    {
+                      label: 'Both',
+                      value: 'both',
+                    },
                   ],
                 },
                 {

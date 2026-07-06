@@ -69,7 +69,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       maxSize: data.maxSize,
       sizeType: data.sizeType,
       availability: data.availability,
-      transactionType: data.transactionType as 'for-sale' | 'for-lease' | null | undefined,
+      transactionType: data.transactionType as 'for-sale' | 'for-lease' | 'both' | null | undefined,
     }
     const sanitized = sanitizeFilterData(filterData)
     handleFilter(sanitized, 1, sort, { ignoreBounds: true })
