@@ -1,8 +1,10 @@
 import React from 'react'
-import type { Form, Page } from '@/payload-types'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+import type { Page } from '@/payload-types'
 import { ResourcesHeroClient } from './index.client';
 
-export const ResourcesHero: React.FC<Page['hero'] & { title: string } & { form: Form }> = async ({
+export const ResourcesHero: React.FC<Page['hero'] & { title: string }> = async ({
   media,
   enableOverrideTitle,
   overrideTitle,
@@ -10,6 +12,16 @@ export const ResourcesHero: React.FC<Page['hero'] & { title: string } & { form: 
   subtitle,
   form
 }) => {
+  const resolvedForm =
+    form && typeof form === 'object'
+      ? form
+      : typeof form === 'number'
+        ? await getPayload({ config: configPromise }).then((payload) =>
+            payload.findByID({ collection: 'forms', id: form }),
+          )
+        : null
+
+  if (!resolvedForm) return null
 
   return (
     <ResourcesHeroClient
@@ -18,7 +30,7 @@ export const ResourcesHero: React.FC<Page['hero'] & { title: string } & { form: 
       overrideTitle={overrideTitle}
       title={title}
       subtitle={subtitle}
-      form={form}
+      form={resolvedForm}
     />
   )
 }
