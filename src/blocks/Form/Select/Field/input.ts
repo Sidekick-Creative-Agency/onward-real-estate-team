@@ -1,8 +1,8 @@
 import { formatFormFieldName } from '@/utilities/validateFieldName'
 import { Block } from 'payload'
 
-export const TextField: Block = {
-  slug: 'text',
+export const SelectField: Block = {
+  slug: 'select',
   fields: [
     {
       type: 'row',

@@ -32,6 +32,10 @@ export const hero: Field = {
           label: 'Home',
           value: 'home',
         },
+        {
+          label: 'Resources',
+          value: 'resources',
+        },
       ],
       required: true,
     },
@@ -52,7 +56,7 @@ export const hero: Field = {
       type: 'textarea',
       admin: {
         condition: (_, { type } = {}) => {
-          if (type === 'mediumImpact') {
+          if (type === 'mediumImpact' || type === "resources") {
             return true
           }
           return false
@@ -89,7 +93,7 @@ export const hero: Field = {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'home'].includes(type),
+        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact', 'home', 'resources'].includes(type),
       },
       relationTo: 'media',
       required: false,
@@ -124,6 +128,14 @@ export const hero: Field = {
         condition: (_, { type } = {}) => type === 'home',
       },
     },
+    {
+      type: 'relationship',
+      name: 'form',
+      relationTo: 'forms',
+      admin: {
+        condition: (_, { type } = {}) => type === 'resources',
+      },
+    }
   ],
   label: false,
 }
