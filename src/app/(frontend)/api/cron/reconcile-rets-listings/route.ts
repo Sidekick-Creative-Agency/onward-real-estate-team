@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       where,
       depth: 0,
       pagination: false,
-      limit: 100
+      // limit: 100
     })
 
     const now = new Date().toISOString()
