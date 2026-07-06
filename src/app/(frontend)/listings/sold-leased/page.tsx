@@ -87,7 +87,7 @@ export default async function Page({ searchParams: searchParamsPromise }: { sear
         {
           ...(filters?.transactionType &&
             (filters.transactionType === 'for-sale' || filters.transactionType === 'for-lease')
-            ? { transactionType: { equals: filters.transactionType } }
+            ? { transactionType: { in: [filters.transactionType, 'both'] } }
             : {}),
         },
         {

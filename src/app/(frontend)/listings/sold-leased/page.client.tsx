@@ -59,7 +59,7 @@ interface Filters {
   maxSize?: string | null | undefined
   sizeType?: string | null | undefined
   availability?: string | null | undefined
-  transactionType?: 'for-sale' | 'for-lease' | null | undefined
+  transactionType?: 'for-sale' | 'for-lease' | 'both' | null | undefined
 }
 
 
@@ -238,6 +238,7 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
       transactionType: (searchParams.get('transactionType') || '') as
         | 'for-sale'
         | 'for-lease'
+        | 'both'
         | null
         | undefined,
     }

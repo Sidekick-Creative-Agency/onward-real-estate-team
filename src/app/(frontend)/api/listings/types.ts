@@ -8,6 +8,6 @@ export interface MapFilters {
   maxSize?: string | null | undefined
   sizeType?: string | null | undefined
   availability?: string | null | undefined
-  transactionType?: 'for-sale' | 'for-lease' | null | undefined
+  transactionType?: 'for-sale' | 'for-lease' | 'both' | null | undefined
   status?: string[] | null | undefined
 }

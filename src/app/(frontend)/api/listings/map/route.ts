@@ -45,14 +45,14 @@ export async function GET(req: NextRequest) {
         {
           ...(sanitized?.search
             ? {
-                or: [
-                  { title: { like: sanitized.search } },
-                  { streetAddress: { like: sanitized.search } },
-                  { city: { like: sanitized.search } },
-                  { state: { like: sanitized.search } },
-                  { zipCode: { like: sanitized.search } },
-                ],
-              }
+              or: [
+                { title: { like: sanitized.search } },
+                { streetAddress: { like: sanitized.search } },
+                { city: { like: sanitized.search } },
+                { state: { like: sanitized.search } },
+                { zipCode: { like: sanitized.search } },
+              ],
+            }
             : {}),
         },
         {
@@ -77,74 +77,74 @@ export async function GET(req: NextRequest) {
         {
           ...(sanitized?.sizeType && sanitized.sizeType === 'sqft'
             ? {
+              and: [
+                {
+                  area: {
+                    greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
+                  },
+                },
+                {
+                  area: {
+                    less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
+                  },
+                },
+              ],
+            }
+            : sanitized?.sizeType && sanitized.sizeType === 'acres'
+              ? {
                 and: [
                   {
-                    area: {
+                    acreage: {
                       greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
                     },
                   },
                   {
-                    area: {
+                    acreage: {
                       less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
                     },
                   },
                 ],
               }
-            : sanitized?.sizeType && sanitized.sizeType === 'acres'
-              ? {
-                  and: [
-                    {
-                      acreage: {
-                        greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
-                      },
-                    },
-                    {
-                      acreage: {
-                        less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
-                      },
-                    },
-                  ],
-                }
               : {}),
         },
         {
           ...(sanitized?.transactionType &&
-          (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
+            (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
             ? {
-                transactionType: {
-                  equals: sanitized.transactionType,
-                },
-              }
+              transactionType: {
+                in: [sanitized.transactionType, 'both'],
+              },
+            }
             : {}),
         },
         {
           ...(sanitized?.propertyType && sanitized.propertyType !== 'all'
             ? {
-                'propertyType.id': {
-                  equals: sanitized.propertyType,
-                },
-              }
+              'propertyType.id': {
+                equals: sanitized.propertyType,
+              },
+            }
             : {}),
         },
         {
           ...(sanitized?.category && sanitized.category !== 'all'
             ? {
-                category: {
-                  equals: sanitized.category,
-                },
-              }
+              category: {
+                equals: sanitized.category,
+              },
+            }
             : {}),
         },
         {
           ...(bounds
             ? {
-                coordinates: {
-                  within: {
-                    type: 'Polygon',
-                    coordinates: [bounds],
-                  },
+              coordinates: {
+                within: {
+                  type: 'Polygon',
+                  coordinates: [bounds],
                 },
-              }
+              },
+            }
             : {}),
         },
       ],
@@ -153,7 +153,6 @@ export async function GET(req: NextRequest) {
     const listings = await payload.find({
       collection: 'listings',
       pagination: false,
-      // limit: 10,
       where: whereQuery,
       select: {
         coordinates: true,

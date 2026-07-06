@@ -40,23 +40,23 @@ export async function GET(req: NextRequest) {
         {
           ...(sanitized?.status
             ? {
-                _status: { in: sanitized.status },
-              }
+              _status: { in: sanitized.status },
+            }
             : {
-                _status: { equals: 'published' },
-              }),
+              _status: { equals: 'published' },
+            }),
         },
         {
           ...(sanitized?.search
             ? {
-                or: [
-                  { title: { like: sanitized.search } },
-                  { streetAddress: { like: sanitized.search } },
-                  { city: { like: sanitized.search } },
-                  { state: { like: sanitized.search } },
-                  { zipCode: { like: sanitized.search } },
-                ],
-              }
+              or: [
+                { title: { like: sanitized.search } },
+                { streetAddress: { like: sanitized.search } },
+                { city: { like: sanitized.search } },
+                { state: { like: sanitized.search } },
+                { zipCode: { like: sanitized.search } },
+              ],
+            }
             : {}),
         },
         {
@@ -81,38 +81,38 @@ export async function GET(req: NextRequest) {
         {
           ...(sanitized?.sizeType && sanitized.sizeType === 'sqft'
             ? {
+              and: [
+                {
+                  area: { greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0 },
+                },
+                {
+                  area: {
+                    less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
+                  },
+                },
+              ],
+            }
+            : sanitized?.sizeType && sanitized.sizeType === 'acres'
+              ? {
                 and: [
                   {
-                    area: { greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0 },
+                    acreage: {
+                      greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
+                    },
                   },
                   {
-                    area: {
+                    acreage: {
                       less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
                     },
                   },
                 ],
               }
-            : sanitized?.sizeType && sanitized.sizeType === 'acres'
-              ? {
-                  and: [
-                    {
-                      acreage: {
-                        greater_than_equal: sanitized.minSize ? Number(sanitized.minSize) : 0,
-                      },
-                    },
-                    {
-                      acreage: {
-                        less_than_equal: sanitized.maxSize ? Number(sanitized.maxSize) : Infinity,
-                      },
-                    },
-                  ],
-                }
               : {}),
         },
         {
           ...(sanitized?.transactionType &&
-          (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
-            ? { transactionType: { equals: sanitized.transactionType } }
+            (sanitized.transactionType === 'for-sale' || sanitized.transactionType === 'for-lease')
+            ? { transactionType: { in: [sanitized.transactionType, 'both'] } }
             : {}),
         },
         {
@@ -129,19 +129,19 @@ export async function GET(req: NextRequest) {
           ...(sanitized?.availability
             ? { availability: { equals: sanitized.availability } }
             : {
-                availability: { in: ['available', 'active'] },
-              }),
+              availability: { in: ['available', 'active'] },
+            }),
         },
         {
           ...(bounds
             ? {
-                coordinates: {
-                  within: {
-                    type: 'Polygon',
-                    coordinates: [bounds],
-                  },
+              coordinates: {
+                within: {
+                  type: 'Polygon',
+                  coordinates: [bounds],
                 },
-              }
+              },
+            }
             : {}),
         },
       ],

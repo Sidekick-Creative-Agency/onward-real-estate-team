@@ -9,8 +9,8 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
 
   // Sanitize status - undefined or plain text
   if (data.status) {
-    const status = data.status.map((s) => s.toLowerCase()).filter((s) => ['draft','published'].includes(s))
-    sanitized.status = status .length > 0 ? status : undefined
+    const status = data.status.map((s) => s.toLowerCase()).filter((s) => ['draft', 'published'].includes(s))
+    sanitized.status = status.length > 0 ? status : undefined
   }
 
   // Sanitize search - undefined or plain text
@@ -26,12 +26,12 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
     }
   }
 
-  // Sanitize transactionType - undefined, 'for-sale', or 'for-lease'
+  // Sanitize transactionType - undefined, 'for-sale', 'for-lease', or 'both'
   if (data.transactionType) {
     const transactionType = data.transactionType.toLowerCase()
-    if (['all', 'for-sale', 'for-lease'].includes(transactionType)) {
+    if (['all', 'for-sale', 'for-lease', 'both'].includes(transactionType)) {
       sanitized.transactionType =
-        transactionType === 'all' ? undefined : (transactionType as 'for-sale' | 'for-lease')
+        transactionType === 'all' ? undefined : (transactionType as 'for-sale' | 'for-lease' | 'both')
     }
   }
 
@@ -82,7 +82,7 @@ export const sanitizeFilterData = (data: MapFilters | undefined) => {
   // Sanitize availability - undefined or string
   if (data.availability) {
     const availability = String(data.availability)
-    if (['available','unavailable', 'sold', 'active', 'pending'].includes(availability)) {
+    if (['available', 'unavailable', 'sold', 'active', 'pending'].includes(availability)) {
       sanitized.availability = availability
     }
   }

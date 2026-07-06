@@ -57,33 +57,11 @@ interface MapPageClientProps {
 interface MapListing {
   id: number
   coordinates: [number, number]
-  // title: string
-  // featuredImage: number | MediaType
-  // textAfterPrice?: string | null | undefined;
-  // transactionType?: ("for-sale" | "for-lease") | null | undefined;
-  // streetAddress: string;
   category?: ("commercial" | "residential") | null | undefined;
-  // price?: number | null | undefined;
   MLS?: {
     ListOfficeName?: string | null
   }
-  // slug?: string | null | undefined
 }
-
-
-
-// export interface MapFilters {
-//   search?: string | null | undefined
-//   category?: string | null | undefined
-//   propertyType?: string | null | undefined
-//   minPrice?: string | null | undefined
-//   maxPrice?: string | null | undefined
-//   minSize?: string | null | undefined
-//   maxSize?: string | null | undefined
-//   sizeType?: string | null | undefined
-//   availability?: string | null | undefined
-//   transactionType?: 'for-sale' | 'for-lease' | null | undefined
-// }
 
 export const FormSchema = z.object({
   search: z.string().optional(),
@@ -552,7 +530,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
               price?: number | null | undefined;
               priceLabel?: string | null | undefined;
               textAfterPrice?: string | null | undefined;
-              transactionType?: ("for-sale" | "for-lease") | null | undefined;
+              transactionType?: ("for-sale" | "for-lease" | "both") | null | undefined;
               streetAddress: string;
               slug?: string | null | undefined;
               MLS?: {
@@ -665,6 +643,7 @@ export const PageClient: React.FC<MapPageClientProps> = ({ listingsCount }) => {
       transactionType: (searchParams.get('transactionType') || '') as
         | 'for-sale'
         | 'for-lease'
+        | 'both'
         | null
         | undefined,
     }
