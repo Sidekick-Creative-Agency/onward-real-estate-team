@@ -544,14 +544,14 @@ export default async function Listing({ params: paramsPromise }: Args) {
 											if (!agent) return null;
 											return (
 												<div key={agent.id} className="">
-													<p className="text-lg">Listed by {agent.title}</p>
+													<Link href={`/about/team/${agent.slug}`} className="text-lg">Listed by {agent.title}</Link>
 
 													<p className="text-base text-brand-gray-04 font-light">
 														Brokered by {listing?.MLS?.ListOfficeName ? listing.MLS.ListOfficeName : "Onward Real Estate Team"}
 													</p>
-													<p className="text-base text-brand-gray-04 font-light">
+													{/* <p className="text-base text-brand-gray-04 font-light">
 														Last updated: {new Date(listing?.MLS?.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
-													</p>
+													</p> */}
 													{listing?.MLS?.ListingId && (
 														<>
 															<p className="text-base text-brand-gray-04 font-light">
@@ -578,9 +578,9 @@ export default async function Listing({ params: paramsPromise }: Args) {
 														Brokered by {listing.MLS.ListOfficeName}
 													</p>
 												)}
-												<p className="text-base text-brand-gray-04 font-light">
+												{/* <p className="text-base text-brand-gray-04 font-light">
 													Last updated: {new Date(listing.MLS.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
-												</p>
+												</p> */}
 												{listing.MLS.ListingId && (
 
 													<p className="text-base text-brand-gray-04 font-light">
