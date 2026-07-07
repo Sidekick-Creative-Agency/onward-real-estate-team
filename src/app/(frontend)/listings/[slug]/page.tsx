@@ -281,7 +281,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 										/>
 									</Button>
 								</DialogTrigger>
-								<DialogContent className="w-[80rem] max-w-[calc(100vw-2.5rem)] md:max-w-[calc(100vw-5rem)] max-h-[calc(100vh-2.5rem)] p-0 bg-transparent justify-stretch h-auto">
+								<DialogContent className="w-[72rem] max-w-[calc(100vw-2.5rem)] md:max-w-[calc(100vw-5rem)] max-h-screen p-0 bg-transparent justify-stretch">
 									<DialogTitle hidden>Image Gallery</DialogTitle>
 									{listing.imageGallery && listing.imageGallery.length !== 0 ? (
 										<ImageGallery
@@ -292,6 +292,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
 													| number
 												)[]),
 											]}
+											videos={listing.videos}
+											virtualTourUrl={listing.virtualTourUrl}
 										/>
 									) : (
 										<ImageGallery
@@ -301,6 +303,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
 													(item) => item.url,
 												) as string[]),
 											]}
+											videos={listing.videos}
+											virtualTourUrl={listing.virtualTourUrl}
 										/>
 									)}
 								</DialogContent>
@@ -377,8 +381,8 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									defaultValue={[
 										"Overview",
 										"Resources",
-										"Virtual Tour",
-										"Videos",
+										// "Virtual Tour",
+										// "Videos",
 									]}
 								>
 									{listing.attachments && listing.attachments.length > 0 && (
@@ -440,7 +444,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 											</AccordionContent>
 										</AccordionItem>
 									)}
-									{listing.videos && listing.videos.length > 0 && (
+									{/* {listing.videos && listing.videos.length > 0 && (
 										<AccordionItem value="Videos">
 											<AccordionTrigger
 												className="text-2xl font-bold text-brand-navy hover:no-underline py-10"
@@ -516,7 +520,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 												></iframe>
 											</AccordionContent>
 										</AccordionItem>
-									)}
+									)} */}
 								</Accordion>
 							</div>
 							<div className="col-span-1 h-fit sticky top-24">
