@@ -282,7 +282,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 									</Button>
 								</DialogTrigger>
 								<DialogContent className="w-[72rem] max-w-[calc(100vw-2.5rem)] md:max-w-[calc(100vw-5rem)] max-h-screen p-0 bg-transparent justify-stretch">
-									<DialogTitle hidden>Image Gallery</DialogTitle>
+									<DialogTitle hidden>Media Gallery</DialogTitle>
 									{listing.imageGallery && listing.imageGallery.length !== 0 ? (
 										<ImageGallery
 											imageGallery={[
