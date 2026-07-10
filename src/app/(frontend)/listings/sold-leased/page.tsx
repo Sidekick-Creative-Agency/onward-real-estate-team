@@ -100,6 +100,16 @@ export default async function Page({ searchParams: searchParamsPromise }: { sear
             ? { category: { equals: filters.category } }
             : {}),
         },
+        {
+          or: [
+            {
+              'imageGallery.image': { exists: true },
+            },
+            {
+              'MLS.ListOfficeName': { equals: process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME },
+            }
+          ]
+        }
       ],
     },
     ...(MAP_PAGINATION_LIMIT ? { limit: MAP_PAGINATION_LIMIT } : {}),

@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
     const page = searchParams.get('page')
     const sort = searchParams.get('sort')
     const bounds = searchParams.get('bounds') ? JSON.parse(searchParams.get('bounds')!) : undefined
+    const isSoldLeased = searchParams.get('isSoldLeased') === 'true'
 
     const whereQuery: Where = {
       and: [
@@ -144,6 +145,16 @@ export async function GET(req: NextRequest) {
             }
             : {}),
         },
+        ...(isSoldLeased ? [{
+          or: [
+            {
+              'imageGallery.image': { exists: true },
+            },
+            {
+              'MLS.ListOfficeName': { equals: process.env.NEXT_PUBLIC_RETS_LIST_OFFICE_NAME },
+            }
+          ]
+        }] : [])
       ],
     }
 
