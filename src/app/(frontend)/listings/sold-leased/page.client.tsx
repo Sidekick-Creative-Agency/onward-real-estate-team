@@ -173,6 +173,7 @@ export const PageClient: React.FC<SoldLeasedPageClientProps> = ({ listings }) =>
     if (page) {
       querySearchParams.set('page', String(page));
     }
+    querySearchParams.set('isSoldLeased', 'true')
     const response = await fetch('/api/listings/cards?' + querySearchParams.toString()).then((res) => res.json()) as {
       ok: boolean;
       listings: PaginatedDocs<Listing> | null;
