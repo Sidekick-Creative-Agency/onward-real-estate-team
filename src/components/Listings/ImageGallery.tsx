@@ -5,6 +5,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Media } from "../Media"
 import AutoHeight from "embla-carousel-auto-height"
 import Image from "next/image"
+import { getVideoEmbedUrl } from "@/utilities/getVideoEmbedUrl"
 
 interface ImageGalleryProps {
     imageGallery: (MediaType | number | string)[]
@@ -38,34 +39,34 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ imageGallery, videos
             {videos?.length &&
                 videos?.map((video) => {
                     // Helper to format video URLs for embedding
-                    const getEmbedUrl = (url: string) => {
-                        if (!url) return "";
-                        // YouTube
-                        const ytMatch = url.match(
-                            /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-                        );
-                        if (ytMatch) {
-                            return `https://www.youtube.com/embed/${ytMatch[1]}`;
-                        }
-                        // Vimeo
-                        const vimeoMatch = url.match(
-                            /vimeo\.com\/(?:video\/)?([a-zA-Z0-9]+)(?:\/([a-zA-Z0-9]+))?/,
-                        );
-                        if (vimeoMatch) {
-                            // If hash exists, append it
-                            return vimeoMatch[2]
-                                ? `https://player.vimeo.com/video/${vimeoMatch[1]}?h=${vimeoMatch[2]}`
-                                : `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-                        }
-                        // Default: use the URL as-is
-                        return url;
-                    };
+                    // const getEmbedUrl = (url: string) => {
+                    //     if (!url) return "";
+                    //     // YouTube
+                    //     const ytMatch = url.match(
+                    //         /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+                    //     );
+                    //     if (ytMatch) {
+                    //         return `https://www.youtube.com/embed/${ytMatch[1]}`;
+                    //     }
+                    //     // Vimeo
+                    //     const vimeoMatch = url.match(
+                    //         /vimeo\.com\/(?:video\/)?([a-zA-Z0-9]+)(?:\/([a-zA-Z0-9]+))?/,
+                    //     );
+                    //     if (vimeoMatch) {
+                    //         // If hash exists, append it
+                    //         return vimeoMatch[2]
+                    //             ? `https://player.vimeo.com/video/${vimeoMatch[1]}?h=${vimeoMatch[2]}`
+                    //             : `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                    //     }
+                    //     // Default: use the URL as-is
+                    //     return url;
+                    // };
                     return (
                         <CarouselItem key={video.id} className="pl-4 basis-full rounded-lg max-h-full">
                             <iframe
                                 width="100%"
                                 height="100%"
-                                src={getEmbedUrl(video.url)}
+                                src={getVideoEmbedUrl(video.url)}
                                 frameBorder="0"
                                 allowFullScreen
                                 allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
@@ -91,6 +92,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ imageGallery, videos
                 </CarouselItem>
             )}
             {imageGallery.length && imageGallery.map((image, index) => {
+                if (index === 0) return;
                 return (
                     <CarouselItem key={index} className=" pl-4 basis-full h-full rounded-lg max-h-full">
                         {typeof image !== 'string' ? <Media
