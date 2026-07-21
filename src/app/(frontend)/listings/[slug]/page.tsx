@@ -52,6 +52,7 @@ import { FormBlock } from "@/blocks/Form/Component";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageGallery } from "@/components/Listings/ImageGallery";
+import { getVideoEmbedUrl } from "@/utilities/getVideoEmbedUrl";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -207,14 +208,52 @@ export default async function Listing({ params: paramsPromise }: Args) {
 								/>
 							</div>
 						</div>
-						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4 relative h-fit">
+						<div className="grid grid-cols-2 md:grid-cols-3 md:grid-rows-2 gap-4 relative h-fit">
 							<Media
 								resource={listing.featuredImage}
 								className={`${(!listing.imageGallery || listing.imageGallery.length === 0) && (!listing.MLS?.ImageGalleryUrls || listing.MLS?.ImageGalleryUrls.length === 0) ? "col-span-full" : "col-span-2 sm:col-span-2"} row-span-1 sm:row-span-2 relative aspect-[3/2] `}
 								imgClassName="absolute top-0 left-0 w-full h-full object-cover"
 								priority
 							/>
-							{listing.imageGallery && listing.imageGallery.length > 1 && (
+							{listing.videos && listing.videos.length > 0 && (
+								<>
+									<iframe
+										width="100%"
+										height="100%"
+										src={getVideoEmbedUrl(listing.videos[0].url)}
+										frameBorder="0"
+										allowFullScreen
+										allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
+										className="col-span-1 w-full h-full aspect-[3/2] md:aspect-auto border-none"
+										title={listing.videos[0].title || ""}
+									></iframe>
+									{listing.videos.length > 1 && (
+										<iframe
+											width="100%"
+											height="100%"
+											src={getVideoEmbedUrl(listing.videos[1].url)}
+											frameBorder="0"
+											allowFullScreen
+											allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
+											className="col-span-1 w-full h-full aspect-[3/2] md:aspect-auto border-none"
+											title={listing.videos[1].title || ""}
+										></iframe>
+									)}
+								</>
+
+							)}
+							{listing.virtualTourUrl && (
+								<iframe
+									width="100%"
+									height="100%"
+									src={listing.virtualTourUrl}
+									frameBorder="0"
+									allowFullScreen
+									allow="autoplay; fullscreen; web-share; xr-spatial-tracking;"
+									className="w-full h-full aspect-[3/2] md:aspect-auto border-none"
+								></iframe>
+							)}
+							{!listing.videos?.length && !listing.virtualTourUrl && listing?.imageGallery?.length ? (
 								<>
 									<Media
 										resource={
@@ -235,31 +274,101 @@ export default async function Listing({ params: paramsPromise }: Args) {
 												| number
 												| undefined
 											}
-											className="col-span-1 row-span-1 relative aspect-[3/2] sm:aspect-auto"
+											className="col-span-1 row-span-1 relative aspect-[3/2] md:aspect-auto"
 											imgClassName="absolute top-0 left-0 w-full h-full object-cover"
 											priority
 										/>
 									)}
 								</>
-							)}
+							) :
+								((listing?.videos?.length && listing?.videos?.length < 2) || listing?.virtualTourUrl) && (listing?.imageGallery && listing?.imageGallery?.length > 0) ? (
+									<Media
+										resource={
+											listing?.imageGallery[0]?.image as
+											| MediaType
+											| number
+											| undefined
+										}
+										className={`col-span-1 aspect-[3/2] sm:aspect-auto ${listing.imageGallery.length > 1 ? "row-span-1" : "row-span-2"} relative`}
+										imgClassName="absolute top-0 left-0 w-full h-full object-cover"
+										priority
+									/>
+								)
+									: !listing?.videos?.length && listing?.imageGallery && listing?.imageGallery?.length > 0 ? (
+										<>
+											<p>hi</p>
+											<Media
+												resource={
+													listing?.imageGallery[0]?.image as
+													| MediaType
+													| number
+													| undefined
+												}
+												className={`col-span-1 aspect-[3/2] sm:aspect-auto ${listing.imageGallery.length > 1 ? "row-span-1" : "row-span-2"} relative`}
+												imgClassName="absolute top-0 left-0 w-full h-full object-cover"
+												priority
+											/>
+											{listing.imageGallery.length > 1 && (
+												<Media
+													resource={
+														listing.imageGallery[1].image as
+														| MediaType
+														| number
+														| undefined
+													}
+													className="col-span-1 row-span-1 relative aspect-[3/2] md:aspect-auto"
+													imgClassName="absolute top-0 left-0 w-full h-full object-cover"
+													priority
+												/>
+											)}
+										</>
+									) : null}
+							{/* {listing.imageGallery && listing.imageGallery.length > 1 && (
+								<>
+									{/* <Media
+										resource={
+											listing?.imageGallery[0]?.image as
+											| MediaType
+											| number
+											| undefined
+										}
+										className={`col-span-1 aspect-[3/2] sm:aspect-auto ${listing.imageGallery.length > 1 ? "row-span-1" : "row-span-2"} relative`}
+										imgClassName="absolute top-0 left-0 w-full h-full object-cover"
+										priority
+									/> */}
+							{/* {listing.imageGallery.length > 1 && ( 
+										<Media
+											resource={
+												listing.imageGallery[1].image as
+												| MediaType
+												| number
+												| undefined
+											}
+											className="col-span-1 row-span-1 relative aspect-[3/2] md:aspect-auto"
+											imgClassName="absolute top-0 left-0 w-full h-full object-cover"
+											priority
+										/>
+									)}
+								</>
+							)} */}
 							{(!listing.imageGallery || listing.imageGallery.length === 0) &&
 								listing.MLS?.ImageGalleryUrls &&
-								listing.MLS?.ImageGalleryUrls.length > 0 && (
+								listing.MLS?.ImageGalleryUrls.length > 1 && (
 									<>
 										<div
 											className={`col-span-1 aspect-[3/2] sm:aspect-auto ${listing.MLS.ImageGalleryUrls.length > 1 ? "row-span-1" : "row-span-2"} relative`}
 										>
 											<Image
-												src={listing.MLS?.ImageGalleryUrls[0].url || ""}
+												src={listing.MLS?.ImageGalleryUrls[1].url || ""}
 												alt=""
 												fill
 												className="object-cover"
 											/>
 										</div>
-										{listing.MLS.ImageGalleryUrls.length > 1 && (
+										{listing.MLS.ImageGalleryUrls.length > 2 && (
 											<div className="col-span-1 row-span-1 relative aspect-[3/2] sm:aspect-auto">
 												<Image
-													src={listing.MLS?.ImageGalleryUrls[1].url || ""}
+													src={listing.MLS?.ImageGalleryUrls[2].url || ""}
 													alt=""
 													fill
 													className="object-cover"
@@ -296,9 +405,9 @@ export default async function Listing({ params: paramsPromise }: Args) {
 											virtualTourUrl={listing.virtualTourUrl}
 										/>
 									) : (
+										//  MLS.ImageGallery[0] is always the same as MLS.featuredImageUrl, so we omit MLS.featuredImage here
 										<ImageGallery
 											imageGallery={[
-												listing.featuredImage,
 												...(listing.MLS?.ImageGalleryUrls?.map(
 													(item) => item.url,
 												) as string[]),
@@ -541,22 +650,30 @@ export default async function Listing({ params: paramsPromise }: Args) {
 
 								{((listing.agents && listing.agents.length > 0) || (listing.MLS?.ListAgentFullName)) && (
 									<div className="flex flex-col gap-4 mt-4 p-4 py-10 sm:p-10 bg-white">
-
+										<h2 className="text-2xl font-bold text-brand-navy">Listing Contacts</h2>
 
 										{listing.agents && listing.agents.length > 0 && listing.agents.map((_agent) => {
 											const agent = typeof _agent === 'object' ? _agent as TeamMember : null;
 											if (!agent) return null;
 											return (
 												<div key={agent.id} className="">
-													<Link href={`/about/team/${agent.slug}`} className="text-lg">Listed by {agent.title}</Link>
+													<Link href={`/about/team/${agent.slug}`} className="text-lg flex items-center gap-6">
+														<Media
+															className="w-20 h-auto aspect-square relative rounded-md overflow-hidden"
+															imgClassName="absolute inset-0 w-full h-full object-cover !object-[50%_20%]"
+															resource={agent.details.featuredImage}
+														/>
+														{agent.title}
 
-													<p className="text-base text-brand-gray-04 font-light">
+													</Link>
+
+													{/* <p className="text-base text-brand-gray-04 font-light">
 														Brokered by {listing?.MLS?.ListOfficeName ? listing.MLS.ListOfficeName : "Onward Real Estate Team"}
-													</p>
+													</p> */}
 													{/* <p className="text-base text-brand-gray-04 font-light">
 														Last updated: {new Date(listing?.MLS?.ModificationTimestamp ? listing.MLS.ModificationTimestamp : listing.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
 													</p> */}
-													{listing?.MLS?.ListingId && (
+													{/* {listing?.MLS?.ListingId && (
 														<>
 															<p className="text-base text-brand-gray-04 font-light">
 																MLS# {listing.MLS.ListingId}
@@ -565,7 +682,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 																Source: NTREIS
 															</p>
 														</>
-													)}
+													)} */}
 
 
 												</div>
@@ -575,7 +692,7 @@ export default async function Listing({ params: paramsPromise }: Args) {
 										{listing.MLS?.ListAgentFullName && (!listing.agents || listing.agents.length === 0) && (
 
 											<div className="">
-												<p className="text-lg">Listed by {listing.MLS.ListAgentFullName}</p>
+												<p className="text-lg">{listing.MLS.ListAgentFullName}</p>
 
 												{listing.MLS.ListOfficeName && (
 													<p className="text-base text-brand-gray-04 font-light">
